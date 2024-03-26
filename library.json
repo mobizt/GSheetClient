@@ -1,0 +1,16 @@
+{
+  "name": "GSheetClient",
+  "version": "0.0.1",
+  "keywords": "communication, REST, esp32, esp8266, raspberrypi, arduino",
+  "description": "Async Google Sheet REST client library for Arduino devices. This library provides the functions to read, edit and delete the spreadsheets via the Google Sheet APIs.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mobizt/GSheetClient.git"
+  },
+  "authors": [{
+    "name": "Mobizt",
+    "email": "suwatchai@outlook.com"
+  }],
+  "frameworks": "arduino",
+  "platforms": "espressif32, espressif8266, atmelsam, rp2040, ststm32, teensy"
+}
