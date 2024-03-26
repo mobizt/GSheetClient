@@ -35,12 +35,13 @@
 #include <Arduino.h>
 #include "./core/GSheetApp.h"
 #include "./core/AsyncClient/AsyncClient.h"
+#include "./spreadsheets/GSheetBase.h"
 
 using namespace gsheet;
 
 namespace gsheet
 {
-    class GSheetClient
+    class GSheetClient: public GSheetBase
     {
     private:
         void configApp(GSheetAsyncClientClass &aClient, GSheetApp &app, user_auth_data &auth, core_auth_task_type task_type = core_auth_task_type_undefined)
