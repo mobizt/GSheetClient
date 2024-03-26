@@ -29,6 +29,8 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
+#include "./spreadsheets/requests/Dimension.h"
+#include "./spreadsheets/requests/NamedRange.h"
 
 #define GSHEET_RESOURCE_PATH_BASE FPSTR("<resource_path>")
 
@@ -968,6 +970,10 @@ namespace GSHEET
         void clear() { owriter.clearBuf(buf, bufSize); }
     };
 
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#Request
+    /**
+     * A single kind of update to apply to a spreadsheet.
+     */
     template <typename T>
     class Request : public Printable
     {
@@ -991,8 +997,72 @@ namespace GSHEET
                 name = FPSTR("updateSpreadsheetProperties");
             else if (std::is_same<T, UpdateSheetPropertiesRequest>::value)
                 name = FPSTR("updateSheetProperties");
-            // TODO
-            //  ADD MORE REQUESTS
+            else if (std::is_same<T, UpdateDimensionPropertiesRequest>::value)
+                name = "updateDimensionProperties";
+            else if (std::is_same<T, UpdateNamedRangeRequest>::value)
+                name = "updateNamedRange";
+                
+            name = "repeatCell";
+            name = "addNamedRange";
+            name = "deleteNamedRange";
+            name = "addSheet";
+            name = "deleteSheet";
+            name = "autoFill";
+            name = "cutPaste";
+            name = "copyPaste";
+            name = "mergeCells";
+            name = "unmergeCells";
+            name = "updateBorders";
+            name = "updateCells";
+            name = "addFilterView";
+            name = "appendCells";
+            name = "clearBasicFilter";
+            name = "deleteDimension";
+            name = "deleteEmbeddedObject";
+            name = "deleteFilterView";
+            name = "duplicateFilterView";
+            name = "duplicateSheet";
+            name = "findReplace";
+            name = "insertDimension";
+            name = "insertRange";
+            name = "moveDimension";
+            name = "updateEmbeddedObjectPosition";
+            name = "pasteData";
+            name = "textToColumns";
+            name = "updateFilterView";
+            name = "deleteRange";
+            name = "appendDimension";
+            name = "addConditionalFormatRule";
+            name = "updateConditionalFormatRule";
+            name = "deleteConditionalFormatRule";
+            name = "sortRange";
+            name = "setDataValidation";
+            name = "setBasicFilter";
+            name = "addProtectedRange";
+            name = "updateProtectedRange";
+            name = "deleteProtectedRange";
+            name = "autoResizeDimensions";
+            name = "addChart";
+            name = "updateChartSpec";
+            name = "updateBanding";
+            name = "addBanding";
+            name = "deleteBanding";
+            name = "createDeveloperMetadata";
+            name = "updateDeveloperMetadata";
+            name = "deleteDeveloperMetadata";
+            name = "randomizeRange";
+            name = "addDimensionGroup";
+            name = "deleteDimensionGroup";
+            name = "updateDimensionGroup";
+            name = "trimWhitespace";
+            name = "deleteDuplicates";
+            name = "updateEmbeddedObjectBorder";
+            name = "addSlicer";
+            name = "updateSlicerSpec";
+            name = "addDataSource";
+            name = "updateDataSource";
+            name = "deleteDataSource";
+            name = "refreshDataSource";
 
             if (name.length())
                 setObject(buf[1], name, value.c_str(), false, true);

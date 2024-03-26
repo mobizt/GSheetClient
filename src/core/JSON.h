@@ -164,13 +164,15 @@ public:
     GSheetJsonWriter(){};
     ~GSheetJsonWriter(){};
 
+    void create(gsheet_object_t &obj, const String &path, bool value) { create(obj, path, gsheet_boolean_t(value)); }
+
     template <typename T>
     auto create(gsheet_object_t &obj, const String &path, T value) -> typename std::enable_if<!std::is_same<T, gsheet_object_t>::value && !std::is_same<T, gsheet_string_t>::value && !std::is_same<T, gsheet_number_t>::value && !std::is_same<T, gsheet_boolean_t>::value, void>::type
     {
         int i = prek(obj, path);
         if (GSheetValueConverter::v_sring<T>::value)
             obj += "\"";
-        obj += std::is_same<T, bool>::value ? value : gsheet_boolean_t(value);
+        obj += value;
         if (GSheetValueConverter::v_sring<T>::value)
             obj += "\"";
         ek(obj, i);
