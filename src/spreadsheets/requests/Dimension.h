@@ -16,6 +16,7 @@ namespace GSHEET
         DOCUMENT,                                  //	Document-visible metadata is accessible from any developer project with access to the document.
         PROJECT,                                   //	Project-visible metadata is only visible to and accessible by the developer project that created the metadata.
     };
+
     // Indicates which dimension an operation should apply to.
     enum Dimension
     {
@@ -249,6 +250,45 @@ namespace GSHEET
             return *this;
         }
 
+        const char *c_str() const { return buf[0].c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
+        void clear() { owriter.clearBuf(buf, bufSize); }
+    };
+
+    /**
+     * A combination of a source range and how to extend that source.
+     */
+    class SourceAndDestination : public Printable
+    {
+    private:
+        size_t bufSize = 4;
+        String buf[4];
+        GSheetObjectWriter owriter;
+        GSheetJSONUtil jut;
+
+        SourceAndDestination &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
+        {
+            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
+            return *this;
+        }
+
+    public:
+        SourceAndDestination() {}
+        // The location of the data to use as the source of the autofill.
+        SourceAndDestination &source(const GridRange &value) { return setObject(buf[1], "source", value.c_str(), false, true); }
+        // The location of the data to use as the source of the autofill.
+        SourceAndDestination &dimension(Dimension value)
+        {
+            if (value == DIMENSION_UNSPECIFIED)
+                return setObject(buf[2], "dimension", "DIMENSION_UNSPECIFIED", true, true);
+            else if (value == ROWS)
+                return setObject(buf[2], "dimension", "ROWS", true, true);
+            else if (value == COLUMNS)
+                return setObject(buf[2], "dimension", "COLUMNS", true, true);
+            return *this;
+        }
+        // The number of rows or columns that data should be filled into. Positive numbers expand beyond the last row or last column of the source. Negative numbers expand before the first row or first column of the source.
+        SourceAndDestination &fillLength(int value) { return setObject(buf[3], "fillLength", String(value), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }

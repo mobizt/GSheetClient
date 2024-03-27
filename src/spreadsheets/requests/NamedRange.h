@@ -9,7 +9,7 @@
 
 namespace GSHEET
 {
-    
+
     /**
      * A named range.
      */
@@ -66,6 +66,50 @@ namespace GSHEET
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
+    };
+    /**
+     * Adds a named range to the spreadsheet.
+     */
+    class AddNamedRangeRequest : public Printable
+    {
+    private:
+        String buf;
+        GSheetJSONUtil jut;
+
+    public:
+        AddNamedRangeRequest() {}
+        // The named range to add. The namedRangeId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a range that already exists.)
+        AddNamedRangeRequest &name(const NamedRange &value)
+        {
+            clear();
+            jut.addObject(buf, "namedRange", value.c_str(), false, true);
+            return *this;
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
+    };
+    /**
+     * Removes the named range with the given ID from the spreadsheet.
+     */
+    class DeleteNamedRangeRequest : public Printable
+    {
+    private:
+        String buf;
+        GSheetJSONUtil jut;
+
+    public:
+        DeleteNamedRangeRequest() {}
+        // The ID of the named range to delete.
+        DeleteNamedRangeRequest &namedRangeId(const String &value)
+        {
+            clear();
+            jut.addObject(buf, "namedRangeId", value, true, true);
+            return *this;
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
     };
 
 }

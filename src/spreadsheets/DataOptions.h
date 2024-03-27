@@ -355,6 +355,53 @@ namespace GSHEET
     };
 
     /**
+     * Adds a new sheet. When a sheet is added at a given index, all subsequent sheets' indexes are incremented. To add an object sheet, use AddChartRequest instead and specify EmbeddedObjectPosition.sheetId or EmbeddedObjectPosition.newSheet.
+     */
+    class AddSheetRequest : public Printable
+    {
+    private:
+        String buf;
+        GSheetJSONUtil jut;
+
+    public:
+        AddSheetRequest() {}
+        // The properties the new sheet should have. All properties are optional. The sheetId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a sheet that already exists.)
+        AddSheetRequest &properties(const SheetProperties &value)
+        {
+            clear();
+            jut.addObject(buf, "properties", value.c_str(), false, true);
+            return *this;
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
+    };
+
+    /**
+     * Deletes the requested sheet.
+     */
+    class DeleteSheetRequest : public Printable
+    {
+    private:
+        String buf;
+        GSheetJSONUtil jut;
+
+    public:
+        DeleteSheetRequest() {}
+        // The ID of the sheet to delete.
+        // If the sheet is of DATA_SOURCE type, the associated DataSource is also deleted.
+        DeleteSheetRequest &properties(int value)
+        {
+            clear();
+            jut.addObject(buf, "sheetId", String(value), false, true);
+            return *this;
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
+    };
+
+    /**
      * Updates properties of the sheet with the specified sheetId.
      */
     class UpdateSheetPropertiesRequest : public Printable
@@ -378,6 +425,85 @@ namespace GSHEET
         // The fields that should be updated. At least one field must be specified. The root properties is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
         UpdateSheetPropertiesRequest &fields(const String &value) { return setObject(buf[2], "fields", value, true, true); }
 
+        const char *c_str() const { return buf[0].c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
+        void clear() { owriter.clearBuf(buf, bufSize); }
+    };
+    
+    /**
+     * Moves data from the source to the destination.
+     */
+    class CutPasteRequest : public Printable
+    {
+    private:
+        size_t bufSize = 4;
+        String buf[4];
+        GSheetObjectWriter owriter;
+        GSheetJSONUtil jut;
+
+        CutPasteRequest &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
+        {
+            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
+            return *this;
+        }
+
+    public:
+        CutPasteRequest() {}
+        // The source data to cut.
+        CutPasteRequest &source(const GridRange &value) { return setObject(buf[1], "source", value.c_str(), false, true); }
+        // The top-left coordinate where the data should be pasted.
+        CutPasteRequest &destination(const GridCoordinate &value) { return setObject(buf[2], "destination", value.c_str(), false, true); }
+        // What kind of data to paste. All the source data will be cut, regardless of what is pasted.
+        CutPasteRequest &pasteType(PasteType value)
+        {
+            if (value == PASTE_NORMAL)
+                return setObject(buf[3], "pasteType", "PASTE_NORMAL", true, true);
+            else if (value == PASTE_VALUES)
+                return setObject(buf[3], "pasteType", "PASTE_VALUES", true, true);
+            else if (value == PASTE_FORMAT)
+                return setObject(buf[3], "pasteType", "PASTE_FORMAT", true, true);
+            else if (value == PASTE_NO_BORDERS)
+                return setObject(buf[3], "pasteType", "PASTE_NO_BORDERS", true, true);
+            else if (value == PASTE_FORMULA)
+                return setObject(buf[3], "pasteType", "PASTE_FORMULA", true, true);
+            else if (value == PASTE_DATA_VALIDATION)
+                return setObject(buf[3], "pasteType", "PASTE_DATA_VALIDATION", true, true);
+            else if (value == PASTE_CONDITIONAL_FORMATTING)
+                return setObject(buf[3], "pasteType", "PASTE_CONDITIONAL_FORMATTING", true, true);
+            return *this;
+        }
+        const char *c_str() const { return buf[0].c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
+        void clear() { owriter.clearBuf(buf, bufSize); }
+    };
+
+    /**
+     * Fills in more data based on existing data.
+     */
+    class AutoFillRequest : public Printable
+    {
+    private:
+        size_t bufSize = 4;
+        String buf[4];
+        GSheetObjectWriter owriter;
+        GSheetJSONUtil jut;
+
+        AutoFillRequest &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
+        {
+            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
+            return *this;
+        }
+
+    public:
+        AutoFillRequest() {}
+        // True if we should generate data with the "alternate" series. This differs based on the type and amount of source data.
+        AutoFillRequest &properties(bool value) { return setObject(buf[1], "useAlternateSeries", owriter.getBoolStr(value), false, true); }
+        // The range to autofill. This will examine the range and detect the location that has data and automatically fill that data in to the rest of the range.
+        // Union field area
+        AutoFillRequest &range(const GridRange &value) { return buf[3].length() == 0 ? setObject(buf[2], "range", value.c_str(), false, true) : *this; }
+        // The source and destination areas to autofill. This explicitly lists the source of the autofill and where to extend that data.
+        // Union field area
+        AutoFillRequest &sourceAndDestination(const SourceAndDestination &value) { return buf[2].length() == 0 ? setObject(buf[3], "sourceAndDestination", value.c_str(), false, true) : *this; }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
@@ -416,13 +542,19 @@ namespace GSHEET
                 name = "updateNamedRange";
             else if (std::is_same<T, RepeatCellRequest>::value)
                 name = "repeatCell";
-                
-            name = "addNamedRange";
-            name = "deleteNamedRange";
-            name = "addSheet";
-            name = "deleteSheet";
-            name = "autoFill";
-            name = "cutPaste";
+            else if (std::is_same<T, AddNamedRangeRequest>::value)
+                name = "addNamedRange";
+            else if (std::is_same<T, DeleteNamedRangeRequest>::value)
+                name = "deleteNamedRange";
+            else if (std::is_same<T, AddSheetRequest>::value)
+                name = "addSheet";
+            else if (std::is_same<T, DeleteSheetRequest>::value)
+                name = "deleteSheet";
+            else if (std::is_same<T, AutoFillRequest>::value)
+                name = "autoFill";
+            else if (std::is_same<T, CutPasteRequest>::value)
+                name = "cutPaste";
+
             name = "copyPaste";
             name = "mergeCells";
             name = "unmergeCells";

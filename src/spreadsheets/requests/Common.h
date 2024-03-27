@@ -192,6 +192,18 @@ namespace GSHEET
         // If set, the data source table fetches all the columns in the data source at the time of refresh.
     };
 
+    // What kind of data should be pasted.
+    enum PasteType
+    {
+        PASTE_NORMAL,                //	Paste values, formulas, formats, and merges.
+        PASTE_VALUES,                //	Paste the values ONLY without formats, formulas, or merges.
+        PASTE_FORMAT,                //	Paste the format and data validation only.
+        PASTE_NO_BORDERS,            //	Like PASTE_NORMAL but without borders.
+        PASTE_FORMULA,               //	Paste the formulas only.
+        PASTE_DATA_VALIDATION,       //	Paste the data validation only.
+        PASTE_CONDITIONAL_FORMATTING //	Paste the conditional formatting rules only.
+    };
+
     /**
      * Represents a color in the RGBA color space. This representation is designed for simplicity of conversion to/from color representations in various languages over compactness.
      */
@@ -758,6 +770,36 @@ namespace GSHEET
     };
 
     /**
+     * A coordinate in a sheet. All indexes are zero-based.
+     */
+    class GridCoordinate : public Printable
+    {
+    private:
+        size_t bufSize = 4;
+        String buf[4];
+        GSheetObjectWriter owriter;
+        GSheetJSONUtil jut;
+
+        GridCoordinate &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
+        {
+            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
+            return *this;
+        }
+
+    public:
+        GridCoordinate() {}
+        // The sheet this coordinate is on.
+        GridCoordinate &sheetId(int value) { return setObject(buf[1], "sheetId", String(value), false, true); }
+        // The row index of the coordinate.
+        GridCoordinate &rowIndex(int value) { return setObject(buf[2], "rowIndex", String(value), false, true); }
+        // The column index of the coordinate.
+        GridCoordinate &columnIndex(int value) { return setObject(buf[3], "columnIndex", String(value), false, true); }
+        const char *c_str() const { return buf[0].c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
+        void clear() { owriter.clearBuf(buf, bufSize); }
+    };
+
+    /**
      * The value of the condition.
      */
     class ConditionValue : public Printable
@@ -918,6 +960,7 @@ namespace GSHEET
         // The display name of the column. It should be unique within a data source.
         DataSourceColumnReference &name(const String &value)
         {
+            clear();
             jut.addObject(buf, "name", value, true, true);
             return *this;
         }
@@ -1101,6 +1144,7 @@ namespace GSHEET
         // The ID of the data source the formula is associated with.
         DataSourceFormula &dataSourceId(const String &value)
         {
+            clear();
             jut.addObject(buf, "dataSourceId", value, true, true);
             return *this;
         }
@@ -1108,6 +1152,7 @@ namespace GSHEET
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }
         void clear() { buf.remove(0, buf.length()); }
     };
+    
 
 }
 #endif
