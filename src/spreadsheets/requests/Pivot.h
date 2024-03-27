@@ -14,8 +14,8 @@ namespace GSHEET
     {
         DATE_TIME_RULE_TYPE_UNSPECIFIED, //	The default type, do not use.
         SECOND,                          //	Group dates by second, from 0 to 59.
-        MINUTE,                          //	Group dates by minute, from 0 to 59.
-        HOUR,                            //	Group dates by hour using a 24-hour system, from 0 to 23.
+        _MINUTE,                          //	Group dates by minute, from 0 to 59.
+        _HOUR,                            //	Group dates by hour using a 24-hour system, from 0 to 23.
         HOUR_MINUTE,                     //	Group dates by hour and minute using a 24-hour system, for example 19:45.
         HOUR_MINUTE_AMPM,                //	Group dates by hour and minute using a 12-hour system, for example 7:45 PM. The AM/PM designation is translated based on the spreadsheet locale.
         DAY_OF_WEEK,                     //	Group dates by day of week, for example Sunday. The days of the week will be translated based on the spreadsheet locale.
@@ -255,9 +255,9 @@ namespace GSHEET
                 jut.addObject(buf, "type", "DATE_TIME_RULE_TYPE_UNSPECIFIED", true, true);
             else if (value == SECOND)
                 jut.addObject(buf, "type", "SECOND", true, true);
-            else if (value == MINUTE)
+            else if (value == _MINUTE)
                 jut.addObject(buf, "type", "MINUTE", true, true);
-            else if (value == HOUR)
+            else if (value == _HOUR)
                 jut.addObject(buf, "type", "HOUR", true, true);
             else if (value == HOUR_MINUTE)
                 jut.addObject(buf, "type", "HOUR_MINUTE", true, true);
@@ -365,29 +365,6 @@ namespace GSHEET
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
-    };
-    /**
-     * An unique identifier that references a data source column.
-     */
-    class DataSourceColumnReference : public Printable
-    {
-    private:
-        String buf;
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-    public:
-        DataSourceColumnReference() {}
-        // The display name of the column. It should be unique within a data source.
-        DataSourceColumnReference &name(const String &value)
-        {
-            clear();
-            jut.addObject(buf, "name", value, true, true);
-            return *this;
-        }
-        const char *c_str() const { return buf.c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
-        void clear() { buf.remove(0, buf.length()); }
     };
     /**
      * A single grouping (either row or column) in a pivot table.

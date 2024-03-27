@@ -1099,7 +1099,11 @@ namespace GSHEET
     public:
         DataSourceFormula() {}
         // The ID of the data source the formula is associated with.
-        DataSourceFormula &dataSourceId(const String &value) { jut.addObject(buf, "dataSourceId", value, true, true); }
+        DataSourceFormula &dataSourceId(const String &value)
+        {
+            jut.addObject(buf, "dataSourceId", value, true, true);
+            return *this;
+        }
         const char *c_str() const { return buf.c_str(); }
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }
         void clear() { buf.remove(0, buf.length()); }
