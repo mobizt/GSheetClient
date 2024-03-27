@@ -1,9 +1,11 @@
 #ifndef DIMENSION_H
+#define DIMENSION_H
 
 #include <Arduino.h>
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
+#include "./spreadsheets/requests/COMMON.h"
 
 namespace GSHEET
 {
@@ -20,27 +22,6 @@ namespace GSHEET
         DIMENSION_UNSPECIFIED, //	The default value, do not use.
         ROWS,                  //	Operates on the rows of a sheet.
         COLUMNS                //	Operates on the columns of a sheet.
-    };
-    /**
-     * An unique identifier that references a data source column.
-     */
-    class DataSourceColumnReference : public Printable
-    {
-    private:
-        String buf;
-        GSheetJSONUtil jut;
-
-    public:
-        DataSourceColumnReference() {}
-        // The display name of the column. It should be unique within a data source.
-        DataSourceColumnReference &name(const String &value)
-        {
-            jut.addObject(buf, "name", value, true, true);
-            return *this;
-        }
-        const char *c_str() const { return buf.c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
-        void clear() { buf.remove(0, buf.length()); }
     };
 
     /**
@@ -66,7 +47,6 @@ namespace GSHEET
         DataSourceSheetDimensionRange &sheetId(int value) { return setObject(buf[1], "sheetId", String(value), false, true); }
         DataSourceSheetDimensionRange &addColumnReferences(DataSourceColumnReference value)
         {
-
             owriter.addMapArrayMember(buf, bufSize, buf[2], FPSTR("columnReferences"), value.c_str(), false);
             return *this;
         }
@@ -178,7 +158,6 @@ namespace GSHEET
         // The metadata visibility. Developer metadata must always have a visibility specified.
         DeveloperMetadata &visibility(DeveloperMetadataVisibility value)
         {
-
             if (value == DEVELOPER_METADATA_VISIBILITY_UNSPECIFIED)
                 return setObject(buf[5], "visibility", "DEVELOPER_METADATA_VISIBILITY_UNSPECIFIED", true, true);
             else if (value == DOCUMENT)
