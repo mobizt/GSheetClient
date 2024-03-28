@@ -18,7 +18,7 @@
  *              |                               +   PivotGroupRule                          +   ManualRule          +   ManualRuleGroup         +   ExtendedValue
  *              |                               |                                           |
  *              |                               |                                           +   HistogramRule
- *			    |				                |			                                |
+ *              |                               |                                           |
  *              |                               |                                           +   DateTimeRule        +   (enum) DateTimeRuleType
  *              |                               |
  *              |                               +    PivotGroupLimit
