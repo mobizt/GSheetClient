@@ -10,7 +10,7 @@
 /**
  * PivotTable   +   PivotGroup                  +    PivotGroupValueMetadata                +   ExtendedValue
  *              |                               |
- *              |			                    +   (enum) SortOrder
+ *              |                               +   (enum) SortOrder
  *              |                               |
  * 			    |			                    +   PivotGroupSortValueBucket               +   ExtendedValue
  *              |                               |
