@@ -19,17 +19,17 @@
  *              |                               |                                           |
  *              |                               |                                           +   HistogramRule
  *			    |				                |			                                |
- *			    |				                |			                                +   DateTimeRule        +   (enum) DateTimeRuleType
+ *              |                               |                                           +   DateTimeRule        +   (enum) DateTimeRuleType
  *              |                               |
- *			    |			                    +    PivotGroupLimit
+ *              |                               +    PivotGroupLimit
  *              |                               |
- *			    |			                    +    DataSourceColumnReference
+ *              |                               +    DataSourceColumnReference
  *              |
  *              |
  *              +   PivotFilterSpec             +   PivotFilterCriteria                     +   BooleanCondition    +   (enum) ConditionType
  *              |                               |                                                                   |
- *              |					            |					                                                +   ConditionValue          +   (enum) RelativeDate
- *              |			                    |
+ *              |                               |                                                                   +   ConditionValue          +   (enum) RelativeDate
+ *              |                               |
  *              |                               +   DataSourceColumnReference
  *              |
  *              |
