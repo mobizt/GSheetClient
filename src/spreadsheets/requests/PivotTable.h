@@ -5,7 +5,9 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/Common.h"
+#include "./spreadsheets/requests/BooleanCondition.h"
+#include "./spreadsheets/requests/SortSpec.h"
+#include "./spreadsheets/requests/GridRange.h"
 
 /**
  * PIVOT TABLE CLASS DEPENDENCIES
@@ -28,9 +30,7 @@
  *              |                               +    DataSourceColumnReference
  *              |
  *              |
- *              +   PivotFilterSpec             +   PivotFilterCriteria                     +   BooleanCondition    +   (enum) ConditionType
- *              |                               |                                                                   |
- *              |                               |                                                                   +   ConditionValue          +   (enum) RelativeDate
+ *              +   PivotFilterSpec             +   PivotFilterCriteria                     +   BooleanCondition*
  *              |                               |
  *              |                               +   DataSourceColumnReference
  *              |
@@ -44,6 +44,8 @@
  *              +   (enum) PivotValueLayout
  *              |
  *              +   GridRange
+ * 
+ * See BooleanCondition.h
  */
 
 namespace GSHEET
@@ -134,6 +136,7 @@ namespace GSHEET
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
     };
+
     /**
      * Information about which values in a pivot group should be used for sorting.
      */
@@ -166,6 +169,7 @@ namespace GSHEET
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
     };
+
     /**
      * A group name and a list of items from the source data that should be placed in the group with this name.
      */

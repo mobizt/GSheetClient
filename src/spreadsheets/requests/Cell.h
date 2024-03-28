@@ -5,72 +5,34 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/Common.h"
 #include "./spreadsheets/requests/PivotTable.h"
+#include "./spreadsheets/requests/BooleanCondition.h"
+#include "./spreadsheets/requests/DataSourceTable.h"
+#include "./spreadsheets/requests/CellFormat.h"
+#include "./spreadsheets/requests/GridRange.h"
 
 /**
  * CELL DATA CLASS DEPENDENCIES
  *
  * CellData     +                           ExtendedValue
  *              |
- *              +                           CellFormat              +       NumberFormat            +           (enum) NumberFormatType
- *              |                                                   |
- *              +                                                   +       ColorStyle              +           Color
- *              |                                                   |                               |
- *              |                                                   |                               +           (enum) ThemeColorType
- *              |                                                   |
- *              |                                                   +       Borders                 +           Border                  +       (enum) Style
- *              |                                                   |                                                                   |
- *              |                                                   |                                                                   +       ColorStyle              +       Color
- *              |                                                   |                                                                                                   |
- *              |                                                   |                                                                                                   +       (enum) ThemeColorType
- *              |                                                   +       Padding
- *              |                                                   |
- *              |                                                   +       (enum) HorizontalAlign
- *              |                                                   |
- *              |                                                   +       (enum) VerticalAlign
- *              |                                                   |
- *              |                                                   +       (enum) WrapStrategy
- *              |                                                   |
- *              |                                                   +       (enum) TextDirection
- *              |                                                   |
- *              |                                                   +       TextFormat              +           ColorStyle              +       Color
- *              |                                                   |                                                                   |
- *              |                                                   |                                                                   +       (enum) ThemeColorType
- *              |                                                   |
- *              |                                                   +       (enum) HyperlinkDisplayType
- *              |                                                   |
- *              |                                                   +       TextRotation
+ *              +                           CellFormat*
  *              |
- *              +                           TextFormatRun           +       TextFormat              +           ColorStyle              +       Color
- *              |                                                                                                                       |
- *              |                                                                                                                       +       (enum) ThemeColorType
- *              +                           DataValidationRule      +       BooleanCondition        +       (enum) ConditionType
- *              |                                                                                   |       
- *              |                                                                                   +       ConditionValue              +       (enum) RelativeDate
+ *              +                           TextFormatRun           +       TextFormat              +           ColorStyle*
+ *              +                           DataValidationRule      +       BooleanCondition*
  *              +                           PivotTable*
  *              |
  *              +                           DataSourceTable         +       (enum) DataSourceTableColumnSelectionType
  *              |                                                   |
  *              |                                                   +       DataSourceColumnReference
  *              |                                                   |
- *              |                                                   +       FilterSpec              +       FilterCriteria              +       BooleanCondition        +       (enum) ConditionType
- *              |                                                   |                               |                                   |                               |
- *              |                                                   |                               |                                   |                               +       ConditionValue          +       (enum) RelativeDate
- *              |                                                   |                               |                                   |
- *              |                                                   |                               |                                   +       ColorStyle              +       Color
- *              |                                                   |                               |                                                                   |
- *              |                                                   |                               |                                                                   +       (enum) ThemeColorType
- *              |                                                   |                               |
- *              |                                                   |                               +       DataSourceColumnReference
+ *              |                                                   +       FilterSpec*
  *              |                                                   |
- *              |                                                   +       SortSpec                +       (enum) SortOrder
- *              |                                                                                   |
- *              |                                                                                   +       ColorStyle
+ *              |                                                   +       SortSpec*
  *              |
  *              +                           DataSourceFormula
  * 
- * See PivotTable.h
+ * See PivotTable.h, BooleanCondition.h, Theme.h, FilterSpec.h, SortSpec.h, CellFormat.h
 */
 
 namespace GSHEET
@@ -184,6 +146,7 @@ namespace GSHEET
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
     };
+
     /**
      * Updates all cells in the range to the values in the given Cell object. Only the fields listed in the fields field are updated; others are unchanged.
      * If writing a cell with a formula, the formula's ranges will automatically increment for each field in the range. For example, if writing a cell with formula =A1 into range B2:C4, B2 would be =A1, B3 would be =A2, B4 would be =A3, C2 would be =B1, C3 would be =B2, C4 would be =B3.

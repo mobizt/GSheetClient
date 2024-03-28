@@ -5,7 +5,8 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/Common.h"
+#include "./spreadsheets/requests/DataSourceColumnReference.h"
+#include "./spreadsheets/requests/GridRange.h"
 
 namespace GSHEET
 {
