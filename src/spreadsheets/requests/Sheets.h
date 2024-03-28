@@ -18,6 +18,8 @@
 #include "./spreadsheets/requests/charts/WaterfallChartSpec.h"
 
 /**
+ * SHEET CLASS DEPENDENCIES
+ * 
  * Sheet            SheetProperties         (enum) SheetType
  *                                          GridProperties
  *                                          ColorStyle*

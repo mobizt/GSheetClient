@@ -8,6 +8,8 @@
 #include "./spreadsheets/requests/charts/ChartData.h"
 
 /**
+ * PIE CHART CLASS DEPENDENCIES
+ * 
  * PieChartSpec         (enum) PieChartLegendPosition
  *                      ChartData*
  * 

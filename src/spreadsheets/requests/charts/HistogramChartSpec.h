@@ -9,6 +9,8 @@
 #include "./spreadsheets/requests/Theme.h"
 
 /**
+ * HISTROGRAM CHART CLASS DEPENDENCIES
+ * 
  * HistogramChartSpec       HistogramSeries                         ColorStyle*
  *                                                                  ChartData*
  *                          (enum) HistogramChartLegendPosition            

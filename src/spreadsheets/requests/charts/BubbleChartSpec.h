@@ -10,6 +10,8 @@
 #include "./spreadsheets/requests/CellFormat.h"
 
 /**
+ * BUBBLE CHART CLASS DEPENDENCIES
+ * 
  * BubbleChartSpec          (enum) BubbleChartLegendPosition
  *                          ChartData*
  *                          ColorStyle*

@@ -9,7 +9,6 @@
 
 namespace GSHEET
 {
-
     /**
      * A named range.
      */

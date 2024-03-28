@@ -9,7 +9,6 @@
 
 namespace GSHEET
 {
-
     // The data source table column selection types.
     enum DataSourceTableColumnSelectionType
     {

@@ -10,6 +10,8 @@
 #include "./spreadsheets/requests/CellFormat.h"
 
 /**
+ * TREEMAP CHART CLASS DEPENDENCIES
+ * 
  * TreemapChartSpec         ChartData*
  *                          TextFormat
  *                          ColorStyle*

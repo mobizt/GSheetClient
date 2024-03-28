@@ -10,6 +10,8 @@
 #include "./spreadsheets/requests/CellFormat.h"
 
 /**
+ * BASIC CHART CLASS DEPENDENCIES
+ * 
  * BasicChartSpec       (enum) BasicChartType
  *                      (enum) BasicChartLegendPosition
  * 

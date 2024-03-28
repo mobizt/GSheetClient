@@ -8,6 +8,8 @@
 #include "./spreadsheets/requests/charts/ChartData.h"
 
 /**
+ * ORG CHART CLASS DEPENDENCIES
+ * 
  * OrgChartSpec             (enum) OrgChartNodeSize
  *                          ColorStyle*             
  *                          ChartData*

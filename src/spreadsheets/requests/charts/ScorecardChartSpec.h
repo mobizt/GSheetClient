@@ -10,6 +10,8 @@
 #include "./spreadsheets/requests/CellFormat.h"
 
 /**
+ * SCORECARD CHART CLASS DEPENDENCIES
+ * 
  * ScorecardChartSpec       ChartData*
  *                          (enum) ChartAggregateType
  *                          KeyValueFormat                      TextFormat

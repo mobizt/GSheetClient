@@ -8,7 +8,6 @@
 
 namespace GSHEET
 {
-
     /**
      * An unique identifier that references a data source column.
      */

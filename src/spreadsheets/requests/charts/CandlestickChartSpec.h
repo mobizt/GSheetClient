@@ -8,6 +8,8 @@
 #include "./spreadsheets/requests/charts/ChartData.h"
 
 /**
+ * CANDLESTICK CHART CLASS DEPENDENCIES
+ * 
  * CandlestickChartSpec             (enum) CandlestickDomain
  *                                  CandlestickData             CandlestickSeries       ChartData*
  * 
