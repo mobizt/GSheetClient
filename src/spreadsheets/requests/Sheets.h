@@ -21,9 +21,9 @@
  * Sheet            SheetProperties         (enum) SheetType
  *                                          GridProperties
 					                        ColorStyle*
-					                        DataSourceSheetProperties               DataSourceColumn                    DataSourceColumnReference
-                                                                                                                                                    
-                                                                                    DataExecutionStatus                 (enum) DataExecutionState
+					                        DataSourceSheetProperties                   DataSourceColumn                    DataSourceColumnReference
+
+                                                                                        DataExecutionStatus                 (enum) DataExecutionState
                                                                                                                         (enum) DataExecutionErrorCode
 	
                     GridData                RowData                                 CellData*
