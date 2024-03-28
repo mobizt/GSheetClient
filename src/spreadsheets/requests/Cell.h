@@ -69,6 +69,8 @@
  *              |                                                                                   +       ColorStyle
  *              |
  *              +                           DataSourceFormula
+ * 
+ * See PivotTable.h
 */
 
 namespace GSHEET
