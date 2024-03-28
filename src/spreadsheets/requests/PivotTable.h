@@ -5,17 +5,55 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/COMMON.h"
+#include "./spreadsheets/requests/Common.h"
+
+/**
+ * PivotTable   +   PivotGroup                  +    PivotGroupValueMetadata                +   ExtendedValue
+ *              |                               |
+ * 			    |			                    +   (enum) SortOrder
+ *              |                               |
+ * 			    |			                    +   PivotGroupSortValueBucket               +   ExtendedValue
+ *              |                               |
+ *              |                               |
+ * 			    |			                    +   PivotGroupRule                          +   ManualRule          +   ManualRuleGroup         +   ExtendedValue
+ *              |                               |                                           |
+ *              |                               |                                           +   HistogramRule
+ *			    |				                |			                                |
+ *			    |				                |			                                +   DateTimeRule        +   (enum) DateTimeRuleType
+ *              |                               |
+ *			    |			                    +    PivotGroupLimit
+ *              |                               |
+ *			    |			                    +    DataSourceColumnReference
+ *              |
+ *              |
+ *              +   PivotFilterSpec             +   PivotFilterCriteria                     +   BooleanCondition    +   (enum) ConditionType
+ *              |                               |                                                                   |
+ *              |					            |					                                                +   ConditionValue          +   (enum) RelativeDate
+ *              |			                    |
+ *              |                               +   DataSourceColumnReference
+ *              |
+ *              |
+ *              +   PivotValue                  +   (enum) PivotValueSummarizeFunction
+ *              |                               |
+ *              |                               +   (enum) PivotValueCalculatedDisplayType
+ *              |                               |
+ *              |                               +   DataSourceColumnReference
+ *              |
+ *              +   (enum) PivotValueLayout
+ *              |
+ *              +   GridRange
+*/
 
 namespace GSHEET
 {
+
     // The available types of date-time grouping rules. This documentation assumes the spreadsheet locale is "en-US", though the actual rendering of the dates and times uses the locale of the spreadsheet for some rule types.
     enum DateTimeRuleType
     {
         DATE_TIME_RULE_TYPE_UNSPECIFIED, //	The default type, do not use.
         SECOND,                          //	Group dates by second, from 0 to 59.
-        _MINUTE,                          //	Group dates by minute, from 0 to 59.
-        _HOUR,                            //	Group dates by hour using a 24-hour system, from 0 to 23.
+        _MINUTE,                         //	Group dates by minute, from 0 to 59.
+        _HOUR,                           //	Group dates by hour using a 24-hour system, from 0 to 23.
         HOUR_MINUTE,                     //	Group dates by hour and minute using a 24-hour system, for example 19:45.
         HOUR_MINUTE_AMPM,                //	Group dates by hour and minute using a 12-hour system, for example 7:45 PM. The AM/PM designation is translated based on the spreadsheet locale.
         DAY_OF_WEEK,                     //	Group dates by day of week, for example Sunday. The days of the week will be translated based on the spreadsheet locale.
@@ -366,6 +404,7 @@ namespace GSHEET
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
     };
+
     /**
      * A single grouping (either row or column) in a pivot table.
      */
@@ -613,6 +652,7 @@ namespace GSHEET
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
     };
+
     /**
      * A pivot table.
      */
@@ -667,7 +707,7 @@ namespace GSHEET
             return *this;
         }
         // The range the pivot table is reading data from.
-        PivotTable &source(GridRange value) { return buf[7].length() == 0 ? setObject(buf[6], "source", value.c_str(), false, true) : *this; }
+        PivotTable &source(const GridRange &value) { return buf[7].length() == 0 ? setObject(buf[6], "source", value.c_str(), false, true) : *this; }
         // The ID of the data source the pivot table is reading data from.
         PivotTable &dataSourceId(const String &value) { return buf[7].length() == 0 ? setObject(buf[7], "dataSourceId", value, true, true) : *this; }
         const char *c_str() const { return buf[0].c_str(); }

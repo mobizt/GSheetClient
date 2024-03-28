@@ -5,8 +5,8 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/COMMON.h"
-#include "./spreadsheets/requests/Pivot.h"
+#include "./spreadsheets/requests/Common.h"
+#include "./spreadsheets/requests/PivotTable.h"
 
 namespace GSHEET
 {

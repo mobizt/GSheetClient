@@ -5,7 +5,7 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/COMMON.h"
+#include "./spreadsheets/requests/Common.h"
 
 namespace GSHEET
 {

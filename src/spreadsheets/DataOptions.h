@@ -29,7 +29,7 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/COMMON.h"
+#include "./spreadsheets/requests/Common.h"
 #include "./spreadsheets/requests/Dimension.h"
 #include "./spreadsheets/requests/NamedRange.h"
 #include "./spreadsheets/requests/CellData.h"
