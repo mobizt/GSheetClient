@@ -32,7 +32,7 @@
 #include "./spreadsheets/requests/Common.h"
 #include "./spreadsheets/requests/Dimension.h"
 #include "./spreadsheets/requests/NamedRange.h"
-#include "./spreadsheets/requests/CellData.h"
+#include "./spreadsheets/requests/Cell.h"
 
 #define GSHEET_RESOURCE_PATH_BASE FPSTR("<resource_path>")
 

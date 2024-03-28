@@ -1,5 +1,5 @@
-#ifndef CELL_DATA_H
-#define CELL_DATA_H
+#ifndef CELL_H
+#define CELL_H
 
 #include <Arduino.h>
 #include "./Config.h"
@@ -7,6 +7,69 @@
 #include "./core/ObjectWriter.h"
 #include "./spreadsheets/requests/Common.h"
 #include "./spreadsheets/requests/PivotTable.h"
+
+/**
+ * CELL DATA CLASS DEPENDENCIES
+ *
+ * CellData     +                           ExtendedValue
+ *              |
+ *              +                           CellFormat              +       NumberFormat            +           (enum) NumberFormatType
+ *              |                                                   |
+ *              +                                                   +       ColorStyle              +           Color
+ *              |                                                   |                               |
+ *              |                                                   |                               +           (enum) ThemeColorType
+ *              |                                                   |
+ *              |                                                   +       Borders                 +           Border                  +       (enum) Style
+ *              |                                                   |                                                                   |
+ *              |                                                   |                                                                   +       ColorStyle              +       Color
+ *              |                                                   |                                                                                                   |
+ *              |                                                   |                                                                                                   +       (enum) ThemeColorType
+ *              |                                                   +       Padding
+ *              |                                                   |
+ *              |                                                   +       (enum) HorizontalAlign
+ *              |                                                   |
+ *              |                                                   +       (enum) VerticalAlign
+ *              |                                                   |
+ *              |                                                   +       (enum) WrapStrategy
+ *              |                                                   |
+ *              |                                                   +       (enum) TextDirection
+ *              |                                                   |
+ *              |                                                   +       TextFormat              +           ColorStyle			    +       Color
+ *              |                                                   |                                                                   |
+ *              |                                                   |                                                                   +       (enum) ThemeColorType
+ *              |                                                   |
+ *              |                                                   +       (enum) HyperlinkDisplayType
+ *              |                                                   |
+ *              |                                                   +       TextRotation
+ *              |
+ *              +                           TextFormatRun	        +       TextFormat              +           ColorStyle              +       Color
+ *              |                                                                                                                       |
+ *              |                                                                                                                       +       (enum) ThemeColorType
+ *              +                           DataValidationRule      +       BooleanCondition        +       (enum) ConditionType
+ *              |                                                                                   |       
+ *              |                                                                                   +       ConditionValue				+       (enum) RelativeDate
+ *              +                           PivotTable*
+ *              |
+ *              +                           DataSourceTable         +       (enum) DataSourceTableColumnSelectionType
+ *              |                                                   |
+ *              |                                                   +       DataSourceColumnReference
+ *              |                                                   |
+ *              |                                                   +       FilterSpec              +       FilterCriteria              +       BooleanCondition        +       (enum) ConditionType
+ *              |                                                   |                               |                                   |                               |
+ *              |                                                   |                               |                                   |                               +       ConditionValue          +       (enum) RelativeDate
+ *              |                                                   |                               |                                   |
+ *              |                                                   |                               |                                   +       ColorStyle              +       Color
+ *              |                                                   |                               |                                                                   |
+ *              |                                                   |                               |                                                                   +       (enum) ThemeColorType
+ *              |                                                   |                               |
+ *              |                                                   |                               +       DataSourceColumnReference
+ *              |                                                   |
+ *              |                                                   +       SortSpec                +       (enum) SortOrder
+ *              |                                                                                   |
+ *              |                                                                                   +       ColorStyle
+ *              |
+ *              +                           DataSourceFormula
+*/
 
 namespace GSHEET
 {

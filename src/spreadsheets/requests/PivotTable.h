@@ -1,5 +1,5 @@
-#ifndef PIVOT_H
-#define PIVOT_H
+#ifndef PIVOT_TABLE_H
+#define PIVOT_TABLE_H
 
 #include <Arduino.h>
 #include "./Config.h"
