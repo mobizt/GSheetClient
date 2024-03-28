@@ -47,7 +47,7 @@
  *              |                                                                                                                       +       (enum) ThemeColorType
  *              +                           DataValidationRule      +       BooleanCondition        +       (enum) ConditionType
  *              |                                                                                   |       
- *              |                                                                                   +       ConditionValue				+       (enum) RelativeDate
+ *              |                                                                                   +       ConditionValue              +       (enum) RelativeDate
  *              +                           PivotTable*
  *              |
  *              +                           DataSourceTable         +       (enum) DataSourceTableColumnSelectionType
