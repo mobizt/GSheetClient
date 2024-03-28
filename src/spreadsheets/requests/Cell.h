@@ -42,7 +42,7 @@
  *              |                                                   |
  *              |                                                   +       TextRotation
  *              |
- *              +                           TextFormatRun	        +       TextFormat              +           ColorStyle              +       Color
+ *              +                           TextFormatRun           +       TextFormat              +           ColorStyle              +       Color
  *              |                                                                                                                       |
  *              |                                                                                                                       +       (enum) ThemeColorType
  *              +                           DataValidationRule      +       BooleanCondition        +       (enum) ConditionType
