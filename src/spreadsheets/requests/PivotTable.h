@@ -12,10 +12,10 @@
  *              |                               |
  *              |                               +   (enum) SortOrder
  *              |                               |
- * 			    |			                    +   PivotGroupSortValueBucket               +   ExtendedValue
+ *              |                               +   PivotGroupSortValueBucket               +   ExtendedValue
  *              |                               |
  *              |                               |
- * 			    |			                    +   PivotGroupRule                          +   ManualRule          +   ManualRuleGroup         +   ExtendedValue
+ *              |                               +   PivotGroupRule                          +   ManualRule          +   ManualRuleGroup         +   ExtendedValue
  *              |                               |                                           |
  *              |                               |                                           +   HistogramRule
  *			    |				                |			                                |
