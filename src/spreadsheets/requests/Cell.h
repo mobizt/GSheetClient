@@ -34,7 +34,7 @@
  *              |                                                   |
  *              |                                                   +       (enum) TextDirection
  *              |                                                   |
- *              |                                                   +       TextFormat              +           ColorStyle			    +       Color
+ *              |                                                   +       TextFormat              +           ColorStyle              +       Color
  *              |                                                   |                                                                   |
  *              |                                                   |                                                                   +       (enum) ThemeColorType
  *              |                                                   |
