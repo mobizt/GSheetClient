@@ -8,6 +8,8 @@
 #include "./spreadsheets/requests/Common.h"
 
 /**
+ * PIVOT TABLE CLASS DEPENDENCIES
+ * 
  * PivotTable   +   PivotGroup                  +    PivotGroupValueMetadata                +   ExtendedValue
  *              |                               |
  *              |                               +   (enum) SortOrder
