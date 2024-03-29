@@ -155,8 +155,8 @@ namespace GSHEET
     class RepeatCellRequest : public Printable
     {
     private:
-        size_t bufSize = 3;
-        String buf[3];
+        size_t bufSize = 4;
+        String buf[4];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 

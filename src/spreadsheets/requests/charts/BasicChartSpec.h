@@ -10,6 +10,7 @@
 #include "./spreadsheets/requests/CellFormat.h"
 #include "./spreadsheets/requests/DataSourceTable.h"
 #include "./spreadsheets/requests/charts/DataLabel.h"
+#include "./spreadsheets/requests/charts/LineStyle.h"
 
 /**
  * BASIC CHART CLASS DEPENDENCIES
@@ -83,21 +84,6 @@ namespace GSHEET
         VIEW_WINDOW_MODE_UNSUPPORTED, //	Do not use. Represents that the currently set mode is not supported by the API.
         EXPLICIT,                     //	Follows the min and max exactly if specified. If a value is unspecified, it will fall back to the PRETTY value.
         PRETTY                        //	Chooses a min and max that make the chart look good. Both min and max are ignored in this mode.
-    };
-
-    // The dash type of a line.
-    enum LineDashType
-    {
-        LINE_DASH_TYPE_UNSPECIFIED, //	Default value, do not use.
-        INVISIBLE,                  //	No dash type, which is equivalent to a non-visible line.
-        CUSTOM,                     //	A custom dash for a line. Modifying the exact custom dash style is currently unsupported.
-        SOLID,                      //	A solid line.
-        DOTTED,                     //	A dotted line.
-        MEDIUM_DASHED,              //	A dashed line where the dashes have "medium" length.
-        MEDIUM_DASHED_DOTTED,       //	A line that alternates between a "medium" dash and a dot.
-        LONG_DASHED,                //	A dashed line where the dashes have "long" length.
-        LONG_DASHED_DOTTED          //	A line that alternates between a "long" dash and a dot.
-
     };
 
     // The shape of a point.
@@ -240,55 +226,7 @@ namespace GSHEET
         void clear() { owriter.clearBuf(buf, bufSize); }
     };
 
-    /**
-     * Properties that describe the style of a line.
-     */
-    class LineStyle : public Printable
-    {
-    private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        LineStyle &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
-    public:
-        LineStyle() {}
-        // The thickness of the line, in px.
-        LineStyle &width(int value) { return setObject(buf[1], "width", String(value), false, true); }
-        // The dash type of the line.
-        LineStyle &type(LineDashType value)
-        {
-            if (value == LINE_DASH_TYPE_UNSPECIFIED)
-                return setObject(buf[2], "type", "LINE_DASH_TYPE_UNSPECIFIED", true, true);
-            else if (value == INVISIBLE)
-                return setObject(buf[2], "type", "INVISIBLE", true, true);
-            else if (value == CUSTOM)
-                return setObject(buf[2], "type", "CUSTOM", true, true);
-            else if (value == SOLID)
-                return setObject(buf[2], "type", "SOLID", true, true);
-            else if (value == DOTTED)
-                return setObject(buf[2], "type", "DOTTED", true, true);
-            else if (value == MEDIUM_DASHED)
-                return setObject(buf[2], "type", "MEDIUM_DASHED", true, true);
-            else if (value == MEDIUM_DASHED_DOTTED)
-                return setObject(buf[2], "type", "MEDIUM_DASHED_DOTTED", true, true);
-            else if (value == LONG_DASHED)
-                return setObject(buf[2], "type", "LONG_DASHED", true, true);
-            else if (value == LONG_DASHED_DOTTED)
-                return setObject(buf[2], "type", "LONG_DASHED_DOTTED", true, true);
-            return *this;
-        }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
-    };
-
+    
     /**
      * The style of a point on the chart.
      */
