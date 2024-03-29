@@ -6,6 +6,7 @@
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
 #include "./spreadsheets/requests/Theme.h"
+#include "./spreadsheets/requests/TextPosition.h"
 
 /**
  * CELL FORMAT CLASS DEPENDENCIES
@@ -71,24 +72,6 @@ namespace GSHEET
         SOLID_THICK,       //	The border is a thick solid line.
         NONE,              //	No border. Used only when updating a border in order to erase it.
         DOUBLE             //	The border is two solid lines.
-    };
-
-    // The horizontal alignment of text in a cell.
-    enum HorizontalAlign
-    {
-        HORIZONTAL_ALIGN_UNSPECIFIED, //	The horizontal alignment is not specified. Do not use this.
-        LEFT,                         //	The text is explicitly aligned to the left of the cell.
-        CENTER,                       //	The text is explicitly aligned to the center of the cell.
-        RIGHT                         //	The text is explicitly aligned to the right of the cell.
-    };
-
-    // The vertical alignment of text in a cell.
-    enum VerticalAlign
-    {
-        VERTICAL_ALIGN_UNSPECIFIED, //	The vertical alignment is not specified. Do not use this.
-        TOP,                        //	The text is explicitly aligned to the top of the cell.
-        MIDDLE,                     //	The text is explicitly aligned to the middle of the cell.
-        BOTTOM                      //	The text is explicitly aligned to the bottom of the cell.
     };
 
     // How to wrap text in a cell.
