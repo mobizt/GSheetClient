@@ -34,6 +34,8 @@ class GSheetBase
 {
 private:
 public:
+    std::vector<uint32_t> cVec; // GSheetAsyncClient vector
+
     ~GSheetBase(){};
 
     GSheetBase(const String &url = "")
@@ -56,16 +58,23 @@ public:
         this->service_url = url;
     }
 
-    void setApp(uint32_t app_addr, app_token_t *app_token)
+    void setApp(uint32_t app_addr, app_token_t *app_token, uint32_t avec_addr)
     {
         this->app_addr = app_addr;
         this->app_token = app_token;
+        this->avec_addr = avec_addr; // GSheetAsyncClient vector (list) address
     }
 
     app_token_t *appToken()
     {
-        GSheetList vec;
-        return vec.existed(aVec, app_addr) ? app_token : nullptr;
+        if (avec_addr > 0)
+        {
+            std::vector<uint32_t> *cVec = reinterpret_cast<std::vector<uint32_t> *>(avec_addr);
+            GSheetList vec;
+            if (cVec)
+                return vec.existed(*cVec, app_addr) ? app_token : nullptr;
+        }
+        return nullptr;
     }
 
     /**
@@ -107,9 +116,10 @@ public:
 
 protected:
     String service_url;
+    // GSheetApp address and GSheetApp vector address
+    uint32_t app_addr = 0, avec_addr = 0;
     String path;
     String uid;
-    uint32_t app_addr = 0;
     app_token_t *app_token = nullptr;
 
     struct async_request_data_t

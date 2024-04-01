@@ -69,6 +69,7 @@ namespace GSHEET
         // The type of date-time grouping to apply.
         ChartDateTimeRule &type(ChartDateTimeRuleType value)
         {
+            clear();
             if (value == CHART_DATE_TIME_RULE_TYPE_UNSPECIFIED)
                 jut.addObject(buf, "type", "CHART_DATE_TIME_RULE_TYPE_UNSPECIFIED", true, true);
             else if (value == SECOND)
@@ -144,26 +145,29 @@ namespace GSHEET
     class ChartGroupRule : public Printable
     {
     private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
+        String buf;
         GSheetJSONUtil jut;
-
-        ChartGroupRule &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
+        GSheetObjectWriter owriter;
 
     public:
         ChartGroupRule() {}
+        // Union field rule
         // A ChartDateTimeRule.
-        ChartGroupRule &dateTimeRule(const ChartDateTimeRule &value) { return setObject(buf[1], "dateTimeRule", value.c_str(), false, true); }
+        ChartGroupRule &dateTimeRule(const ChartDateTimeRule &value)
+        {
+            clear();
+            jut.addObject(buf, "dateTimeRule", value.c_str(), false, true);
+        }
+        // Union field rule
         // A ChartHistogramRule
-        ChartGroupRule &histogramRule(const ChartHistogramRule &value) { return setObject(buf[2], "histogramRule", value.c_str(), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        ChartGroupRule &histogramRule(const ChartHistogramRule &value)
+        {
+            clear();
+            jut.addObject(buf, "histogramRule", value.c_str(), false, true);
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
     };
 
     /**
@@ -218,8 +222,8 @@ namespace GSHEET
     class ChartData : public Printable
     {
     private:
-        size_t bufSize = 5;
-        String buf[5];
+        size_t bufSize = 4;
+        String buf[4];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -252,10 +256,12 @@ namespace GSHEET
                 return setObject(buf[2], "aggregateType", "SUM", true, true);
             return *this;
         }
+        // Union field type
         // The source ranges of the data.
-        ChartData &sourceRange(const ChartSourceRange &value) { return buf[4].length() == 0 ? setObject(buf[3], "sourceRange", value.c_str(), false, true) : *this; }
+        ChartData &sourceRange(const ChartSourceRange &value) { return setObject(buf[3], "sourceRange", value.c_str(), false, true); }
+        // Union field type
         // The reference to the data source column that the data reads from.
-        ChartData &columnReference(const DataSourceColumnReference &value) { return buf[3].length() == 0 ? setObject(buf[4], "columnReference", value.c_str(), false, true) : *this; }
+        ChartData &columnReference(const DataSourceColumnReference &value) { return setObject(buf[3], "columnReference", value.c_str(), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }

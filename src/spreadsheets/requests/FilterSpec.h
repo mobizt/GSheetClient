@@ -6,7 +6,7 @@
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
 #include "./spreadsheets/requests/BooleanCondition.h"
-#include "./spreadsheets/requests/DataSourceColumnReference.h"
+#include "./spreadsheets/requests/DataSource.h"
 
 /**
  * FILTER SPEC CLASS DEPENDENCIES
@@ -76,12 +76,12 @@ namespace GSHEET
         FilterSpec() {}
         // The criteria for the column.
         FilterSpec &filterCriteria(const FilterCriteria &value) { return setObject(buf[1], "filterCriteria", value.c_str(), false, true); }
+        // Union field reference
         // The zero-based column index.
+        FilterSpec &columnIndex(int value) { return setObject(buf[2], "columnIndex", String(value), false, true); }
         // Union field reference
-        FilterSpec &columnIndex(int value) { return buf[3].length() == 0 ? setObject(buf[2], "columnIndex", String(value), false, true) : *this; }
         // Reference to a data source column.
-        // Union field reference
-        FilterSpec &dataSourceColumnReference(const DataSourceColumnReference &value) { return buf[2].length() == 0 ? setObject(buf[3], "dataSourceColumnReference", value.c_str(), false, true) : *this; }
+        FilterSpec &dataSourceColumnReference(const DataSourceColumnReference &value) { return setObject(buf[2], "dataSourceColumnReference", value.c_str(), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }

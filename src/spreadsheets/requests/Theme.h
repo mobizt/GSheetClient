@@ -8,7 +8,7 @@
 
 /**
  * COLOR STYLE CLASS DEPENDENCIES
- * 
+ *
  * ColorStyle           +       Color
                         |
                         +       (enum) ThemeColorType
@@ -98,56 +98,96 @@ namespace GSHEET
     class ColorStyle : public Printable
     {
     private:
+        String buf;
+        GSheetJSONUtil jut;
+
+    public:
+        ColorStyle() {}
+        // Union field kind
+        // RGB color. The alpha value in the Color object isn't generally supported.
+        ColorStyle &rgbColor(Color value)
+        {
+            clear();
+            jut.addObject(buf, "rgbColor", value.c_str(), false, true);
+            return *this;
+        }
+        // Union field kind
+        // When iterative calculation is enabled and successive results differ by less than this threshold value, the calculation rounds stop.
+        ColorStyle &themeColor(ThemeColorType value)
+        {
+            if (value == THEME_COLOR_TYPE_UNSPECIFIED)
+                jut.addObject(buf, "themeColor", "THEME_COLOR_TYPE_UNSPECIFIED", true, true);
+            else if (value == TEXT)
+                jut.addObject(buf, "themeColor", "TEXT", true, true);
+            else if (value == BACKGROUND)
+                jut.addObject(buf, "themeColor", "BACKGROUND", true, true);
+            else if (value == ACCENT1)
+                jut.addObject(buf, "themeColor", "ACCENT1", true, true);
+            else if (value == ACCENT2)
+                jut.addObject(buf, "themeColor", "ACCENT2", true, true);
+            else if (value == ACCENT3)
+                jut.addObject(buf, "themeColor", "ACCENT3", true, true);
+            else if (value == ACCENT4)
+                jut.addObject(buf, "themeColor", "ACCENT4", true, true);
+            else if (value == ACCENT5)
+                jut.addObject(buf, "themeColor", "ACCENT5", true, true);
+            else if (value == ACCENT6)
+                jut.addObject(buf, "themeColor", "ACCENT6", true, true);
+            else if (value == LINK)
+                jut.addObject(buf, "themeColor", "LINK", true, true);
+            return *this;
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
+    };
+
+    /**
+     * A pair mapping a spreadsheet theme color type to the concrete color it represents.
+     */
+    class ThemeColorPair : public Printable
+    {
+    private:
         size_t bufSize = 3;
         String buf[3];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
-        ColorStyle &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
+        ThemeColorPair &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
         {
             owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
             return *this;
         }
 
     public:
-        ColorStyle() {}
-        // RGB color. The alpha value in the Color object isn't generally supported.
-        ColorStyle &rgbColor(Color value)
+        ThemeColorPair() {}
+        // The type of the spreadsheet theme color.
+        ThemeColorPair &colorType(ThemeColorType value)
         {
-            // / Union field kind
-            if (buf[2].length() == 0)
-                return setObject(buf[1], "rgbColor", value.c_str(), false, true);
+            if (value == THEME_COLOR_TYPE_UNSPECIFIED)
+                return setObject(buf[1], "colorType", "THEME_COLOR_TYPE_UNSPECIFIED", true, true);
+            else if (value == TEXT)
+                return setObject(buf[1], "colorType", "TEXT", true, true);
+            else if (value == BACKGROUND)
+                return setObject(buf[1], "colorType", "BACKGROUND", true, true);
+            else if (value == ACCENT1)
+                return setObject(buf[1], "colorType", "ACCENT1", true, true);
+            else if (value == ACCENT2)
+                return setObject(buf[1], "colorType", "ACCENT2", true, true);
+            else if (value == ACCENT3)
+                return setObject(buf[1], "colorType", "ACCENT3", true, true);
+            else if (value == ACCENT4)
+                return setObject(buf[1], "colorType", "ACCENT4", true, true);
+            else if (value == ACCENT5)
+                return setObject(buf[1], "colorType", "ACCENT5", true, true);
+            else if (value == ACCENT6)
+                return setObject(buf[1], "colorType", "ACCENT6", true, true);
+            else if (value == LINK)
+                return setObject(buf[1], "colorType", "LINK", true, true);
             return *this;
         }
-        // When iterative calculation is enabled and successive results differ by less than this threshold value, the calculation rounds stop.
-        ColorStyle &themeColor(ThemeColorType value)
-        {
-            // Union field kind
-            if (buf[1].length() == 0)
-            {
-                if (value == THEME_COLOR_TYPE_UNSPECIFIED)
-                    return setObject(buf[2], "themeColor", "THEME_COLOR_TYPE_UNSPECIFIED", true, true);
-                else if (value == TEXT)
-                    return setObject(buf[2], "themeColor", "TEXT", true, true);
-                else if (value == BACKGROUND)
-                    return setObject(buf[2], "themeColor", "BACKGROUND", true, true);
-                else if (value == ACCENT1)
-                    return setObject(buf[2], "themeColor", "ACCENT1", true, true);
-                else if (value == ACCENT2)
-                    return setObject(buf[2], "themeColor", "ACCENT2", true, true);
-                else if (value == ACCENT3)
-                    return setObject(buf[2], "themeColor", "ACCENT3", true, true);
-                else if (value == ACCENT4)
-                    return setObject(buf[2], "themeColor", "ACCENT4", true, true);
-                else if (value == ACCENT5)
-                    return setObject(buf[2], "themeColor", "ACCENT5", true, true);
-                else if (value == ACCENT6)
-                    return setObject(buf[2], "themeColor", "ACCENT6", true, true);
-                else if (value == LINK)
-                    return setObject(buf[2], "themeColor", "LINK", true, true);
-            }
-            return *this;
-        }
+        // The concrete color corresponding to the theme color type.
+        ThemeColorPair &color(const ColorStyle &value) { return setObject(buf[2], "color", value.c_str(), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }

@@ -10,7 +10,7 @@
 
 /**
  * CELL FORMAT CLASS DEPENDENCIES
- * 
+ *
  * CellFormat   +   NumberFormat            +   (enum) NumberFormatType
  *              |
  *              +   ColorStyle*
@@ -25,17 +25,17 @@
  *              +   (enum) VerticalAlign
  *              |
  *              +   (enum) WrapStrategy
- *              |                                                   
+ *              |
  *              +   (enum) TextDirection
  *              |
  *              +   TextFormat              +   ColorStyle*
  *              |
  *              +   (enum) HyperlinkDisplayType
- *              |                                                   
+ *              |
  *              +   TextRotation
- * 
+ *
  * See Theme.h
-*/
+ */
 
 namespace GSHEET
 {
@@ -271,10 +271,13 @@ namespace GSHEET
         GSheetJSONUtil jut;
 
     public:
-        /**
-         * @param uri The link identifier.
-         * */
-        Link(const String &uri) { jut.addObject(buf, "uri", uri, true, true); }
+        Link() {}
+        // The link identifier.
+        Link &uri(const String &value)
+        {
+            clear();
+            jut.addObject(buf, "uri", value, true, true);
+        }
         const char *c_str() const { return buf.c_str(); }
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }
         void clear() { buf.remove(0, buf.length()); }
@@ -315,7 +318,6 @@ namespace GSHEET
         TextFormat &underline(bool value) { return setObject(buf[7], "underline", owriter.getBoolStr(value), false, true); }
         // The link destination of the text, if any. Setting the link field in a TextFormatRun will clear the cell's existing links or a cell-level link set in the same request. When a link is set, the text foreground color will be set to the default link color and the text will be underlined. If these fields are modified in the same request, those values will be used instead of the link defaults.
         TextFormat &link(const Link &value) { return setObject(buf[8], "link", value.c_str(), false, true); }
-
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
@@ -324,29 +326,22 @@ namespace GSHEET
     class TextRotation : public Printable
     {
     private:
-        size_t bufSize = 3;
-        String buf[3];
+        String buf;
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
-        TextRotation &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
         TextRotation() {}
+        // Union field type
         // The angle between the standard orientation and the desired orientation. Measured in degrees. Valid values are between -90 and 90. Positive angles are angled upwards, negative are angled downwards.
         // Note: For LTR text direction positive angles are in the counterclockwise direction, whereas for RTL they are in the clockwise direction
         TextRotation &angle(int value)
         {
-            // Union field type
-            if (buf[2].length() == 0)
-                return setObject(buf[1], "angle", String(value), false, true);
+            clear();
+            jut.addObject(buf, "angle", String(value), false, true);
             return *this;
         }
-
+        // Union field type
         // If true, text reads top to bottom, but the orientation of individual characters is unchanged. For example:
         //
         //  | V |
@@ -359,14 +354,13 @@ namespace GSHEET
         //  | l |
         TextRotation &vertical(bool value)
         {
-            // Union field type
-            if (buf[1].length() == 0)
-                return setObject(buf[1], "vertical", owriter.getBoolStr(value), false, true);
+            clear();
+            jut.addObject(buf, "vertical", owriter.getBoolStr(value), false, true);
             return *this;
         }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
     };
 
     /**
@@ -375,8 +369,8 @@ namespace GSHEET
     class CellFormat : public Printable
     {
     private:
-        size_t bufSize = 13;
-        String buf[13];
+        size_t bufSize = 12;
+        String buf[12];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -388,71 +382,81 @@ namespace GSHEET
 
     public:
         CellFormat() {}
+        // A format describing how number values should be represented to the user.
         CellFormat &numberFormat(const NumberFormat &value) { return setObject(buf[1], "numberFormat", value.c_str(), false, true); }
-        CellFormat &backgroundColor(const Color &value) { return setObject(buf[2], "backgroundColor", value.c_str(), false, true); }
-        CellFormat &backgroundColorStyle(const ColorStyle &value) { return setObject(buf[3], "backgroundColorStyle", value.c_str(), false, true); }
-        CellFormat &borders(const Borders &value) { return setObject(buf[4], "borders", value.c_str(), false, true); }
-        CellFormat &padding(const Padding &value) { return setObject(buf[5], "padding", value.c_str(), false, true); }
+        // The background color of the cell. If backgroundColor is also set, this field takes precedence.
+        CellFormat &backgroundColorStyle(const ColorStyle &value) { return setObject(buf[2], "backgroundColorStyle", value.c_str(), false, true); }
+        // The borders of the cell.
+        CellFormat &borders(const Borders &value) { return setObject(buf[3], "borders", value.c_str(), false, true); }
+        // The padding of the cell.
+        CellFormat &padding(const Padding &value) { return setObject(buf[4], "padding", value.c_str(), false, true); }
+        // The horizontal alignment of the value in the cell.
         CellFormat &horizontalAlignment(HorizontalAlign value)
         {
             if (value == HORIZONTAL_ALIGN_UNSPECIFIED)
-                return setObject(buf[6], "horizontalAlignment", "HORIZONTAL_ALIGN_UNSPECIFIED", true, true);
+                return setObject(buf[5], "horizontalAlignment", "HORIZONTAL_ALIGN_UNSPECIFIED", true, true);
             else if (value == LEFT)
-                return setObject(buf[6], "horizontalAlignment", "LEFT", true, true);
+                return setObject(buf[5], "horizontalAlignment", "LEFT", true, true);
             else if (value == CENTER)
-                return setObject(buf[6], "horizontalAlignment", "CENTER", true, true);
+                return setObject(buf[5], "horizontalAlignment", "CENTER", true, true);
             else if (value == RIGHT)
-                return setObject(buf[6], "horizontalAlignment", "RIGHT", true, true);
+                return setObject(buf[5], "horizontalAlignment", "RIGHT", true, true);
             return *this;
         }
+        // The vertical alignment of the value in the cell.
         CellFormat &verticalAlignment(VerticalAlign value)
         {
             if (value == VERTICAL_ALIGN_UNSPECIFIED)
-                return setObject(buf[7], "verticalAlignment", "VERTICAL_ALIGN_UNSPECIFIED", true, true);
+                return setObject(buf[6], "verticalAlignment", "VERTICAL_ALIGN_UNSPECIFIED", true, true);
             else if (value == TOP)
-                return setObject(buf[7], "verticalAlignment", "TOP", true, true);
+                return setObject(buf[6], "verticalAlignment", "TOP", true, true);
             else if (value == MIDDLE)
-                return setObject(buf[7], "verticalAlignment", "MIDDLE", true, true);
+                return setObject(buf[6], "verticalAlignment", "MIDDLE", true, true);
             else if (value == BOTTOM)
-                return setObject(buf[7], "verticalAlignment", "BOTTOM", true, true);
+                return setObject(buf[6], "verticalAlignment", "BOTTOM", true, true);
             return *this;
         }
+        // The wrap strategy for the value in the cell.
         CellFormat &wrapStrategy(WrapStrategy value)
         {
             if (value == WRAP_STRATEGY_UNSPECIFIED)
-                return setObject(buf[8], "wrapStrategy", "WRAP_STRATEGY_UNSPECIFIED", true, true);
+                return setObject(buf[7], "wrapStrategy", "WRAP_STRATEGY_UNSPECIFIED", true, true);
             else if (value == OVERFLOW_CELL)
-                return setObject(buf[8], "wrapStrategy", "OVERFLOW_CELL", true, true);
+                return setObject(buf[7], "wrapStrategy", "OVERFLOW_CELL", true, true);
             else if (value == LEGACY_WRAP)
-                return setObject(buf[8], "wrapStrategy", "LEGACY_WRAP", true, true);
+                return setObject(buf[7], "wrapStrategy", "LEGACY_WRAP", true, true);
             else if (value == CLIP)
-                return setObject(buf[8], "wrapStrategy", "CLIP", true, true);
+                return setObject(buf[7], "wrapStrategy", "CLIP", true, true);
             else if (value == WRAP)
-                return setObject(buf[8], "wrapStrategy", "WRAP", true, true);
+                return setObject(buf[7], "wrapStrategy", "WRAP", true, true);
             return *this;
         }
+        // The direction of the text in the cell.
         CellFormat &textDirection(TextDirection value)
         {
             if (value == TEXT_DIRECTION_UNSPECIFIED)
-                return setObject(buf[9], "textDirection", "TEXT_DIRECTION_UNSPECIFIED", true, true);
+                return setObject(buf[8], "textDirection", "TEXT_DIRECTION_UNSPECIFIED", true, true);
             else if (value == LEFT_TO_RIGHT)
-                return setObject(buf[9], "textDirection", "LEFT_TO_RIGHT", true, true);
+                return setObject(buf[8], "textDirection", "LEFT_TO_RIGHT", true, true);
             else if (value == RIGHT_TO_LEFT)
-                return setObject(buf[9], "textDirection", "RIGHT_TO_LEFT", true, true);
+                return setObject(buf[8], "textDirection", "RIGHT_TO_LEFT", true, true);
             return *this;
         }
-        CellFormat &textFormat(const TextFormat &value) { return setObject(buf[10], "textFormat", value.c_str(), false, true); }
+        // The format of the text in the cell (unless overridden by a format run). Setting a cell-level link here clears the cell's existing links. Setting the link field in a TextFormatRun takes precedence over the cell-level link.
+        CellFormat &textFormat(const TextFormat &value) { return setObject(buf[9], "textFormat", value.c_str(), false, true); }
+        // If one exists, how a hyperlink should be displayed in the cell.
         CellFormat &hyperlinkDisplayType(HyperlinkDisplayType value)
         {
             if (value == HYPERLINK_DISPLAY_TYPE_UNSPECIFIED)
-                return setObject(buf[11], "hyperlinkDisplayType", "HYPERLINK_DISPLAY_TYPE_UNSPECIFIED", true, true);
+                return setObject(buf[10], "hyperlinkDisplayType", "HYPERLINK_DISPLAY_TYPE_UNSPECIFIED", true, true);
             else if (value == LINKED)
-                return setObject(buf[11], "hyperlinkDisplayType", "LINKED", true, true);
+                return setObject(buf[10], "hyperlinkDisplayType", "LINKED", true, true);
             else if (value == PLAIN_TEXT)
-                return setObject(buf[11], "hyperlinkDisplayType", "PLAIN_TEXT", true, true);
+                return setObject(buf[10], "hyperlinkDisplayType", "PLAIN_TEXT", true, true);
             return *this;
         }
-        CellFormat &textRotation(const TextRotation &value) { return setObject(buf[12], "textRotation", value.c_str(), false, true); }
+        // The rotation applied to text in the cell.
+        CellFormat &textRotation(const TextRotation &value) { return setObject(buf[11], "textRotation", value.c_str(), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }

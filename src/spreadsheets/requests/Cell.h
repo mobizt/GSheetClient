@@ -31,9 +31,9 @@
  *              |                                                   +       SortSpec*
  *              |
  *              +                           DataSourceFormula
- * 
+ *
  * See PivotTable.h, BooleanCondition.h, Theme.h, FilterSpec.h, SortSpec.h, CellFormat.h
-*/
+ */
 
 namespace GSHEET
 {
@@ -72,8 +72,8 @@ namespace GSHEET
     class DataValidationRule : public Printable
     {
     private:
-        size_t bufSize = 3;
-        String buf[3];
+        size_t bufSize = 5;
+        String buf[5];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -92,10 +92,59 @@ namespace GSHEET
         // True if invalid data should be rejected.
         DataValidationRule &strict(bool value) { return setObject(buf[3], "strict", owriter.getBoolStr(value), false, true); }
         // True if the UI should be customized based on the kind of condition. If true, "List" conditions will show a dropdown.
-        DataValidationRule &showCustomUi(bool value) { return setObject(buf[3], "showCustomUi", owriter.getBoolStr(value), false, true); }
+        DataValidationRule &showCustomUi(bool value) { return setObject(buf[4], "showCustomUi", owriter.getBoolStr(value), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
+    };
+
+    /**
+     * The kinds of value that a cell in a spreadsheet can have.
+     */
+    class ExtendedValue : public Printable
+    {
+    private:
+        String buf;
+        GSheetJSONUtil jut;
+        GSheetObjectWriter owriter;
+
+    public:
+        ExtendedValue() {}
+        // Union field value
+        // Represents a double value. Note: Dates, Times and DateTimes are represented as doubles in SERIAL_NUMBER format.
+        ExtendedValue &numberValue(double value)
+        {
+            clear();
+            jut.addObject(buf, "numberValue", String(value), false, true);
+            return *this;
+        }
+        // Union field value
+        // Represents a string value. Leading single quotes are not included. For example, if the user typed '123 into the UI, this would be represented as a stringValue of "123".
+        ExtendedValue &stringValue(const String &value)
+        {
+            clear();
+            jut.addObject(buf, "stringValue", value, true, true);
+            return *this;
+        }
+        // Union field value
+        // Represents a boolean value.
+        ExtendedValue &boolValue(bool value)
+        {
+            clear();
+            jut.addObject(buf, "boolValue", owriter.getBoolStr(value), false, true);
+            return *this;
+        }
+        // Union field value
+        // Represents a formula.
+        ExtendedValue &formulaValue(const String &value)
+        {
+            clear();
+            jut.addObject(buf, "formulaValue", value, true, true);
+            return *this;
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
     };
 
     /**
@@ -142,38 +191,6 @@ namespace GSHEET
         CellData &pivotTable(const PivotTable &value) { return setObject(buf[8], "pivotTable", value.c_str(), false, true); }
         // A data source table anchored at this cell. The size of data source table itself is computed dynamically based on its configuration. Only the first cell of the data source table contains the data source table definition. The other cells will contain the display values of the data source table result in their effectiveValue fields.
         CellData &dataSourceTable(const DataSourceTable &value) { return setObject(buf[9], "dataSourceTable", value.c_str(), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
-    };
-
-    /**
-     * Updates all cells in the range to the values in the given Cell object. Only the fields listed in the fields field are updated; others are unchanged.
-     * If writing a cell with a formula, the formula's ranges will automatically increment for each field in the range. For example, if writing a cell with formula =A1 into range B2:C4, B2 would be =A1, B3 would be =A2, B4 would be =A3, C2 would be =B1, C3 would be =B2, C4 would be =B3.
-     * keep the formula's ranges static, use the $ indicator. For example, use the formula =$A$1 to prevent both the row and the column from incrementing.
-     */
-    class RepeatCellRequest : public Printable
-    {
-    private:
-        size_t bufSize = 4;
-        String buf[4];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        RepeatCellRequest &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
-    public:
-        RepeatCellRequest() {}
-        // The range to repeat the cell in.
-        RepeatCellRequest &range(const GridRange &value) { return setObject(buf[1], "range", value.c_str(), false, true); }
-        // The data to write.
-        RepeatCellRequest &cell(const CellData &value) { return setObject(buf[2], "cell", value.c_str(), false, true); }
-        // The fields that should be updated. At least one field must be specified. The root cell is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
-        RepeatCellRequest &fields(const String &value) { return setObject(buf[3], "fields", value, true, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }

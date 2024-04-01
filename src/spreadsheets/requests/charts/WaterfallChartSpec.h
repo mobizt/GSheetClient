@@ -155,7 +155,7 @@ namespace GSHEET
         // True to hide the subtotal column from the end of the series. By default, a subtotal column will appear at the end of each series. Setting this field to true will hide that subtotal column for this series.
         WaterfallChartSeries &hideTrailingSubtotal(bool value) { return setObject(buf[5], "hideTrailingSubtotal", owriter.getBoolStr(value), false, true); }
         // Custom subtotal columns appearing in this series. The order in which subtotals are defined is not significant. Only one subtotal may be defined for each data point.
-        WaterfallChartSeries &addCustomSubtotals(const WaterfallChartColumnStyle &value)
+        WaterfallChartSeries &addCustomSubtotals(const WaterfallChartCustomSubtotal &value)
         {
             owriter.addMapArrayMember(buf, bufSize, buf[6], FPSTR("customSubtotals"), value.c_str(), false);
             return *this;

@@ -99,10 +99,17 @@ public:
         err_timer.feed(0);
     }
 
-    void setRefResult(GSheetAsyncResult *refResult)
+    void setRefResult(GSheetAsyncResult *refResult, uint32_t rvec_addr)
     {
         this->refResult = refResult;
         ref_result_addr = refResult->addr;
+        this->refResult->rvec_addr = rvec_addr;
+        if (rvec_addr > 0)
+        {
+            std::vector<uint32_t> *rVec = reinterpret_cast<std::vector<uint32_t> *>(rvec_addr);
+            GSheetList vec;
+            vec.addRemoveList(*rVec, ref_result_addr, true);
+        }
     }
 
     void reset()
@@ -150,6 +157,7 @@ private:
     String header;
     int netErrState = 0;
     uint32_t auth_ts = 0;
+    uint32_t cvec_addr = 0;
     Client *client = nullptr;
 #if defined(GSHEET_ENABLE_ASYNC_TCP_CLIENT)
     GSheetAsyncTCPConfig *async_tcp_config = nullptr;
@@ -516,6 +524,12 @@ private:
         return sData;
     }
 
+    GSheetAsyncResult *getResult(gsheet_async_data_item_t *sData)
+    {
+        GSheetList vec;
+        return vec.existed(rVec, sData->ref_result_addr) ? sData->refResult : nullptr;
+    }
+
     void returnResult(gsheet_async_data_item_t *sData, bool setData)
     {
 
@@ -526,11 +540,14 @@ private:
             error_notify_timeout = true;
         }
 
-        if (sData->refResult)
+        if (getResult(sData))
         {
             if (setData || error_notify_timeout)
             {
+                uint32_t ms = sData->refResult->last_debug_ms;
                 *sData->refResult = sData->aResult;
+                // Restore last debug ms after.
+                sData->refResult->last_debug_ms = ms;
 
                 if (setData)
                     sData->refResult->setPayload(sData->aResult.val[gsheet_ares_ns::data_payload]);
@@ -1269,7 +1286,7 @@ private:
         return net.network_status;
     }
 
-    int sIndex(gsheet_slot_options_t &options)
+    int sMan(gsheet_slot_options_t &options)
     {
         int slot = -1;
         if (options.auth_used)
@@ -1420,13 +1437,13 @@ private:
     }
 
 public:
+    std::vector<uint32_t> rVec; // GSheetAsyncResult vector
+
     GSheetAsyncClientClass(Client &client, gsheet_network_config_data &net) : client(&client)
     {
         this->net.copy(net);
         this->addr = reinterpret_cast<uint32_t>(this);
-        GSheetList list;
         client_type = gsheet_async_request_handler_t::tcp_client_type_sync;
-        list.addRemoveList(cVec, addr, true);
     }
 
 #if defined(GSHEET_ENABLE_ASYNC_TCP_CLIENT)
@@ -1434,9 +1451,7 @@ public:
     {
         this->net.copy(net);
         this->addr = reinterpret_cast<uint32_t>(this);
-        List list;
         client_type = gsheet_async_request_handler_t::tcp_client_type_async;
-        list.addRemoveList(cVec, addr, true);
     }
 #endif
 
@@ -1448,13 +1463,11 @@ public:
         {
             reset(getData(i), true);
             gsheet_async_data_item_t *sData = getData(i);
-            if (!sData->auth_used)
-                delete sData;
+            delete sData;
             sData = nullptr;
         }
 
-        GSheetList list;
-        list.addRemoveList(cVec, addr, false);
+        addRemoveClientVec(cvec_addr, false);
     }
 
     bool networkStatus() { return netStatus(nullptr); }
@@ -1484,7 +1497,7 @@ public:
 
     gsheet_async_data_item_t *createSlot(gsheet_slot_options_t &options)
     {
-        int slot_index = sIndex(options);
+        int slot_index = sMan(options);
 
         gsheet_async_data_item_t *sData = addSlot(slot_index);
         sData->reset();
@@ -1539,6 +1552,18 @@ public:
     }
 
     void setAuthTs(uint32_t ts) { auth_ts = ts; }
+
+    void addRemoveClientVec(uint32_t cvec_addr, bool add)
+    {
+        this->cvec_addr = cvec_addr;
+        if (cvec_addr > 0)
+        {
+            std::vector<uint32_t> *cVec = reinterpret_cast<std::vector<uint32_t> *>(cvec_addr);
+            GSheetList vec;
+            if (cVec)
+                vec.addRemoveList(*cVec, this->addr, add);
+        }
+    }
 
     void setContentLength(gsheet_async_data_item_t *sData, size_t len)
     {

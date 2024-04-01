@@ -8,11 +8,11 @@
 
 /**
  * BOOLEAN CONDITION CLASS DEPENDENCIES
- * 
+ *
  * BooleanCondition     +   (enum) ConditionType
  *                      |
  *                      +   ConditionValue          +   (enum) RelativeDate
-*/
+ */
 
 namespace GSHEET
 {
@@ -72,44 +72,44 @@ namespace GSHEET
     class ConditionValue : public Printable
     {
     private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
+        String buf;
         GSheetJSONUtil jut;
-
-        ConditionValue &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
         ConditionValue() {}
-        // A relative date (based on the current date). Valid only if the type is DATE_BEFORE, DATE_AFTER, DATE_ON_OR_BEFORE or DATE_ON_OR_AFTER.
-        // Relative dates are not supported in data validation. They are supported only in conditional formatting and conditional filters.
+        // Union field value
+        //  A relative date (based on the current date). Valid only if the type is DATE_BEFORE, DATE_AFTER, DATE_ON_OR_BEFORE or DATE_ON_OR_AFTER.
+        //  Relative dates are not supported in data validation. They are supported only in conditional formatting and conditional filters.
         ConditionValue &relativeDate(RelativeDate value)
         {
+            clear();
             if (value == RELATIVE_DATE_UNSPECIFIED)
-                return setObject(buf[1], "relativeDate", "RELATIVE_DATE_UNSPECIFIED", true, true);
+                jut.addObject(buf, "relativeDate", "RELATIVE_DATE_UNSPECIFIED", true, true);
             else if (value == PAST_YEAR)
-                return setObject(buf[1], "relativeDate", "PAST_YEAR", true, true);
+                jut.addObject(buf, "relativeDate", "PAST_YEAR", true, true);
             else if (value == PAST_MONTH)
-                return setObject(buf[1], "relativeDate", "PAST_MONTH", true, true);
+                jut.addObject(buf, "relativeDate", "PAST_MONTH", true, true);
             else if (value == PAST_WEEK)
-                return setObject(buf[1], "relativeDate", "PAST_WEEK", true, true);
+                jut.addObject(buf, "relativeDate", "PAST_WEEK", true, true);
             else if (value == YESTERDAY)
-                return setObject(buf[1], "relativeDate", "YESTERDAY", true, true);
+                jut.addObject(buf, "relativeDate", "YESTERDAY", true, true);
             else if (value == TODAY)
-                return setObject(buf[1], "relativeDate", "TODAY", true, true);
+                jut.addObject(buf, "relativeDate", "TODAY", true, true);
             else if (value == TOMORROW)
-                return setObject(buf[1], "relativeDate", "TOMORROW", true, true);
+                jut.addObject(buf, "relativeDate", "TOMORROW", true, true);
             return *this;
         }
-        // A value the condition is based on. The value is parsed as if the user typed into a cell. Formulas are supported (and must begin with an = or a '+').
-        ConditionValue &userEnteredValue(const String &value) { return setObject(buf[2], "userEnteredValue", value, true, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        // Union field value
+        //  A value the condition is based on. The value is parsed as if the user typed into a cell. Formulas are supported (and must begin with an = or a '+').
+        ConditionValue &userEnteredValue(const String &value)
+        {
+            clear();
+            jut.addObject(buf, "userEnteredValue", value, true, true);
+            return *this;
+        }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
     };
 
     /**

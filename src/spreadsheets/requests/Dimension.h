@@ -5,7 +5,7 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/DataSourceColumnReference.h"
+#include "./spreadsheets/requests/DataSource.h"
 #include "./spreadsheets/requests/GridRange.h"
 
 namespace GSHEET
@@ -203,51 +203,6 @@ namespace GSHEET
         DimensionProperties &addDeveloperMetadata(const DeveloperMetadata value)
         {
             owriter.addMapArrayMember(buf, bufSize, buf[4], FPSTR("developerMetadata"), value.c_str(), false);
-            return *this;
-        }
-
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
-    };
-
-    /**
-     * Updates properties of dimensions within the specified range.
-     */
-    class UpdateDimensionPropertiesRequest : public Printable
-    {
-    private:
-        size_t bufSize = 5;
-        String buf[5];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        UpdateDimensionPropertiesRequest &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
-    public:
-        UpdateDimensionPropertiesRequest() {}
-        // Properties to update.
-        UpdateDimensionPropertiesRequest &properties(const DimensionProperties &value) { return setObject(buf[1], "properties", value.c_str(), false, true); }
-        // The fields that should be updated. At least one field must be specified. The root properties is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
-        UpdateDimensionPropertiesRequest &fields(const String &value) { return setObject(buf[2], "fields", value, true, true); }
-        // The rows or columns to update.
-        UpdateDimensionPropertiesRequest &range(const DimensionRange &value)
-        {
-            // Union field dimension_range
-            if (buf[4].length() == 0)
-                return setObject(buf[3], "range", value.c_str(), false, true);
-            return *this;
-        }
-        // The columns on a data source sheet to update.
-        UpdateDimensionPropertiesRequest &dataSourceSheetRange(const DataSourceSheetDimensionRange &value)
-        {
-            // Union field dimension_range
-            if (buf[3].length() == 0)
-                return setObject(buf[4], "dataSourceSheetRange", value.c_str(), false, true);
             return *this;
         }
 

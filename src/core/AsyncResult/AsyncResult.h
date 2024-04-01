@@ -74,12 +74,12 @@ class GSheetAsyncResult
     friend class GSheetApp;
     friend class gsheet_async_data_item_t;
 
-
 private:
     uint32_t addr = 0;
+    uint32_t rvec_addr = 0;
     String val[gsheet_ares_ns::max_type];
     bool debug_info_available = false;
-
+    uint32_t debug_ms = 0, last_debug_ms = 0;
 
     void setPayload(const String &data)
     {
@@ -98,6 +98,7 @@ public:
     void setDebug(const String &debug)
     {
         // Keeping old message in case unread.
+        debug_ms = millis();
         if (debug_info_available && val[gsheet_ares_ns::debug_info].length() < 200)
         {
             if (val[gsheet_ares_ns::debug_info].indexOf(debug) == -1)
@@ -115,18 +116,28 @@ public:
     GSheetAsyncResult()
     {
         addr = reinterpret_cast<uint32_t>(this);
-        GSheetList vec;
-        vec.addRemoveList(rVec, addr, true);
     };
     ~GSheetAsyncResult()
     {
-        GSheetList vec;
-        vec.addRemoveList(rVec, addr, false);
+        if (rvec_addr > 0)
+        {
+            std::vector<uint32_t> *rVec = reinterpret_cast<std::vector<uint32_t> *>(rvec_addr);
+            if (rVec)
+            {
+                GSheetList vec;
+                addr = reinterpret_cast<uint32_t>(this);
+                vec.addRemoveList(*rVec, addr, false);
+            }
+        }
     };
     const char *c_str() { return val[gsheet_ares_ns::data_payload].c_str(); }
     String payload() const { return val[gsheet_ares_ns::data_payload].c_str(); }
     String uid() const { return val[gsheet_ares_ns::res_uid].c_str(); }
-    String debug() const { return val[gsheet_ares_ns::debug_info].c_str(); }
+    String debug()
+    {
+        last_debug_ms = millis();
+        return val[gsheet_ares_ns::debug_info].c_str();
+    }
     void clear()
     {
         for (size_t i = 0; i < gsheet_ares_ns::max_type; i++)
@@ -136,7 +147,7 @@ public:
         app_event.setEvent(0, "");
         data_available = false;
     }
- 
+
     int available()
     {
         bool ret = data_available;
@@ -160,7 +171,7 @@ public:
     bool isDebug()
     {
         bool dbg = val[gsheet_ares_ns::debug_info].length() > 0;
-        if (debug_info_available)
+        if (debug_info_available && last_debug_ms < debug_ms && debug_ms > 0)
         {
             debug_info_available = false;
             return dbg;

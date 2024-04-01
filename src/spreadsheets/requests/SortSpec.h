@@ -5,20 +5,20 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
-#include "./spreadsheets/requests/DataSourceColumnReference.h"
+#include "./spreadsheets/requests/DataSource.h"
 #include "./spreadsheets/requests/Theme.h"
 
 /**
  * SORT SPEC CLASS DEPENDENCIES
- * 
+ *
  * SortSpec         +       (enum) SortOrder
  *                  |
  *                  +       ColorStyle*
  *                  |
  *                  +       DataSourceColumnReference
- * 
+ *
  * See Theme.h
-*/
+ */
 
 namespace GSHEET
 {
@@ -31,14 +31,14 @@ namespace GSHEET
         DESCENDING              //	Sort descending.
     };
 
-        /**
+    /**
      * A sort order associated with a specific column or row.
      */
     class SortSpec : public Printable
     {
     private:
-        size_t bufSize = 6;
-        String buf[6];
+        size_t bufSize = 5;
+        String buf[5];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -65,10 +65,12 @@ namespace GSHEET
         SortSpec &foregroundColorStyle(const ColorStyle &value) { return setObject(buf[2], "foregroundColorStyle", value.c_str(), false, true); }
         // The background fill color to sort by; cells with this fill color are sorted to the top. Mutually exclusive with foregroundColor, and must be an RGB-type color. If backgroundColor is also set, this field takes precedence.
         SortSpec &backgroundColorStyle(const ColorStyle &value) { return setObject(buf[3], "backgroundColorStyle", value.c_str(), false, true); }
-        // The dimension the sort should be applied to.
-        SortSpec &dimensionIndex(int value) { return buf[5].length() == 0 ? setObject(buf[4], "dimensionIndex", String(value), false, true) : *this; }
-        // Reference to a data source column.
-        SortSpec &dataSourceColumnReference(const DataSourceColumnReference &value) { return buf[4].length() == 0 ? setObject(buf[5], "dataSourceColumnReference", value.c_str(), false, true) : *this; }
+        // Union field reference
+        //  The dimension the sort should be applied to.
+        SortSpec &dimensionIndex(int value) { return setObject(buf[4], "dimensionIndex", String(value), false, true); }
+        // Union field reference
+        //  Reference to a data source column.
+        SortSpec &dataSourceColumnReference(const DataSourceColumnReference &value) { return setObject(buf[4], "dataSourceColumnReference", value.c_str(), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }

@@ -29,10 +29,6 @@
 
 namespace gsheet
 {
-    static std::vector<uint32_t> aVec; // FirebaseApp vector
-    static std::vector<uint32_t> cVec; // AsyncClient vector
-    static std::vector<uint32_t> rVec; // AsyncResult vector
-    
     class GSheetList
     {
     private:

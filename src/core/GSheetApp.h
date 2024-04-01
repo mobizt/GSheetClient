@@ -49,6 +49,8 @@ namespace gsheet
         auth_data_t auth_data;
         GSheetAsyncClientClass *aClient = nullptr;
         uint32_t aclient_addr = 0, app_addr = 0, ref_ts = 0;
+        std::vector<uint32_t> aVec; // FirebaseApp vector
+        std::vector<uint32_t> cVec; // AsyncClient vector
         GSheetAsyncResultCallback resultCb = NULL;
         GSheetTimer req_timer, auth_timer, err_timer;
         GSheetList vec;
@@ -195,10 +197,12 @@ namespace gsheet
             if (event == auth_event_error || event == auth_event_ready)
             {
                 processing = false;
-                stop(aClient);
+                if (getClient())
+                    stop(aClient);
                 event = auth_event_uninitialized;
                 clearLastError(sData ? &sData->aResult : nullptr);
-                remove(aClient);
+                if (getClient())
+                    remove(aClient);
             }
         }
 
@@ -213,6 +217,12 @@ namespace gsheet
         {
             if (aResult)
                 aResult->lastError.setLastError(0, "");
+        }
+
+        GSheetAsyncClientClass *getClient()
+        {
+            GSheetList vec;
+            return vec.existed(cVec, aclient_addr) ? aClient : nullptr;
         }
 
         void setEventResult(GSheetAsyncResult *aResult, const String &msg, int code)
@@ -305,6 +315,9 @@ namespace gsheet
 
             gsheet_sys_idle();
 
+            if (!getClient())
+                return false;
+
             process(aClient, sData ? &sData->aResult : nullptr, resultCb);
 
             if (!isExpired())
@@ -355,7 +368,8 @@ namespace gsheet
                     if (auth_data.user_auth.sa.step == jwt_step_begin)
                     {
                         auth_data.user_auth.sa.step = jwt_step_sign;
-                        stop(aClient);
+                        if (getClient())
+                            stop(aClient);
 
                         if (auth_data.user_auth.status._event != auth_event_token_signing)
                             setEvent(auth_event_token_signing);
@@ -380,10 +394,13 @@ namespace gsheet
                     sop.auth_used = true;
 
                     // Remove all slots except sse in case ServiceAuth and CustomAuth to free up memory.
-                    for (size_t i = aClient->slotCount() - 1; i == 0; i--)
-                        aClient->removeSlot(i, false);
+                    if (getClient())
+                    {
+                        for (size_t i = aClient->slotCount() - 1; i == 0; i--)
+                            aClient->removeSlot(i, false);
 
-                    createSlot(aClient, sop);
+                        createSlot(aClient, sop);
+                    }
 
                     if (auth_data.user_auth.auth_type == auth_sa_access_token)
                     {
@@ -405,8 +422,8 @@ namespace gsheet
 
                     if (auth_data.user_auth.auth_type == auth_sa_access_token || auth_data.user_auth.auth_type == auth_access_token)
                         extras = FPSTR("/token");
-
-                    newRequest(aClient, sop, subdomain, extras, resultCb);
+                    if (getClient())
+                        newRequest(aClient, sop, subdomain, extras, resultCb);
                     extras.remove(0, extras.length());
                     host.remove(0, host.length());
                     setEvent(auth_event_auth_request_sent);
@@ -431,7 +448,8 @@ namespace gsheet
                         sData->response.val[gsheet_res_hndlr_ns::payload].remove(0, sData->response.val[gsheet_res_hndlr_ns::payload].length());
                         auth_timer.feed(expire && expire < auth_data.app_token.expire ? expire : auth_data.app_token.expire - 2 * 60);
                         auth_data.app_token.authenticated = true;
-                        aClient->setAuthTs(millis());
+                        if (getClient())
+                            aClient->setAuthTs(millis());
                         auth_data.app_token.auth_type = auth_data.user_auth.auth_type;
                         auth_data.app_token.auth_data_type = auth_data.user_auth.auth_data_type;
                         setEvent(auth_event_ready);
@@ -466,7 +484,7 @@ namespace gsheet
         bool ready() { return processAuth() && auth_data.app_token.authenticated; }
 
         template <typename T>
-        void getApp(T &app) { app.setApp(app_addr, &auth_data.app_token); }
+        void getApp(T &app) { app.setApp(app_addr, &auth_data.app_token, reinterpret_cast<uint32_t>(&aVec)); }
 
         String getToken() const { return auth_data.app_token.val[gsheet_app_tk_ns::token]; }
 

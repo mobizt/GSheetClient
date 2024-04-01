@@ -40,8 +40,8 @@ namespace GSHEET
     class BubbleChartSpec : public Printable
     {
     private:
-        size_t bufSize = 3;
-        String buf[3];
+        size_t bufSize = 12;
+        String buf[12];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 

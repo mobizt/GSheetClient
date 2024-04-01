@@ -48,6 +48,8 @@ namespace gsheet
         {
             app.aClient = &aClient;
             app.aclient_addr = reinterpret_cast<uint32_t>(&aClient);
+            
+            app.aClient->addRemoveClientVec(reinterpret_cast<uint32_t>(&(app.cVec)), true);
             app.auth_data.user_auth.copy(auth);
 
             app.auth_data.app_token.clear();

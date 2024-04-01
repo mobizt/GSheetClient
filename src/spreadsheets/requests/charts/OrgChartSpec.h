@@ -49,17 +49,17 @@ namespace GSHEET
 
     public:
         OrgChartSpec() {}
-        // Where the legend of the pie chart should be drawn.
-        OrgChartSpec &legendPosition(OrgChartNodeSize value)
+        // The size of the org chart nodes.
+        OrgChartSpec &nodeSize(OrgChartNodeSize value)
         {
             if (value == ORG_CHART_LABEL_SIZE_UNSPECIFIED)
-                return setObject(buf[1], "legendPosition", "ORG_CHART_LABEL_SIZE_UNSPECIFIED", true, true);
+                return setObject(buf[1], "nodeSize", "ORG_CHART_LABEL_SIZE_UNSPECIFIED", true, true);
             else if (value == SMALL)
-                return setObject(buf[1], "legendPosition", "SMALL", true, true);
+                return setObject(buf[1], "nodeSize", "SMALL", true, true);
             else if (value == MEDIUM)
-                return setObject(buf[1], "legendPosition", "MEDIUM", true, true);
+                return setObject(buf[1], "nodeSize", "MEDIUM", true, true);
             else if (value == LARGE)
-                return setObject(buf[1], "legendPosition", "LARGE", true, true);
+                return setObject(buf[1], "nodeSize", "LARGE", true, true);
             return *this;
         }
         // The color of the org chart nodes. If nodeColor is also set, this field takes precedence.

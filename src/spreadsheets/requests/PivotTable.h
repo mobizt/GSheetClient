@@ -11,7 +11,7 @@
 
 /**
  * PIVOT TABLE CLASS DEPENDENCIES
- * 
+ *
  * PivotTable   +   PivotGroup                  +    PivotGroupValueMetadata                +   ExtendedValue
  *              |                               |
  *              |                               +   (enum) SortOrder
@@ -44,7 +44,7 @@
  *              +   (enum) PivotValueLayout
  *              |
  *              +   GridRange
- * 
+ *
  * See BooleanCondition.h
  */
 
@@ -340,46 +340,38 @@ namespace GSHEET
     class PivotGroupRule : public Printable
     {
     private:
-        size_t bufSize = 4;
-        String buf[4];
-        GSheetObjectWriter owriter;
+        String buf;
         GSheetJSONUtil jut;
-
-        PivotGroupRule &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
         PivotGroupRule() {}
+        // Union field rule
         // A ManualRule.
         PivotGroupRule &manualRule(const ManualRule &value)
         {
-            // Union field rule
-            if (buf[2].length() == 0 && buf[3].length() == 0)
-                return setObject(buf[1], "manualRule", value.c_str(), false, true);
+            clear();
+            jut.addObject(buf, "manualRule", value.c_str(), false, true);
             return *this;
         }
+        // Union field rule
         // A HistogramRule.
         PivotGroupRule &histogramRule(const HistogramRule &value)
         {
-            // Union field rule
-            if (buf[1].length() == 0 && buf[3].length() == 0)
-                return setObject(buf[2], "histogramRule", value.c_str(), false, true);
+            clear();
+            jut.addObject(buf, "histogramRule", value.c_str(), false, true);
             return *this;
         }
+        // Union field rule
         // A DateTimeRule.
         PivotGroupRule &dateTimeRule(const DateTimeRule &value)
         {
-            // Union field rule
-            if (buf[1].length() == 0 && buf[2].length() == 0)
-                return setObject(buf[3], "dateTimeRule", value.c_str(), false, true);
+            clear();
+            jut.addObject(buf, "dateTimeRule", value.c_str(), false, true);
             return *this;
         }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        const char *c_str() const { return buf.c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
+        void clear() { buf.remove(0, buf.length()); }
     };
     /**
      * The count limit on rows or columns in the pivot group.
@@ -417,8 +409,8 @@ namespace GSHEET
     class PivotGroup : public Printable
     {
     private:
-        size_t bufSize = 11;
-        String buf[11];
+        size_t bufSize = 10;
+        String buf[10];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -460,23 +452,13 @@ namespace GSHEET
         PivotGroup &groupRule(const PivotGroupRule &value) { return setObject(buf[7], "groupRule", value.c_str(), false, true); }
         // The count limit on rows or columns to apply to this pivot group.
         PivotGroup &groupLimit(const PivotGroupLimit &value) { return setObject(buf[8], "groupLimit", value.c_str(), false, true); }
+        // Union field source
         // The column offset of the source range that this grouping is based on.
         // For example, if the source was C10:E15, a sourceColumnOffset of 0 means this group refers to column C, whereas the offset 1 would refer to column D.
-        PivotGroup &sourceColumnOffset(int value)
-        {
-            // Union field source
-            if (buf[10].length() == 0)
-                setObject(buf[9], "sourceColumnOffset", String(value), false, true);
-            return *this;
-        }
+        PivotGroup &sourceColumnOffset(int value) { return setObject(buf[9], "sourceColumnOffset", String(value), false, true); }
+        // Union field source
         // The reference to the data source column this grouping is based on.
-        PivotGroup &dataSourceColumnReference(const DataSourceColumnReference &value)
-        {
-            // Union field source
-            if (buf[9].length() == 0)
-                return setObject(buf[10], "dataSourceColumnReference", value.c_str(), false, true);
-            return *this;
-        }
+        PivotGroup &dataSourceColumnReference(const DataSourceColumnReference &value) { return setObject(buf[9], "dataSourceColumnReference", value.c_str(), false, true); }
 
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
@@ -522,8 +504,8 @@ namespace GSHEET
     class PivotFilterSpec : public Printable
     {
     private:
-        size_t bufSize = 4;
-        String buf[4];
+        size_t bufSize = 3;
+        String buf[3];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -537,23 +519,12 @@ namespace GSHEET
         PivotFilterSpec() {}
         // The criteria for the column.
         PivotFilterSpec &filterCriteria(const PivotFilterCriteria &value) { return setObject(buf[1], "filterCriteria", value.c_str(), false, true); }
+        // Union field source
         // The zero-based column offset of the source range.
-        PivotFilterSpec &columnOffsetIndex(int value)
-        {
-            // Union field source
-            if (buf[3].length() == 0)
-                return setObject(buf[2], "columnOffsetIndex", String(value), false, true);
-            return *this;
-        }
+        PivotFilterSpec &columnOffsetIndex(int value) { return setObject(buf[2], "columnOffsetIndex", String(value), false, true); }
+        // Union field source
         // The reference to the data source column.
-        PivotFilterSpec &dataSourceColumnReference(const DataSourceColumnReference &value)
-        {
-            // Union field source
-            if (buf[2].length() == 0)
-                return setObject(buf[3], "dataSourceColumnReference", value.c_str(), false, true);
-            return *this;
-        }
-
+        PivotFilterSpec &dataSourceColumnReference(const DataSourceColumnReference &value) { return setObject(buf[2], "dataSourceColumnReference", value.c_str(), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
@@ -565,8 +536,8 @@ namespace GSHEET
     class PivotValue : public Printable
     {
     private:
-        size_t bufSize = 7;
-        String buf[7];
+        size_t bufSize = 5;
+        String buf[5];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -629,31 +600,16 @@ namespace GSHEET
                 return setObject(buf[3], "calculatedDisplayType", "PERCENT_OF_GRAND_TOTAL", true, true);
             return *this;
         }
+        // Union field value
         // The column offset of the source range that this value reads from.
         // For example, if the source was C10:E15, a sourceColumnOffset of 0 means this value refers to column C, whereas the offset 1 would refer to column D.
-        PivotValue &sourceColumnOffset(int value)
-        {
-            // Union field value
-            if (buf[5].length() == 0 && buf[6].length() == 0)
-                return setObject(buf[4], "sourceColumnOffset", String(value), false, true);
-            return *this;
-        }
+        PivotValue &sourceColumnOffset(int value) { return setObject(buf[4], "sourceColumnOffset", String(value), false, true); }
+        // Union field value
         // A custom formula to calculate the value. The formula must start with an = character.
-        PivotValue &formula(const String &value)
-        {
-            // Union field value
-            if (buf[4].length() == 0 && buf[6].length() == 0)
-                return setObject(buf[5], "formula", value, true, true);
-            return *this;
-        }
+        PivotValue &formula(const String &value) { return setObject(buf[4], "formula", value, true, true); }
+        // Union field value
         // The reference to the data source column that this value reads from.
-        PivotValue &dataSourceColumnReference(const DataSourceColumnReference &value)
-        {
-            // Union field value
-            if (buf[4].length() == 0 && buf[5].length() == 0)
-                return setObject(buf[6], "dataSourceColumnReference", value.c_str(), false, true);
-            return *this;
-        }
+        PivotValue &dataSourceColumnReference(const DataSourceColumnReference &value) { return setObject(buf[4], "dataSourceColumnReference", value.c_str(), false, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
@@ -665,8 +621,8 @@ namespace GSHEET
     class PivotTable : public Printable
     {
     private:
-        size_t bufSize = 8;
-        String buf[8];
+        size_t bufSize = 7;
+        String buf[7];
         GSheetObjectWriter owriter;
         GSheetJSONUtil jut;
 
@@ -712,10 +668,12 @@ namespace GSHEET
                 return setObject(buf[5], "valueLayout", "VERTICAL", true, true);
             return *this;
         }
+        // Union field source_data
         // The range the pivot table is reading data from.
-        PivotTable &source(const GridRange &value) { return buf[7].length() == 0 ? setObject(buf[6], "source", value.c_str(), false, true) : *this; }
+        PivotTable &source(const GridRange &value) { return setObject(buf[6], "source", value.c_str(), false, true); }
+        // Union field source_data
         // The ID of the data source the pivot table is reading data from.
-        PivotTable &dataSourceId(const String &value) { return buf[7].length() == 0 ? setObject(buf[7], "dataSourceId", value, true, true) : *this; }
+        PivotTable &dataSourceId(const String &value) { return setObject(buf[6], "dataSourceId", value, true, true); }
         const char *c_str() const { return buf[0].c_str(); }
         size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
         void clear() { owriter.clearBuf(buf, bufSize); }
