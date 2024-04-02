@@ -41,29 +41,15 @@ namespace GSHEET
     /**
      * A run of a text format. The format of this run continues until the start index of the next run. When updating, all fields must be set.
      */
-    class TextFormatRun : public Printable
+    class TextFormatRun : public O4
     {
-    private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        TextFormatRun &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
         TextFormatRun() {}
         // The zero-based character index where this run starts, in UTF-16 code units.
-        TextFormatRun &startIndex(int value) { return setObject(buf[1], "startIndex", String(value), false, true); }
+        TextFormatRun &startIndex(int value) { return wr.set<TextFormatRun &, int>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
         // The format of this run. Absent values inherit the cell's format.
-        TextFormatRun &format(const TextFormat &value) { return setObject(buf[2], "format", value.c_str(), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        TextFormatRun &format(const TextFormat &value) { return wr.set<TextFormatRun &, TextFormat>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
     };
 
     /**
@@ -103,10 +89,10 @@ namespace GSHEET
         CellData &hyperlink(const String &value) { return wr.set<CellData &, String>(*this, value, buf, bufSize, buf[4], FPSTR(__func__)); }
         // Any note on the cell.
         CellData &note(const String &value) { return wr.set<CellData &, String>(*this, value, buf, bufSize, buf[5], FPSTR(__func__)); }
-        //Add to a list
-        // Runs of rich text applied to subsections of the cell. Runs are only valid on user entered strings, not formulas, bools, or numbers. Properties of a run start at a specific index in the text and continue until the next run. Runs will inherit the properties of the cell unless explicitly changed.
-        // When writing, the new runs will overwrite any prior runs. When writing a new userEnteredValue, previous runs are erased.
-        CellData &textFormatRuns(const TextFormatRun &value){ return wr.append<CellData &, TextFormatRun>(*this, value, buf, bufSize, buf[6], FPSTR(__func__)); }
+        // Add to a list
+        //  Runs of rich text applied to subsections of the cell. Runs are only valid on user entered strings, not formulas, bools, or numbers. Properties of a run start at a specific index in the text and continue until the next run. Runs will inherit the properties of the cell unless explicitly changed.
+        //  When writing, the new runs will overwrite any prior runs. When writing a new userEnteredValue, previous runs are erased.
+        CellData &textFormatRuns(const TextFormatRun &value) { return wr.append<CellData &, TextFormatRun>(*this, value, buf, bufSize, buf[6], FPSTR(__func__)); }
         // A data validation rule on the cell, if any.
         // When writing, the new data validation rule will overwrite any prior rule.
         CellData &dataValidation(const DataValidationRule &value) { return wr.set<CellData &, DataValidationRule>(*this, value, buf, bufSize, buf[7], FPSTR(__func__)); }
