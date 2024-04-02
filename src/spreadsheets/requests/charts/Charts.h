@@ -33,6 +33,40 @@ namespace GSHEET
     };
 
     /**
+     * The location an object is overlaid on top of a grid.
+     */
+    class OverlayPosition : public Printable
+    {
+    private:
+        size_t bufSize = 6;
+        String buf[6];
+        GSheetObjectWriter owriter;
+        GSheetJSONUtil jut;
+
+        OverlayPosition &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
+        {
+            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
+            return *this;
+        }
+
+    public:
+        OverlayPosition() {}
+        // The cell the object is anchored to.
+        OverlayPosition &anchorCell(const GridCoordinate &value) { return setObject(buf[1], "anchorCell", value.c_str(), false, true); }
+        // The horizontal offset, in pixels, that the object is offset from the anchor cell.
+        OverlayPosition &offsetXPixels(int value) { return setObject(buf[2], "offsetXPixels", String(value), false, true); }
+        // The vertical offset, in pixels, that the object is offset from the anchor cell.
+        OverlayPosition &offsetYPixels(int value) { return setObject(buf[3], "offsetYPixels", String(value), false, true); }
+        // The width of the object, in pixels. Defaults to 600.
+        OverlayPosition &widthPixels(int value) { return setObject(buf[4], "widthPixels", String(value), false, true); }
+        // The height of the object, in pixels. Defaults to 371.
+        OverlayPosition &heightPixels(int value) { return setObject(buf[5], "heightPixels", String(value), false, true); }
+        const char *c_str() const { return buf[0].c_str(); }
+        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
+        void clear() { owriter.clearBuf(buf, bufSize); }
+    };
+
+    /**
      * Properties of a data source chart.
      */
     class DataSourceChartProperties : public Printable
@@ -48,6 +82,7 @@ namespace GSHEET
         {
             clear();
             jut.addObject(buf, "dataSourceId", value, true, true);
+            return *this;
         }
         const char *c_str() const { return buf.c_str(); }
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }
@@ -168,13 +203,28 @@ namespace GSHEET
         EmbeddedObjectPosition() {}
         // Union field location.
         // The sheet this is on. Set only if the embedded object is on its own sheet. Must be non-negative.
-        EmbeddedObjectPosition &sheetId(int value) { jut.addObject(buf, "sheetId", String(value), false, true); }
+        EmbeddedObjectPosition &sheetId(int value)
+        {
+            clear();
+            jut.addObject(buf, "sheetId", String(value), false, true);
+            return *this;
+        }
         // Union field location.
         // The position at which the object is overlaid on top of a grid.
-        EmbeddedObjectPosition &overlayPosition(const OverlayPosition &value) { jut.addObject(buf, "overlayPosition", value.c_str(), false, true); }
+        EmbeddedObjectPosition &overlayPosition(const OverlayPosition &value)
+        {
+            clear();
+            jut.addObject(buf, "overlayPosition", value.c_str(), false, true);
+            return *this;
+        }
         // Union field location.
         // If true, the embedded object is put on a new sheet whose ID is chosen for you. Used only when writing.
-        EmbeddedObjectPosition &newSheet(bool value) { jut.addObject(buf, "newSheet", owriter.getBoolStr(value), false, true); }
+        EmbeddedObjectPosition &newSheet(bool value)
+        {
+            clear();
+            jut.addObject(buf, "newSheet", owriter.getBoolStr(value), false, true);
+            return *this;
+        }
         const char *c_str() const { return buf.c_str(); }
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }
         void clear() { buf.remove(0, buf.length()); }
@@ -197,44 +247,11 @@ namespace GSHEET
         {
             clear();
             jut.addObject(buf, "colorStyle", value.c_str(), false, true);
+            return *this;
         }
         const char *c_str() const { return buf.c_str(); }
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }
         void clear() { buf.remove(0, buf.length()); }
-    };
-
-    /**
-     * The location an object is overlaid on top of a grid.
-     */
-    class OverlayPosition : public Printable
-    {
-    private:
-        size_t bufSize = 6;
-        String buf[6];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        OverlayPosition &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
-    public:
-        OverlayPosition() {}
-        // The cell the object is anchored to.
-        OverlayPosition &anchorCell(const GridCoordinate &value) { return setObject(buf[1], "anchorCell", value.c_str(), false, true); }
-        // The horizontal offset, in pixels, that the object is offset from the anchor cell.
-        OverlayPosition &offsetXPixels(int value) { return setObject(buf[2], "offsetXPixels", String(value), false, true); }
-        // The vertical offset, in pixels, that the object is offset from the anchor cell.
-        OverlayPosition &offsetYPixels(int value) { return setObject(buf[3], "offsetYPixels", String(value), false, true); }
-        // The width of the object, in pixels. Defaults to 600.
-        OverlayPosition &widthPixels(int value) { return setObject(buf[4], "widthPixels", String(value), false, true); }
-        // The height of the object, in pixels. Defaults to 371.
-        OverlayPosition &heightPixels(int value) { return setObject(buf[5], "heightPixels", String(value), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
     };
 
     /**

@@ -5,8 +5,9 @@
 #include "./Config.h"
 #include "./core/JSON.h"
 #include "./core/ObjectWriter.h"
+#include "./spreadsheets/requests/Common.h"
 
-namespace GSHEET
+namespace TextAlignment
 {
     // The horizontal alignment of text in a cell.
     enum HorizontalAlign
@@ -26,34 +27,32 @@ namespace GSHEET
         BOTTOM                      //	The text is explicitly aligned to the bottom of the cell.
     };
 
+    const struct GSHEET::key_str_30 _HorizontalAlign[HorizontalAlign::RIGHT + 1] PROGMEM = {
+        "HORIZONTAL_ALIGN_UNSPECIFIED",
+        "LEFT",
+        "CENTER",
+        "RIGHT"};
+
+    const struct GSHEET::key_str_30 _VerticalAlign[VerticalAlign::BOTTOM + 1] PROGMEM = {
+        "VERTICAL_ALIGN_UNSPECIFIED",
+        "TOP",
+        "MIDDLE",
+        "BOTTOM"};
+
+}
+
+namespace GSHEET
+{
+
     /**
      * Position settings for text.
      */
-    class TextPosition : public Printable
+    class TextPosition : public O1
     {
-    private:
-        String buf;
-        GSheetJSONUtil jut;
-
     public:
         TextPosition() {}
         // Horizontal alignment setting for the piece of text.
-        TextPosition &horizontalAlignment(HorizontalAlign value)
-        {
-            clear();
-            if (value == HORIZONTAL_ALIGN_UNSPECIFIED)
-                jut.addObject(buf, "horizontalAlignment", "HORIZONTAL_ALIGN_UNSPECIFIED", true, true);
-            else if (value == LEFT)
-                jut.addObject(buf, "horizontalAlignment", "LEFT", true, true);
-            else if (value == CENTER)
-                jut.addObject(buf, "horizontalAlignment", "CENTER", true, true);
-            else if (value == RIGHT)
-                jut.addObject(buf, "horizontalAlignment", "RIGHT", true, true);
-            return *this;
-        }
-        const char *c_str() const { return buf.c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
-        void clear() { buf.remove(0, buf.length()); }
+        TextPosition &horizontalAlignment(TextAlignment::HorizontalAlign value) { return wr.add<TextPosition &, const char *>(*this, TextAlignment::_HorizontalAlign[value].text, buf, FPSTR(__func__)); }
     };
 
 }

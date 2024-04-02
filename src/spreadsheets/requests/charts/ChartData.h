@@ -22,37 +22,53 @@
 
 namespace GSHEET
 {
+    // Where the legend of the chart should be positioned.
+    enum ChartLegendPosition
+    {
+        HISTOGRAM_CHART_LEGEND_POSITION_UNSPECIFIED, //	Default value, do not use.
+        BUBBLE_CHART_LEGEND_POSITION_UNSPECIFIED,    //	Default value, do not use.
+        PIE_CHART_LEGEND_POSITION_UNSPECIFIED,       //	Default value, do not use.
+        BASIC_CHART_LEGEND_POSITION_UNSPECIFIED,     //	Default value, do not use.
+        BOTTOM_LEGEND,                               //	The legend is rendered on the bottom of the chart.
+        LEFT_LEGEND,                                 //	The legend is rendered on the left of the chart.
+        RIGHT_LEGEND,                                //	The legend is rendered on the right of the chart.
+        TOP_LEGEND,                                  //	The legend is rendered on the top of the chart.
+        NO_LEGEND,                                   //	No legend is rendered.
+        INSIDE_LEGEND,                               //	The legend is rendered inside the chart area.
+        LABELED_LEGEND                               // Each pie slice has a label attached to it.
+    };
+
     // The type of aggregation for chart series.
     enum ChartAggregateType
     {
         CHART_AGGREGATE_TYPE_UNSPECIFIED, //	Default value, do not use.
-        AVERAGE,                          //	Average aggregate function.
-        COUNT,                            //	Count aggregate function.
-        MAX,                              //	Maximum aggregate function.
-        MEDIAN,                           //	Median aggregate function.
-        MIN,                              //	Minimum aggregate function.
-        SUM                               //	Sum aggregate function.
+        AVERAGE_AGGREGATE,                          //	Average aggregate function.
+        COUNT_AGGREGATE,                            //	Count aggregate function.
+        MAX_AGGREGATE,                              //	Maximum aggregate function.
+        MEDIAN_AGGREGATE,                           //	Median aggregate function.
+        MIN_AGGREGATE,                              //	Minimum aggregate function.
+        SUM_AGGREGATE                               //	Sum aggregate function.
     };
 
     // The available types of date-time grouping rules.
     enum ChartDateTimeRuleType
     {
         CHART_DATE_TIME_RULE_TYPE_UNSPECIFIED, //	The default type, do not use.
-        SECOND,                                //	Group dates by second, from 0 to 59.
-        MINUTE,                                //	Group dates by minute, from 0 to 59.
-        HOUR,                                  //	Group dates by hour using a 24-hour system, from 0 to 23.
-        HOUR_MINUTE,                           //	Group dates by hour and minute using a 24-hour system, for example 19:45.
-        HOUR_MINUTE_AMPM,                      //	Group dates by hour and minute using a 12-hour system, for example 7:45 PM. The AM/PM designation is translated based on the spreadsheet locale.
-        DAY_OF_WEEK,                           //	Group dates by day of week, for example Sunday. The days of the week will be translated based on the spreadsheet locale.
-        DAY_OF_YEAR,                           //	Group dates by day of year, from 1 to 366. Note that dates after Feb. 29 fall in different buckets in leap years than in non-leap years.
-        DAY_OF_MONTH,                          //	Group dates by day of month, from 1 to 31.
-        DAY_MONTH,                             //	Group dates by day and month, for example 22-Nov. The month is translated based on the spreadsheet locale.
-        MONTH,                                 //	Group dates by month, for example Nov. The month is translated based on the spreadsheet locale.
-        QUARTER,                               //	Group dates by quarter, for example Q1 (which represents Jan-Mar).
-        YEAR,                                  //	Group dates by year, for example 2008.
-        YEAR_MONTH,                            //	Group dates by year and month, for example 2008-Nov. The month is translated based on the spreadsheet locale.
-        YEAR_QUARTER,                          //	Group dates by year and quarter, for example 2008 Q4.
-        YEAR_MONTH_DAY                         //	Group dates by year, month, and day, for example 2008-11-22.
+        BY_SECOND,                                //	Group dates by second, from 0 to 59.
+        BY_MINUTE,                                //	Group dates by minute, from 0 to 59.
+        BY_HOUR,                                  //	Group dates by hour using a 24-hour system, from 0 to 23.
+        BY_HOUR_MINUTE,                           //	Group dates by hour and minute using a 24-hour system, for example 19:45.
+        BY_HOUR_MINUTE_AMPM,                      //	Group dates by hour and minute using a 12-hour system, for example 7:45 PM. The AM/PM designation is translated based on the spreadsheet locale.
+        BY_DAY_OF_WEEK,                           //	Group dates by day of week, for example Sunday. The days of the week will be translated based on the spreadsheet locale.
+        BY_DAY_OF_YEAR,                           //	Group dates by day of year, from 1 to 366. Note that dates after Feb. 29 fall in different buckets in leap years than in non-leap years.
+        BY_DAY_OF_MONTH,                          //	Group dates by day of month, from 1 to 31.
+        BY_DAY_MONTH,                             //	Group dates by day and month, for example 22-Nov. The month is translated based on the spreadsheet locale.
+        BY_MONTH,                                 //	Group dates by month, for example Nov. The month is translated based on the spreadsheet locale.
+        BY_QUARTER,                               //	Group dates by quarter, for example Q1 (which represents Jan-Mar).
+        BY_YEAR,                                  //	Group dates by year, for example 2008.
+        BY_YEAR_MONTH,                            //	Group dates by year and month, for example 2008-Nov. The month is translated based on the spreadsheet locale.
+        BY_YEAR_QUARTER,                          //	Group dates by year and quarter, for example 2008 Q4.
+        BY_YEAR_MONTH_DAY                         //	Group dates by year, month, and day, for example 2008-11-22.
     };
 
     /**
@@ -72,35 +88,35 @@ namespace GSHEET
             clear();
             if (value == CHART_DATE_TIME_RULE_TYPE_UNSPECIFIED)
                 jut.addObject(buf, "type", "CHART_DATE_TIME_RULE_TYPE_UNSPECIFIED", true, true);
-            else if (value == SECOND)
+            else if (value == BY_SECOND)
                 jut.addObject(buf, "type", "SECOND", true, true);
-            else if (value == MINUTE)
+            else if (value == BY_MINUTE)
                 jut.addObject(buf, "type", "MINUTE", true, true);
-            else if (value == HOUR)
+            else if (value == BY_HOUR)
                 jut.addObject(buf, "type", "HOUR", true, true);
-            else if (value == HOUR_MINUTE)
+            else if (value == BY_HOUR_MINUTE)
                 jut.addObject(buf, "type", "HOUR_MINUTE", true, true);
-            else if (value == HOUR_MINUTE_AMPM)
+            else if (value == BY_HOUR_MINUTE_AMPM)
                 jut.addObject(buf, "type", "HOUR_MINUTE_AMPM", true, true);
-            else if (value == DAY_OF_WEEK)
+            else if (value == BY_DAY_OF_WEEK)
                 jut.addObject(buf, "type", "DAY_OF_WEEK", true, true);
-            else if (value == DAY_OF_YEAR)
+            else if (value == BY_DAY_OF_YEAR)
                 jut.addObject(buf, "type", "DAY_OF_YEAR", true, true);
-            else if (value == DAY_OF_MONTH)
+            else if (value == BY_DAY_OF_MONTH)
                 jut.addObject(buf, "type", "DAY_OF_MONTH", true, true);
-            else if (value == DAY_MONTH)
+            else if (value == BY_DAY_MONTH)
                 jut.addObject(buf, "type", "DAY_MONTH", true, true);
-            else if (value == MONTH)
+            else if (value == BY_MONTH)
                 jut.addObject(buf, "type", "MONTH", true, true);
-            else if (value == QUARTER)
+            else if (value == BY_QUARTER)
                 jut.addObject(buf, "type", "QUARTER", true, true);
-            else if (value == YEAR)
+            else if (value == BY_YEAR)
                 jut.addObject(buf, "type", "YEAR", true, true);
-            else if (value == YEAR_MONTH)
+            else if (value == BY_YEAR_MONTH)
                 jut.addObject(buf, "type", "YEAR_MONTH", true, true);
-            else if (value == YEAR_QUARTER)
+            else if (value == BY_YEAR_QUARTER)
                 jut.addObject(buf, "type", "YEAR_QUARTER", true, true);
-            else if (value == YEAR_MONTH_DAY)
+            else if (value == BY_YEAR_MONTH_DAY)
                 jut.addObject(buf, "type", "YEAR_MONTH_DAY", true, true);
             return *this;
         }
@@ -157,6 +173,7 @@ namespace GSHEET
         {
             clear();
             jut.addObject(buf, "dateTimeRule", value.c_str(), false, true);
+            return *this;
         }
         // Union field rule
         // A ChartHistogramRule
@@ -164,6 +181,7 @@ namespace GSHEET
         {
             clear();
             jut.addObject(buf, "histogramRule", value.c_str(), false, true);
+            return *this;
         }
         const char *c_str() const { return buf.c_str(); }
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }
@@ -195,28 +213,6 @@ namespace GSHEET
     };
 
     /**
-     * An unique identifier that references a data source column.
-     */
-    class DataSourceColumnReference : public Printable
-    {
-    private:
-        String buf;
-        GSheetJSONUtil jut;
-
-    public:
-        DataSourceColumnReference() {}
-        // The display name of the column. It should be unique within a data source.
-        DataSourceColumnReference &name(const String &value)
-        {
-            clear();
-            jut.addObject(buf, "name", value, true, true);
-        }
-        const char *c_str() const { return buf.c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
-        void clear() { buf.remove(0, buf.length()); }
-    };
-
-    /**
      * The data included in a domain or series.
      */
     class ChartData : public Printable
@@ -242,17 +238,17 @@ namespace GSHEET
         {
             if (value == CHART_AGGREGATE_TYPE_UNSPECIFIED)
                 return setObject(buf[2], "aggregateType", "CHART_AGGREGATE_TYPE_UNSPECIFIED", true, true);
-            else if (value == AVERAGE)
+            else if (value == AVERAGE_AGGREGATE)
                 return setObject(buf[2], "aggregateType", "AVERAGE", true, true);
-            else if (value == COUNT)
+            else if (value == COUNT_AGGREGATE)
                 return setObject(buf[2], "aggregateType", "COUNT", true, true);
-            else if (value == MAX)
+            else if (value == MAX_AGGREGATE)
                 return setObject(buf[2], "aggregateType", "MAX", true, true);
-            else if (value == MEDIAN)
+            else if (value == MEDIAN_AGGREGATE)
                 return setObject(buf[2], "aggregateType", "MEDIAN", true, true);
-            else if (value == MIN)
+            else if (value == MIN_AGGREGATE)
                 return setObject(buf[2], "aggregateType", "MIN", true, true);
-            else if (value == SUM)
+            else if (value == SUM_AGGREGATE)
                 return setObject(buf[2], "aggregateType", "SUM", true, true);
             return *this;
         }

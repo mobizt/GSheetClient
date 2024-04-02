@@ -34,8 +34,8 @@ namespace GSHEET
     enum WaterfallChartStackedType
     {
         WATERFALL_STACKED_TYPE_UNSPECIFIED, //	Default value, do not use.
-        STACKED,                            //	Values corresponding to the same domain (horizontal axis) value will be stacked vertically.
-        SEQUENTIAL                          //	Series will spread out along the horizontal axis.
+        TYPE_STACKED,                            //	Values corresponding to the same domain (horizontal axis) value will be stacked vertically.
+        TYPE_SEQUENTIAL                          //	Series will spread out along the horizontal axis.
     };
 
     /**
@@ -199,9 +199,9 @@ namespace GSHEET
         {
             if (value == WATERFALL_STACKED_TYPE_UNSPECIFIED)
                 return setObject(buf[3], "stackedType", "WATERFALL_STACKED_TYPE_UNSPECIFIED", true, true);
-            else if (value == STACKED)
+            else if (value == TYPE_STACKED)
                 return setObject(buf[3], "stackedType", "STACKED", true, true);
-            else if (value == SEQUENTIAL)
+            else if (value == TYPE_SEQUENTIAL)
                 return setObject(buf[3], "stackedType", "SEQUENTIAL", true, true);
             return *this;
         }

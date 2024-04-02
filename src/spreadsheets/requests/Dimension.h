@@ -7,247 +7,108 @@
 #include "./core/ObjectWriter.h"
 #include "./spreadsheets/requests/DataSource.h"
 #include "./spreadsheets/requests/GridRange.h"
+#include "./spreadsheets/requests/Common.h"
 
 namespace GSHEET
 {
-    // An enumeration of possible metadata visibilities.
-    enum DeveloperMetadataVisibility
-    {
-        DEVELOPER_METADATA_VISIBILITY_UNSPECIFIED, //	Default value.
-        DOCUMENT,                                  //	Document-visible metadata is accessible from any developer project with access to the document.
-        PROJECT,                                   //	Project-visible metadata is only visible to and accessible by the developer project that created the metadata.
-    };
-
-    // Indicates which dimension an operation should apply to.
-    enum Dimension
-    {
-        DIMENSION_UNSPECIFIED, //	The default value, do not use.
-        ROWS,                  //	Operates on the rows of a sheet.
-        COLUMNS                //	Operates on the columns of a sheet.
-    };
 
     /**
      * A range along a single dimension on a DATA_SOURCE sheet.
      */
-    class DataSourceSheetDimensionRange : public Printable
+    class DataSourceSheetDimensionRange : public O4
     {
-    private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        DataSourceSheetDimensionRange &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
         DataSourceSheetDimensionRange() {}
         // The ID of the data source sheet the range is on.
-        DataSourceSheetDimensionRange &sheetId(int value) { return setObject(buf[1], "sheetId", String(value), false, true); }
-        DataSourceSheetDimensionRange &addColumnReferences(DataSourceColumnReference value)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf[2], FPSTR("columnReferences"), value.c_str(), false);
-            return *this;
-        }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        DataSourceSheetDimensionRange &sheetId(int value) { return wr.set<DataSourceSheetDimensionRange &, int>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
+        // Add to a list
+        // The columns on the data source sheet.
+        DataSourceSheetDimensionRange &columnReferences(DataSourceColumnReference value) { return wr.append<DataSourceSheetDimensionRange &, DataSourceColumnReference>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
     };
 
     /**
      * A range along a single dimension on a sheet. All indexes are zero-based. Indexes are half open: the start index is inclusive and the end index is exclusive. Missing indexes indicate the range is unbounded on that side.
      */
-    class DimensionRange : public Printable
+    class DimensionRange : public O6
     {
-    private:
-        size_t bufSize = 5;
-        String buf[5];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        DimensionRange &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
         DimensionRange() {}
         // The sheet this span is on.
-        DimensionRange &sheetId(int value) { return setObject(buf[1], "sheetId", String(value), false, true); }
+        DimensionRange &sheetId(int value) { return wr.set<DimensionRange &, int>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
         // The dimension of the span.
-        DimensionRange &dimension(Dimension value)
-        {
-            if (value == DIMENSION_UNSPECIFIED)
-                return setObject(buf[2], "dimension", "DIMENSION_UNSPECIFIED", true, true);
-            else if (value == ROWS)
-                return setObject(buf[2], "dimension", "ROWS", true, true);
-            else if (value == COLUMNS)
-                return setObject(buf[2], "dimension", "COLUMNS", true, true);
-            return *this;
-        }
+        DimensionRange &dimension(Dimensions::Dimension value) { return wr.set<DimensionRange &, const char *>(*this, _Dimension[value].text, buf, bufSize, buf[2], FPSTR(__func__)); }
         // The start (inclusive) of the span, or not set if unbounded.
-        DimensionRange &startIndex(int value) { return setObject(buf[3], "startIndex", String(value), false, true); }
+        DimensionRange &startIndex(int value) { return wr.set<DimensionRange &, int>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
         // The end (exclusive) of the span, or not set if unbounded.
-        DimensionRange &endIndex(int value) { return setObject(buf[4], "endIndex", String(value), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        DimensionRange &endIndex(int value) { return wr.set<DimensionRange &, int>(*this, value, buf, bufSize, buf[4], FPSTR(__func__)); }
     };
 
     /**
      * A location where metadata may be associated in a spreadsheet.
      */
-    class DeveloperMetadataLocation : public Printable
+    class DeveloperMetadataLocation : public O4
     {
-    private:
-        size_t bufSize = 4;
-        String buf[4];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        DeveloperMetadataLocation &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
         DeveloperMetadataLocation() {}
         // True when metadata is associated with an entire spreadsheet.
-        DeveloperMetadataLocation &spreadsheet(bool value) { return setObject(buf[1], "spreadsheet", owriter.getBoolStr(value), false, true); }
+        DeveloperMetadataLocation &spreadsheet(bool value) { return wr.set<DeveloperMetadataLocation &, bool>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
         // The ID of the sheet when metadata is associated with an entire sheet.
-        DeveloperMetadataLocation &sheetId(int value) { return setObject(buf[2], "sheetId", String(value), false, true); }
+        DeveloperMetadataLocation &sheetId(int value) { return wr.set<DeveloperMetadataLocation &, int>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
         // Represents the row or column when metadata is associated with a dimension. The specified DimensionRange must represent a single row or column; it cannot be unbounded or span multiple rows or columns.
-        DeveloperMetadataLocation &dimensionRange(const DimensionRange value) { return setObject(buf[3], "dimensionRange", value.c_str(), false, true); }
-
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        DeveloperMetadataLocation &dimensionRange(const DimensionRange value) { return wr.set<DeveloperMetadataLocation &, DimensionRange>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
     };
 
     /**
      * Developer metadata associated with a location or object in a spreadsheet.
      */
-    class DeveloperMetadata : public Printable
+    class DeveloperMetadata : public O6
     {
-    private:
-        size_t bufSize = 6;
-        String buf[6];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        DeveloperMetadata &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
         DeveloperMetadata() {}
         // The spreadsheet-scoped unique ID that identifies the metadata. IDs may be specified when metadata is created, otherwise one will be randomly generated and assigned. Must be positive.
-        DeveloperMetadata &metadataId(int value) { return setObject(buf[1], "metadataId", String(value), false, true); }
+        DeveloperMetadata &metadataId(int value) { return wr.set<DeveloperMetadata &, int>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
         // The metadata key. There may be multiple metadata in a spreadsheet with the same key. Developer metadata must always have a key specified.
-        DeveloperMetadata &metadataKey(const String &value) { return setObject(buf[2], "metadataKey", value, true, true); }
+        DeveloperMetadata &metadataKey(const String &value) { return wr.set<DeveloperMetadata &, String>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
         // Data associated with the metadata's key.
-        DeveloperMetadata &metadataValue(const String &value) { return setObject(buf[3], "metadataValue", value, true, true); }
+        DeveloperMetadata &metadataValue(const String &value) { return wr.set<DeveloperMetadata &, String>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
         // The location where the metadata is associated.
-        DeveloperMetadata &location(const DeveloperMetadataLocation &value) { return setObject(buf[4], "location", value.c_str(), true, true); }
-
+        DeveloperMetadata &location(const DeveloperMetadataLocation &value) { return wr.set<DeveloperMetadata &, DeveloperMetadataLocation>(*this, value, buf, bufSize, buf[4], FPSTR(__func__)); }
         // The metadata visibility. Developer metadata must always have a visibility specified.
-        DeveloperMetadata &visibility(DeveloperMetadataVisibility value)
-        {
-            if (value == DEVELOPER_METADATA_VISIBILITY_UNSPECIFIED)
-                return setObject(buf[5], "visibility", "DEVELOPER_METADATA_VISIBILITY_UNSPECIFIED", true, true);
-            else if (value == DOCUMENT)
-                return setObject(buf[5], "visibility", "DOCUMENT", true, true);
-            else if (value == PROJECT)
-                return setObject(buf[5], "visibility", "PROJECT", true, true);
-            return *this;
-        }
-
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        DeveloperMetadata &visibility(Metadata::DeveloperMetadataVisibility value) { return wr.set<DeveloperMetadata &, const char *>(*this, _DeveloperMetadataVisibility[value].text, buf, bufSize, buf[5], FPSTR(__func__)); }
     };
 
     /**
      * Properties about a dimension.
      */
-    class DimensionProperties : public Printable
+    class DimensionProperties : public O6
     {
-    private:
-        size_t bufSize = 5;
-        String buf[5];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        DimensionProperties &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
         DimensionProperties() {}
         // True if this dimension is being filtered. This field is read-only.
-        DimensionProperties &hiddenByFilter(bool value) { return setObject(buf[1], "hiddenByFilter", owriter.getBoolStr(value), false, true); }
+        DimensionProperties &hiddenByFilter(bool value) { return wr.set<DimensionProperties &, bool>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
         // True if this dimension is explicitly hidden.
-        DimensionProperties &hiddenByUser(bool value) { return setObject(buf[2], "hiddenByUser", owriter.getBoolStr(value), false, true); }
+        DimensionProperties &hiddenByUser(bool value) { return wr.set<DimensionProperties &, bool>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
         // The height (if a row) or width (if a column) of the dimension in pixels.
-        DimensionProperties &pixelSize(int value) { return setObject(buf[3], "pixelSize", String(value), false, true); }
-        // The developer metadata associated with a single row or column.
-        DimensionProperties &addDeveloperMetadata(const DeveloperMetadata value)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf[4], FPSTR("developerMetadata"), value.c_str(), false);
-            return *this;
-        }
-
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        DimensionProperties &pixelSize(int value) { return wr.set<DimensionProperties &, int>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
+        // Add to a list
+        //  The developer metadata associated with a single row or column.
+        DimensionProperties &developerMetadata(const DeveloperMetadata value) { return wr.append<DimensionProperties &, DeveloperMetadata>(*this, value, buf, bufSize, buf[4], FPSTR(__func__)); }
     };
 
     /**
      * A combination of a source range and how to extend that source.
      */
-    class SourceAndDestination : public Printable
+    class SourceAndDestination : public O4
     {
-    private:
-        size_t bufSize = 4;
-        String buf[4];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        SourceAndDestination &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
         SourceAndDestination() {}
         // The location of the data to use as the source of the autofill.
-        SourceAndDestination &source(const GridRange &value) { return setObject(buf[1], "source", value.c_str(), false, true); }
+        SourceAndDestination &source(const GridRange &value) { return wr.set<SourceAndDestination &, GridRange>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
         // The location of the data to use as the source of the autofill.
-        SourceAndDestination &dimension(Dimension value)
-        {
-            if (value == DIMENSION_UNSPECIFIED)
-                return setObject(buf[2], "dimension", "DIMENSION_UNSPECIFIED", true, true);
-            else if (value == ROWS)
-                return setObject(buf[2], "dimension", "ROWS", true, true);
-            else if (value == COLUMNS)
-                return setObject(buf[2], "dimension", "COLUMNS", true, true);
-            return *this;
-        }
+        SourceAndDestination &dimension(Dimensions::Dimension value) { return wr.set<SourceAndDestination &, const char *>(*this, _Dimension[value].text, buf, bufSize, buf[2], FPSTR(__func__)); }
         // The number of rows or columns that data should be filled into. Positive numbers expand beyond the last row or last column of the source. Negative numbers expand before the first row or first column of the source.
-        SourceAndDestination &fillLength(int value) { return setObject(buf[3], "fillLength", String(value), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        SourceAndDestination &fillLength(int value) { return wr.set<SourceAndDestination &, int>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
     };
 
 }

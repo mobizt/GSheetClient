@@ -62,6 +62,7 @@ namespace GSHEET
         {
             clear();
             jut.addObject(buf, "data", value.c_str(), false, true);
+            return *this;
         }
         const char *c_str() const { return buf.c_str(); }
         size_t printTo(Print &p) const { return p.print(buf.c_str()); }

@@ -29,18 +29,7 @@
  */
 namespace GSHEET
 {
-    // The type of aggregation for chart series.
-    enum ChartAggregateType
-    {
-        CHART_AGGREGATE_TYPE_UNSPECIFIED, //	Default value, do not use.
-        AVERAGE,                          //	Average aggregate function.
-        COUNT,                            //	Count aggregate function.
-        MAX,                              //	Maximum aggregate function.
-        MEDIAN,                           //	Median aggregate function.
-        MIN,                              //	Minimum aggregate function.
-        SUM                               //	Sum aggregate function.
-    };
-
+ 
     // The comparison type of key value with baseline value.
     enum ComparisonType
     {
@@ -54,7 +43,7 @@ namespace GSHEET
     {
         CHART_NUMBER_FORMAT_SOURCE_UNDEFINED, //	Default value, do not use.
         FROM_DATA,                            //	Inherit number formatting from data.
-        CUSTOM                                //	Apply custom formatting as specified by ChartCustomNumberFormatOptions.
+        CUSTOM_FORMAT                                //	Apply custom formatting as specified by ChartCustomNumberFormatOptions.
     };
 
     /**
@@ -186,17 +175,17 @@ namespace GSHEET
         {
             if (value == CHART_AGGREGATE_TYPE_UNSPECIFIED)
                 return setObject(buf[3], "aggregateType", "CHART_AGGREGATE_TYPE_UNSPECIFIED", true, true);
-            else if (value == AVERAGE)
+            else if (value == AVERAGE_AGGREGATE)
                 return setObject(buf[3], "aggregateType", "AVERAGE", true, true);
-            else if (value == COUNT)
+            else if (value == COUNT_AGGREGATE)
                 return setObject(buf[3], "aggregateType", "COUNT", true, true);
-            else if (value == MAX)
+            else if (value == MAX_AGGREGATE)
                 return setObject(buf[3], "aggregateType", "MAX", true, true);
-            else if (value == MEDIAN)
+            else if (value == MEDIAN_AGGREGATE)
                 return setObject(buf[3], "aggregateType", "MEDIAN", true, true);
-            else if (value == MIN)
+            else if (value == MIN_AGGREGATE)
                 return setObject(buf[3], "aggregateType", "MIN", true, true);
-            else if (value == SUM)
+            else if (value == SUM_AGGREGATE)
                 return setObject(buf[3], "aggregateType", "SUM", true, true);
             return *this;
         }
@@ -213,7 +202,7 @@ namespace GSHEET
                 return setObject(buf[7], "numberFormatSource", "CHART_NUMBER_FORMAT_SOURCE_UNDEFINED", true, true);
             else if (value == FROM_DATA)
                 return setObject(buf[7], "numberFormatSource", "FROM_DATA", true, true);
-            else if (value == CUSTOM)
+            else if (value == CUSTOM_FORMAT)
                 return setObject(buf[7], "numberFormatSource", "CUSTOM", true, true);
             return *this;
         }

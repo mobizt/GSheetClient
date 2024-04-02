@@ -22,17 +22,6 @@
 
 namespace GSHEET
 {
-    // Where the legend of the chart should be positioned.
-    enum BubbleChartLegendPosition
-    {
-        BUBBLE_CHART_LEGEND_POSITION_UNSPECIFIED, //	Default value, do not use.
-        BOTTOM_LEGEND,                            //	The legend is rendered on the bottom of the chart.
-        LEFT_LEGEND,                              //	The legend is rendered on the left of the chart.
-        RIGHT_LEGEND,                             //	The legend is rendered on the right of the chart.
-        TOP_LEGEND,                               //	The legend is rendered on the top of the chart.
-        NO_LEGEND,                                //	No legend is rendered.
-        INSIDE_LEGEND                             //	The legend is rendered inside the chart area.
-    };
 
     /**
      * A bubble chart.
@@ -54,7 +43,7 @@ namespace GSHEET
     public:
         BubbleChartSpec() {}
         // Where the legend of the chart should be drawn.
-        BubbleChartSpec &legendPosition(BubbleChartLegendPosition value)
+        BubbleChartSpec &legendPosition(ChartLegendPosition value)
         {
             if (value == BUBBLE_CHART_LEGEND_POSITION_UNSPECIFIED)
                 return setObject(buf[1], "legendPosition", "BUBBLE_CHART_LEGEND_POSITION_UNSPECIFIED", true, true);

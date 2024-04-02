@@ -13,9 +13,9 @@ namespace GSHEET
     {
         LINE_DASH_TYPE_UNSPECIFIED, //	Default value, do not use.
         INVISIBLE,                  //	No dash type, which is equivalent to a non-visible line.
-        CUSTOM,                     //	A custom dash for a line. Modifying the exact custom dash style is currently unsupported.
-        SOLID,                      //	A solid line.
-        DOTTED,                     //	A dotted line.
+        CUSTOM_DASH,                     //	A custom dash for a line. Modifying the exact custom dash style is currently unsupported.
+        SOLID_LINE,                      //	A solid line.
+        DOTTED_LINE,                     //	A dotted line.
         MEDIUM_DASHED,              //	A dashed line where the dashes have "medium" length.
         MEDIUM_DASHED_DOTTED,       //	A line that alternates between a "medium" dash and a dot.
         LONG_DASHED,                //	A dashed line where the dashes have "long" length.
@@ -51,11 +51,11 @@ namespace GSHEET
                 return setObject(buf[2], "type", "LINE_DASH_TYPE_UNSPECIFIED", true, true);
             else if (value == INVISIBLE)
                 return setObject(buf[2], "type", "INVISIBLE", true, true);
-            else if (value == CUSTOM)
+            else if (value == CUSTOM_DASH)
                 return setObject(buf[2], "type", "CUSTOM", true, true);
-            else if (value == SOLID)
+            else if (value == SOLID_LINE)
                 return setObject(buf[2], "type", "SOLID", true, true);
-            else if (value == DOTTED)
+            else if (value == DOTTED_LINE)
                 return setObject(buf[2], "type", "DOTTED", true, true);
             else if (value == MEDIUM_DASHED)
                 return setObject(buf[2], "type", "MEDIUM_DASHED", true, true);

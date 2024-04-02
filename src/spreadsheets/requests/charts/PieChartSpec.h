@@ -18,17 +18,6 @@
 
 namespace GSHEET
 {
-    // Where the legend of the chart should be positioned.
-    enum PieChartLegendPosition
-    {
-        PIE_CHART_LEGEND_POSITION_UNSPECIFIED, //	Default value, do not use.
-        BOTTOM_LEGEND,                         //	The legend is rendered on the bottom of the chart.
-        LEFT_LEGEND,                           //	The legend is rendered on the left of the chart.
-        RIGHT_LEGEND,                          //	The legend is rendered on the right of the chart.
-        TOP_LEGEND,                            //	The legend is rendered on the top of the chart.
-        NO_LEGEND,                             //	No legend is rendered.
-        LABELED_LEGEND                         //	Each pie slice has a label attached to it.
-    };
 
     /**
      * A pie chart.
@@ -50,7 +39,7 @@ namespace GSHEET
     public:
         PieChartSpec() {}
         // Where the legend of the pie chart should be drawn.
-        PieChartSpec &legendPosition(PieChartLegendPosition value)
+        PieChartSpec &legendPosition(ChartLegendPosition value)
         {
             if (value == PIE_CHART_LEGEND_POSITION_UNSPECIFIED)
                 return setObject(buf[1], "legendPosition", "PIE_CHART_LEGEND_POSITION_UNSPECIFIED", true, true);

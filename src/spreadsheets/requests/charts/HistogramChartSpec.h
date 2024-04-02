@@ -7,6 +7,7 @@
 #include "./core/ObjectWriter.h"
 #include "./spreadsheets/requests/charts/ChartData.h"
 #include "./spreadsheets/requests/Theme.h"
+#include "./spreadsheets/requests/Common.h"
 
 /**
  * HISTROGRAM CHART CLASS DEPENDENCIES
@@ -21,17 +22,7 @@
 
 namespace GSHEET
 {
-    // Where the legend of the chart should be positioned.
-    enum HistogramChartLegendPosition
-    {
-        HISTOGRAM_CHART_LEGEND_POSITION_UNSPECIFIED, //	Default value, do not use.
-        BOTTOM_LEGEND,                               //	The legend is rendered on the bottom of the chart.
-        LEFT_LEGEND,                                 //	The legend is rendered on the left of the chart.
-        RIGHT_LEGEND,                                //	The legend is rendered on the right of the chart.
-        TOP_LEGEND,                                  //	The legend is rendered on the top of the chart.
-        NO_LEGEND,                                   //	No legend is rendered.
-        INSIDE_LEGEND                                //	The legend is rendered inside the chart area.
-    };
+
 
     /**
      * A histogram series containing the series color and data.
@@ -87,7 +78,7 @@ namespace GSHEET
             return *this;
         }
         // The position of the chart legend.
-        HistogramChartSpec &legendPosition(HistogramChartLegendPosition value)
+        HistogramChartSpec &legendPosition(ChartLegendPosition value)
         {
             if (value == HISTOGRAM_CHART_LEGEND_POSITION_UNSPECIFIED)
                 return setObject(buf[2], "legendPosition", "HISTOGRAM_CHART_LEGEND_POSITION_UNSPECIFIED", true, true);

@@ -57,17 +57,6 @@ namespace GSHEET
         STEPPED_AREA                  //	A stepped area chart.
     };
 
-    // Where the legend of the chart should be positioned.
-    enum BasicChartLegendPosition
-    {
-        BASIC_CHART_LEGEND_POSITION_UNSPECIFIED, //	Default value, do not use.
-        BOTTOM_LEGEND,                           //	The legend is rendered on the bottom of the chart.
-        LEFT_LEGEND,                             //	The legend is rendered on the left of the chart.
-        RIGHT_LEGEND,                            //	The legend is rendered on the right of the chart.
-        TOP_LEGEND,                              //	The legend is rendered on the top of the chart.
-        NO_LEGEND                                //	No legend is rendered.
-    };
-
     // The position of a chart axis.
     enum BasicChartAxisPosition
     {
@@ -421,7 +410,7 @@ namespace GSHEET
             return *this;
         }
         // The position of the chart legend.
-        BasicChartSpec &legendPosition(BasicChartLegendPosition value)
+        BasicChartSpec &legendPosition(ChartLegendPosition value)
         {
             if (value == BASIC_CHART_LEGEND_POSITION_UNSPECIFIED)
                 return setObject(buf[2], "legendPosition", "BASIC_CHART_LEGEND_POSITION_UNSPECIFIED", true, true);

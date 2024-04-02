@@ -25,18 +25,18 @@ namespace GSHEET
     enum DataLabelType
     {
         DATA_LABEL_TYPE_UNSPECIFIED, //	The data label type is not specified and will be interpreted depending on the context of the data label within the chart.
-        NONE,                        //	The data label is not displayed.
+        NONE_LABEL,                        //	The data label is not displayed.
         DATA,                        //	The data label is displayed using values from the series data.
-        CUSTOM                       //	The data label is displayed using values from a custom data source indicated by customLabelData.
+        CUSTOM_LABEL                       //	The data label is displayed using values from a custom data source indicated by customLabelData.
     };
 
     // The placement of a data label relative to the labeled data.
     enum DataLabelPlacement
     {
         DATA_LABEL_PLACEMENT_UNSPECIFIED, //	The positioning is determined automatically by the renderer.
-        CENTER,                           //	Center within a bar or column, both horizontally and vertically.
-        LEFT,                             //	To the left of a data point.
-        RIGHT,                            //	To the right of a data point.
+        CENTER_LABEL,                           //	Center within a bar or column, both horizontally and vertically.
+        LEFT_LABEL,                             //	To the left of a data point.
+        RIGHT_LABEL,                            //	To the right of a data point.
         ABOVE,                            //	Above a data point.
         BELOW,                            //	Below a data point.
         INSIDE_END,                       //	Inside a bar or column at the end (top if positive, bottom if negative).
@@ -68,11 +68,11 @@ namespace GSHEET
         {
             if (value == DATA_LABEL_TYPE_UNSPECIFIED)
                 return setObject(buf[1], "type", "DATA_LABEL_TYPE_UNSPECIFIED", true, true);
-            else if (value == NONE)
+            else if (value == NONE_LABEL)
                 return setObject(buf[1], "type", "NONE", true, true);
             else if (value == DATA)
                 return setObject(buf[1], "type", "DATA", true, true);
-            else if (value == CUSTOM)
+            else if (value == CUSTOM_LABEL)
                 return setObject(buf[1], "type", "CUSTOM", true, true);
             return *this;
         }
@@ -83,11 +83,11 @@ namespace GSHEET
         {
             if (value == DATA_LABEL_PLACEMENT_UNSPECIFIED)
                 return setObject(buf[3], "placement", "DATA_LABEL_PLACEMENT_UNSPECIFIED", true, true);
-            else if (value == CENTER)
+            else if (value == CENTER_LABEL)
                 return setObject(buf[3], "placement", "CENTER", true, true);
-            else if (value == LEFT)
+            else if (value == LEFT_LABEL)
                 return setObject(buf[3], "placement", "LEFT", true, true);
-            else if (value == RIGHT)
+            else if (value == RIGHT_LABEL)
                 return setObject(buf[3], "placement", "RIGHT", true, true);
             else if (value == ABOVE)
                 return setObject(buf[3], "placement", "ABOVE", true, true);
