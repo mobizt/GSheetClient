@@ -26,36 +26,43 @@ namespace GSHEET
     /**
      * Criteria for showing/hiding rows in a filter or filter view.
      */
-    class FilterCriteria : public O6
+    class FilterCriteria : public BaseG6
     {
     public:
-        FilterCriteria() {}
+        FilterCriteria() = default;
+
         // Values that should be hidden.
-        FilterCriteria &hiddenValues(const String &value) { return wr.set<FilterCriteria &, String>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
+        FilterCriteria &hiddenValues(const String &value) { return wr.set<FilterCriteria &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // A condition that must be true for values to be shown. (This does not override hiddenValues -- if a value is listed there, it will still be hidden.)
-        FilterCriteria &condition(const BooleanCondition &value) { return wr.set<FilterCriteria &, BooleanCondition>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
+        FilterCriteria &condition(const BooleanCondition &value) { return wr.set<FilterCriteria &, BooleanCondition>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
         // The background fill color to filter by; only cells with this fill color are shown. This field is mutually exclusive with visibleForegroundColor, and must be set to an RGB-type color. If visibleBackgroundColor is also set, this field takes precedence.
-        FilterCriteria &visibleBackgroundColorStyle(const ColorStyle &value) { return wr.set<FilterCriteria &, ColorStyle>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
+        FilterCriteria &visibleBackgroundColorStyle(const ColorStyle &value) { return wr.set<FilterCriteria &, ColorStyle>(*this, value, buf, bufSize, 3, FPSTR(__func__)); }
+
         // The foreground color to filter by; only cells with this foreground color are shown. This field is mutually exclusive with visibleBackgroundColor, and must be set to an RGB-type color. If visibleForegroundColor is also set, this field takes precedence.
-        FilterCriteria &visibleForegroundColorStyle(const ColorStyle &value) { return wr.set<FilterCriteria &, ColorStyle>(*this, value, buf, bufSize, buf[4], FPSTR(__func__)); }
+        FilterCriteria &visibleForegroundColorStyle(const ColorStyle &value) { return wr.set<FilterCriteria &, ColorStyle>(*this, value, buf, bufSize, 4, FPSTR(__func__)); }
     };
 
     /**
      * The filter criteria associated with a specific column.
      */
-    class FilterSpec : public O4
+    class FilterSpec : public BaseG4
     {
 
     public:
-        FilterSpec() {}
+        FilterSpec() = default;
+
         // The criteria for the column.
-        FilterSpec &filterCriteria(const FilterCriteria &value) { return wr.set<FilterSpec &, FilterCriteria>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
+        FilterSpec &filterCriteria(const FilterCriteria &value) { return wr.set<FilterSpec &, FilterCriteria>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // Union field reference
         // The zero-based column index.
-        FilterSpec &columnIndex(int value) { return wr.set<FilterSpec &, int>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
+        FilterSpec &columnIndex(int value) { return wr.set<FilterSpec &, int>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
         // Union field reference
         // Reference to a data source column.
-        FilterSpec &dataSourceColumnReference(const DataSourceColumnReference &value) { return wr.set<FilterSpec &, DataSourceColumnReference>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
+        FilterSpec &dataSourceColumnReference(const DataSourceColumnReference &value) { return wr.set<FilterSpec &, DataSourceColumnReference>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
     };
 
 }

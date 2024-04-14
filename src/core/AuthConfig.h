@@ -30,6 +30,8 @@
 
 #include "./core/AsyncResult/AsyncResult.h"
 
+#define GSHEET_DEFAULT_TOKEN_TTL 3300
+
 namespace gsheet_sa_ns
 {
     enum data_item_type_t
@@ -182,7 +184,7 @@ namespace gsheet
             friend class GSheetUserTokenFileParser;
 
         public:
-            service_account() {}
+            service_account() = default;
             ~service_account() { clear(); }
             void copy(service_account &rhs)
             {
@@ -198,7 +200,7 @@ namespace gsheet
                 for (size_t i = 0; i < gsheet_sa_ns::max_type; i++)
                     val[i].remove(0, val[i].length());
                 timestatus_cb = NULL;
-                expire = 3600;
+                expire = GSHEET_DEFAULT_TOKEN_TTL;
                 step = jwt_step_begin;
             }
 
@@ -206,7 +208,7 @@ namespace gsheet
             String val[gsheet_sa_ns::max_type];
             jwt_step step = jwt_step_begin;
             GSheetTimeStatusCallback timestatus_cb = NULL;
-            size_t expire = 3600;
+            size_t expire = GSHEET_DEFAULT_TOKEN_TTL;
         };
 #endif
 
@@ -214,11 +216,11 @@ namespace gsheet
         struct access_token_data
         {
             String val[gsheet_access_tk_ns::max_type];
-            size_t expire = 3600;
+            size_t expire = GSHEET_DEFAULT_TOKEN_TTL;
             GSheetTimeStatusCallback timestatus_cb = NULL;
 
         public:
-            access_token_data() {}
+            access_token_data() = default;
             ~access_token_data() { clear(); }
             void copy(access_token_data &rhs)
             {
@@ -231,14 +233,14 @@ namespace gsheet
             {
                 for (size_t i = 0; i < gsheet_access_tk_ns::max_type; i++)
                     val[i].remove(0, val[i].length());
-                expire = 3600;
+                expire = GSHEET_DEFAULT_TOKEN_TTL;
                 timestatus_cb = NULL;
             }
         };
 #endif
 
     public:
-        user_auth_data() {}
+        user_auth_data() = default;
         ~user_auth_data() { clear(); }
         user_auth_data &operator=(user_auth_data &rhs)
         {
@@ -465,7 +467,7 @@ namespace gsheet
         friend class FirebaseApp;
 
     public:
-        GSheetServiceAuth(GSheetTimeStatusCallback timeCb, const String &clientEmail, const String &projectId, const String &privateKey, size_t expire = 3600)
+        GSheetServiceAuth(GSheetTimeStatusCallback timeCb, const String &clientEmail, const String &projectId, const String &privateKey, size_t expire = GSHEET_DEFAULT_TOKEN_TTL)
         {
             data.clear();
             data.sa.val[gsheet_sa_ns::cm] = clientEmail;
@@ -513,7 +515,7 @@ namespace gsheet
         friend class GSheetApp;
 
     public:
-        GSheetAccessToken(const String &token, size_t expire = 3600, const String &refresh = "", const String &client_id = "", const String &client_secret = "")
+        GSheetAccessToken(const String &token, size_t expire = GSHEET_DEFAULT_TOKEN_TTL, const String &refresh = "", const String &client_id = "", const String &client_secret = "")
         {
             this->data.clear();
             this->data.access_token.val[gsheet_access_tk_ns::token] = token;
@@ -585,12 +587,12 @@ namespace gsheet
         {
             for (size_t i = 0; i < gsheet_app_tk_ns::max_type; i++)
                 val[i].remove(0, val[i].length());
-            expire = 3600;
+            expire = GSHEET_DEFAULT_TOKEN_TTL;
             authenticated = false;
             auth_type = auth_unknown_token;
             auth_data_type = user_auth_data_undefined;
         }
-        app_token_t() {}
+        app_token_t() = default;
     };
 
     struct auth_data_t

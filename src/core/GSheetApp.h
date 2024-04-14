@@ -55,7 +55,7 @@ namespace gsheet
         GSheetTimer req_timer, auth_timer, err_timer;
         GSheetList vec;
         bool processing = false;
-        uint32_t expire = 3600;
+        uint32_t expire = GSHEET_DEFAULT_TOKEN_TTL;
         GSheetJSONUtil json;
         String extras, subdomain, host;
         gsheet_slot_options_t sop;
@@ -191,26 +191,14 @@ namespace gsheet
 
             setEventResult(sData ? &sData->aResult : nullptr, auth_data.user_auth.status.authEventString(auth_data.user_auth.status._event), auth_data.user_auth.status._event);
 
-            if (resultCb && sData)
-                resultCb(sData->aResult);
-
             if (event == auth_event_error || event == auth_event_ready)
             {
                 processing = false;
-                if (getClient())
-                    stop(aClient);
                 event = auth_event_uninitialized;
                 clearLastError(sData ? &sData->aResult : nullptr);
                 if (getClient())
-                    remove(aClient);
+                    stop(aClient);
             }
-        }
-
-        void remove(GSheetAsyncClientClass *aClient)
-        {
-            if (!aClient)
-                return;
-            aClient->handleRemove();
         }
 
         void clearLastError(GSheetAsyncResult *aResult)
@@ -232,12 +220,14 @@ namespace gsheet
 
             if (!isRes)
                 aResult = new GSheetAsyncResult();
+
             aResult->app_event.setEvent(code, msg);
+
+            if (resultCb)
+                resultCb(*aResult);
+
             if (!isRes)
             {
-                if (resultCb)
-                    resultCb(*aResult);
-
                 delete aResult;
                 aResult = nullptr;
             }
@@ -268,6 +258,8 @@ namespace gsheet
             if (!aClient)
                 return;
 
+            gsheet_sys_idle();
+
             if (sData)
             {
                 addGAPIsHost(host, subdomain.c_str());
@@ -290,12 +282,6 @@ namespace gsheet
 
             aClient->process(true);
             aClient->handleRemove();
-
-            if (resultCb && aResult && aResult->error().code() != 0 && aResult->error_available)
-            {
-                aResult->data_available = false;
-                resultCb(*aResult);
-            }
         }
 
         void stop(GSheetAsyncClientClass *aClient)
@@ -432,8 +418,11 @@ namespace gsheet
 
             if (auth_data.user_auth.status._event == auth_event_auth_request_sent)
             {
-                if (sData && (sData->aResult.error().code() != 0 || req_timer.remaining() == 0))
+                if (sData && ((sData->response.payloadLen > 0 && sData->aResult.error().code() != 0) || req_timer.remaining() == 0))
                 {
+
+                    // In case of googleapis returns http status code >= 400 or request is timed out.
+                    // Note that, only status line was read in case http status code >= 400
                     setEvent(auth_event_error);
                     return false;
                 }
@@ -470,7 +459,13 @@ namespace gsheet
             app_addr = reinterpret_cast<uint32_t>(this);
             vec.addRemoveList(aVec, app_addr, true);
         };
-        ~GSheetApp() { vec.addRemoveList(aVec, app_addr, false); };
+        ~GSheetApp()
+        {
+            if (sData)
+                delete sData;
+            sData = nullptr;
+            vec.addRemoveList(aVec, app_addr, false);
+        };
 
         bool isInitialized() const { return auth_data.user_auth.initialized; }
 

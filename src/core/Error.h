@@ -222,8 +222,8 @@ private:
     }
 
 public:
-    GSheetError(){};
-    ~GSheetError(){};
+    GSheetError() = default;
+    ~GSheetError() = default;
     String message() const { return err.message; }
     int code() const { return err.code; }
     void setLastError(int code, const String &msg)

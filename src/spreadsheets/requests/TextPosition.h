@@ -27,17 +27,9 @@ namespace TextAlignment
         BOTTOM                      //	The text is explicitly aligned to the bottom of the cell.
     };
 
-    const struct GSHEET::key_str_30 _HorizontalAlign[HorizontalAlign::RIGHT + 1] PROGMEM = {
-        "HORIZONTAL_ALIGN_UNSPECIFIED",
-        "LEFT",
-        "CENTER",
-        "RIGHT"};
+    const struct GSHEET::key_str_30 _HorizontalAlign[HorizontalAlign::RIGHT + 1] PROGMEM = {"HORIZONTAL_ALIGN_UNSPECIFIED", "LEFT", "CENTER", "RIGHT"};
 
-    const struct GSHEET::key_str_30 _VerticalAlign[VerticalAlign::BOTTOM + 1] PROGMEM = {
-        "VERTICAL_ALIGN_UNSPECIFIED",
-        "TOP",
-        "MIDDLE",
-        "BOTTOM"};
+    const struct GSHEET::key_str_30 _VerticalAlign[VerticalAlign::BOTTOM + 1] PROGMEM = {"VERTICAL_ALIGN_UNSPECIFIED", "TOP", "MIDDLE", "BOTTOM"};
 
 }
 
@@ -47,10 +39,11 @@ namespace GSHEET
     /**
      * Position settings for text.
      */
-    class TextPosition : public O1
+    class TextPosition : public BaseG1
     {
     public:
-        TextPosition() {}
+        TextPosition() = default;
+
         // Horizontal alignment setting for the piece of text.
         TextPosition &horizontalAlignment(TextAlignment::HorizontalAlign value) { return wr.add<TextPosition &, const char *>(*this, TextAlignment::_HorizontalAlign[value].text, buf, FPSTR(__func__)); }
     };

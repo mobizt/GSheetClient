@@ -1,6 +1,6 @@
 /**
  * Created March 26, 2024
- * 
+ *
  * For MCU build target (CORE_ARDUINO_XXXX), see Options.h.
  *
  * The MIT License (MIT)
@@ -165,8 +165,8 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
 #endif
 
 #if !defined(ARDUINO_RASPBERRY_PI_PICO_W) && \
-    !defined(CORE_ARDUINO_ARCH_SAMD) &&        \
-    !defined(CORE_ARDUINO_MBED_PORTENTA) &&    \
+    !defined(CORE_ARDUINO_ARCH_SAMD) &&      \
+    !defined(CORE_ARDUINO_MBED_PORTENTA) &&  \
     !defined(ARDUINO_UNOWIFIR4) &&           \
     !defined(ARDUINO_PORTENTA_C33) &&        \
     !defined(ARDUINO_NANO_RP2040_CONNECT)
@@ -268,7 +268,7 @@ class GSheetWiFi
     friend class GSheetAsyncClientClass;
 
 public:
-    GSheetWiFi(){};
+    GSheetWiFi() = default;
     ~GSheetWiFi()
     {
         clearAP();

@@ -64,49 +64,30 @@ enum gsheet_request_type
 namespace GSHEET
 {
 
-     
     // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#Request
-   
+
     /**
      * Batch update options
      */
-    class BatchUpdateOptions : public Printable
+    class BatchUpdateOptions : public BaseG6
     {
-    private:
-        size_t bufSize = 5;
-        String buf[5];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        BatchUpdateOptions &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
-        BatchUpdateOptions() {}
+        BatchUpdateOptions() = default;
+
+        // This value represents the item to add to an array.
         // A list of updates to apply to the spreadsheet. Requests will be applied in the order they are specified. If any request is not valid, no requests will be applied.
         template <typename T>
-        BatchUpdateOptions &addRequest(const Request<T> &value)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf[2], FPSTR("values"), value.c_str(), false);
-            return *this;
-        }
-        // Determines if the update response should include the spreadsheet resource.
-        BatchUpdateOptions &includeSpreadsheetInResponse(bool value) { return setObject(buf[2], "includeSpreadsheetInResponse", owriter.getBoolStr(value), false, true); }
-        // Limits the ranges included in the response spreadsheet. Meaningful only if includeSpreadsheetInResponse is 'true'.
-        BatchUpdateOptions &addResponseRanges(const String &value)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf[3], FPSTR("responseRanges"), value, true);
-            return *this;
-        }
-        // True if grid data should be returned. Meaningful only if includeSpreadsheetInResponse is 'true'. This parameter is ignored if a field mask was set in the request.
-        BatchUpdateOptions &responseIncludeGridData(bool value) { return setObject(buf[4], "responseIncludeGridData", owriter.getBoolStr(value), false, true); }
+        BatchUpdateOptions &requests(const Request<T> &value) { return wr.append<BatchUpdateOptions &, Request<T>>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
 
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        // Determines if the update response should include the spreadsheet resource.
+        BatchUpdateOptions &includeSpreadsheetInResponse(bool value) { return wr.set<BatchUpdateOptions &, bool>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // This value represents the item to add to an array.
+        // Limits the ranges included in the response spreadsheet. Meaningful only if includeSpreadsheetInResponse is 'true'.
+        BatchUpdateOptions &responseRanges(const String &value) { return wr.append<BatchUpdateOptions &, String>(*this, value, buf, bufSize, 3, FPSTR(__func__)); }
+
+        // True if grid data should be returned. Meaningful only if includeSpreadsheetInResponse is 'true'. This parameter is ignored if a field mask was set in the request.
+        BatchUpdateOptions &responseIncludeGridData(bool value) { return wr.set<BatchUpdateOptions &, bool>(*this, value, buf, bufSize, 4, FPSTR(__func__)); }
     };
 
     class Parent
@@ -118,7 +99,7 @@ namespace GSHEET
         String sheetId;
 
     public:
-        Parent() {}
+        Parent() = default;
         Parent(const String &spreadsheetId, const String &sheetId = "")
         {
             this->spreadsheetId = spreadsheetId;

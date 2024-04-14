@@ -86,7 +86,7 @@ private:
         }
     };
 #endif
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
     struct ethernet_data
     {
         int ethernet_reset_pin = -1;
@@ -118,7 +118,7 @@ private:
 #if defined(GSHEET_GSM_MODEM_IS_AVAILABLE) && defined(GSHEET_ENABLE_GSM_NETWORK)
     gsm_data gsm;
 #endif
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
     ethernet_data ethernet;
     GSheetSPIETH *eth = NULL;
 #endif
@@ -147,7 +147,7 @@ public:
         gsm.copy(rhs.gsm);
 #endif
 
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
         ethernet.copy(rhs.ethernet);
 #endif
 
@@ -155,7 +155,7 @@ public:
         this->network_status = rhs.network_status;
         this->reconnect = rhs.reconnect;
         this->wifi = rhs.wifi;
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
         this->eth = rhs.eth;
 #endif
         this->net_timer = rhs.net_timer;
@@ -168,7 +168,7 @@ public:
 #if defined(GSHEET_GSM_MODEM_IS_AVAILABLE) && defined(GSHEET_ENABLE_GSM_NETWORK)
         gsm.clear();
 #endif
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
         ethernet.clear();
 #endif
         network_data_type = gsheet_network_data_undefined;
@@ -176,7 +176,7 @@ public:
         network_status = false;
         reconnect = true;
         wifi = nullptr;
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
         eth = NULL;
 #endif
         net_timer.stop();
@@ -242,7 +242,7 @@ public:
 };
 #endif
 
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
 class GSheetEthernetNetwork : public GSheetDefaultNetwork
 {
 
@@ -268,7 +268,7 @@ public:
     GSheetDefaultEthernetNetwork(GSheetSPIETH &eth)
     {
         init();
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETH_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
         network_data.eth = &eth;
 #endif
         network_data.network_data_type = gsheet_network_data_default_network;

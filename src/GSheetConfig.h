@@ -6,7 +6,6 @@
  * -D GSHEET_DISABLE_ALL_OPTIONS
  */
 
-
 /**📍 For enabling filesystem
  * ⛔ Use following build flag to disable.
  * -D GSHEET_DISABLE_FS
@@ -54,10 +53,10 @@
  *
  * 🏷️ For Async TCP Client usage.
  * #define GSHEET_ENABLE_ASYNC_TCP_CLIENT
- * 
+ *
  * 🏷️ For maximum async queue limit setting for an async client
  * #define GSHEET_ASYNC_QUEUE_LIMIT 10
- * 
+ *
  * 🏷️ For GSheet.printf debug port
  * #define GSHEET_PRINTF_PORT Serial
  */

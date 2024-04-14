@@ -49,7 +49,7 @@ enum gsheet_file_operating_mode
 struct gsheet_blob_writer
 {
 public:
-    gsheet_blob_writer() {}
+    gsheet_blob_writer() = default;
     void init(uint8_t *data, size_t size)
     {
         this->data = data;
@@ -183,7 +183,7 @@ public:
         setCallback(cb);
         data.initialized = true;
     }
-    ~GSheetFileConfig() {}
+    ~GSheetFileConfig() = default;
     void clear() { data.clear(); }
 
     GSheetFileConfig &setFilename(const String &filename)
@@ -237,7 +237,7 @@ public:
 
         this->data.initialized = true;
     }
-    ~GSheetBlobConfig() {}
+    ~GSheetBlobConfig() = default;
     void clear() { data.clear(); }
 
     uint8_t *blob() const { return data.data; }

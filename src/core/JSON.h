@@ -41,8 +41,8 @@ class GSheetJSONUtil
 
 private:
 public:
-    GSheetJSONUtil(){};
-    ~GSheetJSONUtil(){};
+    GSheetJSONUtil() = default;
+    ~GSheetJSONUtil() = default;
 
     void addObject(String &buf, const String &name, const String &value, bool stringValue, bool last = false)
     {
@@ -161,8 +161,8 @@ private:
     }
 
 public:
-    GSheetJsonWriter(){};
-    ~GSheetJsonWriter(){};
+    GSheetJsonWriter() = default;
+    ~GSheetJsonWriter() = default;
 
     void create(gsheet_object_t &obj, const String &path, bool value) { create(obj, path, gsheet_boolean_t(value)); }
 

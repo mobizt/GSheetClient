@@ -38,7 +38,7 @@ private:
     }
 
 public:
-    gsheet_boolean_t() {}
+    gsheet_boolean_t() = default;
     gsheet_boolean_t(bool v) { buf = v ? FPSTR("true") : FPSTR("false"); }
     const char *c_str() const { return buf.c_str(); }
     size_t printTo(Print &p) const { return p.print(buf.c_str()); }
@@ -50,7 +50,7 @@ private:
     String buf;
 
 public:
-    gsheet_number_t() {}
+    gsheet_number_t() = default;
     template <typename T1 = int, typename T = int>
     gsheet_number_t(T1 v, T d) { buf = String(v, d); }
     template <typename T = int>
@@ -65,7 +65,7 @@ private:
     String buf;
 
 public:
-    gsheet_string_t() {}
+    gsheet_string_t() = default;
     template <typename T = const char *>
     gsheet_string_t(T v)
     {
@@ -135,11 +135,11 @@ private:
     String buf;
 
 public:
-    gsheet_object_t() {}
+    gsheet_object_t() = default;
     gsheet_object_t(const String &o) { buf = o; }
     const char *c_str() const { return buf.c_str(); }
     template <typename T = const char *>
-    gsheet_object_t(T o) { buf = o; }
+    gsheet_object_t(T o) { buf = String(o); }
     gsheet_object_t(gsheet_boolean_t o) { buf = o.c_str(); }
     gsheet_object_t(gsheet_number_t o) { buf = o.c_str(); }
     gsheet_object_t(gsheet_string_t o) { buf = o.c_str(); }
@@ -173,8 +173,8 @@ private:
 class GSheetValueConverter
 {
 public:
-    GSheetValueConverter() {}
-    ~GSheetValueConverter() {}
+    GSheetValueConverter() = default;
+    ~GSheetValueConverter() = default;
 
     template <typename T>
     struct v_sring
@@ -187,7 +187,7 @@ public:
     {
         static bool const value = std::is_same<T, uint64_t>::value || std::is_same<T, int64_t>::value || std::is_same<T, uint32_t>::value || std::is_same<T, int32_t>::value ||
                                   std::is_same<T, uint16_t>::value || std::is_same<T, int16_t>::value || std::is_same<T, uint8_t>::value || std::is_same<T, int8_t>::value ||
-                                  std::is_same<T, double>::value || std::is_same<T, float>::value || std::is_same<T, bool>::value || std::is_same<T, int>::value;
+                                  std::is_same<T, double>::value || std::is_same<T, float>::value || std::is_same<T, int>::value;
     };
 
     template <typename T = gsheet_object_t>
@@ -197,23 +197,30 @@ public:
     }
 
     template <typename T = const char *>
-    auto getVal(String &buf, T value) -> typename std::enable_if<(v_number<T>::value || v_sring<T>::value) && !std::is_same<T, gsheet_object_t>::value && !std::is_same<T, gsheet_string_t>::value && !std::is_same<T, gsheet_boolean_t>::value && !std::is_same<T, gsheet_number_t>::value, void>::type
+    auto getVal(String &buf, T value) -> typename std::enable_if<(v_number<T>::value || v_sring<T>::value || std::is_same<T, bool>::value) && !std::is_same<T, gsheet_object_t>::value && !std::is_same<T, gsheet_string_t>::value && !std::is_same<T, gsheet_boolean_t>::value && !std::is_same<T, gsheet_number_t>::value, void>::type
     {
-        buf = "";
-        if (v_sring<T>::value)
-            buf = '\"';
-        buf += value;
-        if (v_sring<T>::value)
-            buf += '\"';
+        buf.remove(0, buf.length());
+        if (std::is_same<T, bool>::value)
+        {
+            buf = value ? "true" : "false";
+        }
+        else
+        {
+            if (v_sring<T>::value)
+                buf += '\"';
+            buf += value;
+            if (v_sring<T>::value)
+                buf += '\"';
+        }
     }
 
     template <typename T>
-    auto to(const char *payload) -> typename std::enable_if<v_number<T>::value, T>::type
+    auto to(const char *payload) -> typename std::enable_if<v_number<T>::value || std::is_same<T, bool>::value, T>::type
     {
         if (!useLength && strlen(payload) > 0)
         {
-                setInt(payload);
-                setFloat(payload);
+            setInt(payload);
+            setFloat(payload);
         }
         else
             setBool(strlen(payload));
@@ -259,7 +266,6 @@ public:
 
         return buf.c_str();
     }
-
 
 private:
     union IVal

@@ -291,12 +291,77 @@ namespace Delim
     enum DelimiterType
     {
         DELIMITER_TYPE_UNSPECIFIED, //	Default value. This value must not be used.
-        COMMA,                //	","
-        SEMICOLON,            //	";"
-        PERIOD,               //	"."
-        SPACE,                //	" "
-        CUSTOM,               //	A custom value as defined in delimiter.
-        AUTODETECT            //	Automatically detect columns.
+        COMMA,                      //	","
+        SEMICOLON,                  //	";"
+        PERIOD,                     //	"."
+        SPACE,                      //	" "
+        CUSTOM,                     //	A custom value as defined in delimiter.
+        AUTODETECT                  //	Automatically detect columns.
+    };
+}
+
+namespace Basic
+{
+    // How the chart should be visualized.
+    enum BasicChartType
+    {
+        BASIC_CHART_TYPE_UNSPECIFIED, //	Default value, do not use.
+        BAR,                          //	A bar chart.
+        LINE,                         //	A line chart.
+        AREA,                         //	An area chart.
+        COLUMN,                       //	A column chart.
+        SCATTER,                      //	A scatter chart.
+        COMBO,                        //	A combo chart.
+        STEPPED_AREA                  //	A stepped area chart.
+    };
+
+    // The position of a chart axis.
+    enum BasicChartAxisPosition
+    {
+        BASIC_CHART_AXIS_POSITION_UNSPECIFIED, //	Default value, do not use.
+        BOTTOM_AXIS,                           //	The axis rendered at the bottom of a chart. For most charts, this is the standard major axis. For bar charts, this is a minor axis.
+        LEFT_AXIS,                             //	The axis rendered at the left of a chart. For most charts, this is a minor axis. For bar charts, this is the standard major axis.
+        RIGHT_AXIS                             //	The axis rendered at the right of a chart. For most charts, this is a minor axis. For bar charts, this is an unusual major axis.
+    };
+
+    // The view window's mode. It defines how to treat the min and max of the view window.
+    enum ViewWindowMode
+    {
+        DEFAULT_VIEW_WINDOW_MODE,     //	The default view window mode used in the Sheets editor for this chart type. In most cases, if set, the default mode is equivalent to PRETTY.
+        VIEW_WINDOW_MODE_UNSUPPORTED, //	Do not use. Represents that the currently set mode is not supported by the API.
+        EXPLICIT,                     //	Follows the min and max exactly if specified. If a value is unspecified, it will fall back to the PRETTY value.
+        PRETTY                        //	Chooses a min and max that make the chart look good. Both min and max are ignored in this mode.
+    };
+
+    // The shape of a point.
+    enum PointShape
+    {
+        POINT_SHAPE_UNSPECIFIED, //	Default value.
+        CIRCLE,                  //	A circle shape.
+        DIAMOND,                 //	A diamond shape.
+        HEXAGON,                 //	A hexagon shape.
+        PENTAGON,                //	A pentagon shape.
+        SQUARE,                  //	A square shape.
+        STAR,                    //	A star shape.
+        TRIANGLE,                //	A triangle shape.
+        X_MARK                   //	An x-mark shape.
+    };
+
+    // When charts are stacked, range (vertical axis) values are rendered on top of one another rather than from the horizontal axis. For example, the two values 20 and 80 would be drawn from 0, with 80 being 80 units away from the horizontal axis. If they were stacked, 80 would be rendered from 20, putting it 100 units away from the horizontal axis.
+    enum BasicChartStackedType
+    {
+        BASIC_CHART_STACKED_TYPE_UNSPECIFIED, //	Default value, do not use.
+        NOT_STACKED,                          //	Series are not stacked.
+        STACKED,                              //	Series values are stacked, each value is rendered vertically beginning from the top of the value below it.
+        PERCENT_STACKED                       //	Vertical stacks are stretched to reach the top of the chart, with values laid out as percentages of each other.
+    };
+
+    // The compare mode type, which describes the behavior of tooltips and data highlighting when hovering on data and chart area.
+    enum BasicChartCompareMode
+    {
+        BASIC_CHART_COMPARE_MODE_UNSPECIFIED, //	Default value, do not use.
+        DATUM,                                //	Only the focused data element is highlighted and shown in the tooltip.
+        CATEGORY                              //	All data elements with the same category (e.g., domain value) are highlighted and shown in the tooltip.
     };
 }
 
@@ -368,225 +433,18 @@ namespace GSHEET
 
     const struct key_str_30 _DelimiterType[Delim::DelimiterType::AUTODETECT + 1] PROGMEM = {"DELIMITER_TYPE_UNSPECIFIED", "COMMA", "SEMICOLON", "PERIOD", "SPACE", "CUSTOM", "AUTODETECT"};
 
-    class BufWriter
-    {
-    private:
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
+    const struct key_str_30 _BasicChartType[Basic::BasicChartType::STEPPED_AREA + 1] PROGMEM = {"BASIC_CHART_TYPE_UNSPECIFIED", "BAR", "LINE", "AREA", "COLUMN", "SCATTER", "COMBO", "STEPPED_AREA"};
 
-        template <typename T>
-        struct v_number
-        {
-            static bool const value = std::is_same<T, uint64_t>::value || std::is_same<T, int64_t>::value || std::is_same<T, uint32_t>::value || std::is_same<T, int32_t>::value ||
-                                      std::is_same<T, uint16_t>::value || std::is_same<T, int16_t>::value || std::is_same<T, uint8_t>::value || std::is_same<T, int8_t>::value ||
-                                      std::is_same<T, double>::value || std::is_same<T, float>::value || std::is_same<T, int>::value;
-        };
+    const struct key_str_40 _BasicChartAxisPosition[Basic::BasicChartAxisPosition::RIGHT_AXIS + 1] PROGMEM = {"BASIC_CHART_AXIS_POSITION_UNSPECIFIED", "BOTTOM_AXIS", "LEFT_AXIS", "RIGHT_AXIS"};
 
-        template <typename T>
-        struct v_sring
-        {
-            static bool const value = std::is_same<T, const char *>::value || std::is_same<T, std::string>::value || std::is_same<T, String>::value;
-        };
+    const struct key_str_40 _ViewWindowMode[Basic::ViewWindowMode::PRETTY + 1] PROGMEM = {"DEFAULT_VIEW_WINDOW_MODE", "VIEW_WINDOW_MODE_UNSUPPORTED", "EXPLICIT", "PRETTY"};
 
-        void setObject(String *buf, size_t bufSize, String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-        }
+    const struct key_str_40 _PointShape[Basic::PointShape::X_MARK + 1] PROGMEM = {"POINT_SHAPE_UNSPECIFIED", "CIRCLE", "DIAMOND", "HEXAGON", "SQUARE", "STAR", "TRIANGLE", "X_MARK"};
 
-    public:
-        BufWriter() {}
-        template <typename T1, typename T2>
-        T1 add(T1 ret, bool value, String &buf, const String &name)
-        {
-            clear(buf);
-            jut.addObject(buf, name, owriter.getBoolStr(value), false, true);
-            return ret;
-        }
+    const struct key_str_40 _BasicChartStackedType[Basic::BasicChartStackedType::PERCENT_STACKED + 1] PROGMEM = {"BASIC_CHART_STACKED_TYPE_UNSPECIFIED", "NOT_STACKED", "STACKED", "PERCENT_STACKED"};
 
-        template <typename T1, typename T2>
-        auto add(T1 ret, const T2 &value, String &buf, const String &name) -> typename std::enable_if<v_number<T2>::value, T1>::type
-        {
-            clear(buf);
-            jut.addObject(buf, name, String(value), false, true);
-            return ret;
-        }
+    const struct key_str_40 _BasicChartCompareMode[Basic::BasicChartCompareMode::CATEGORY + 1] PROGMEM = {"BASIC_CHART_COMPARE_MODE_UNSPECIFIED", "DATUM", "CATEGORY"};
 
-        template <typename T1, typename T2>
-        auto add(T1 ret, const T2 &value, String &buf, const String &name) -> typename std::enable_if<v_sring<T2>::value, T1>::type
-        {
-            clear(buf);
-            jut.addObject(buf, name, value, true, true);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        auto add(T1 ret, const T2 &value, String &buf, const String &name) -> typename std::enable_if<(!v_sring<T2>::value && !v_number<T2>::value && !std::is_same<T2, bool>::value), T1>::type
-        {
-            clear(buf);
-            jut.addObject(buf, name, value.c_str(), false, true);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        T1 set(T1 ret, bool value, String *buf, size_t bufSize, String &buf_n, const String &name)
-        {
-            setObject(buf, bufSize, buf_n, name, owriter.getBoolStr(value), false, true);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        auto set(T1 ret, const T2 &value, String *buf, size_t bufSize, String &buf_n, const String &name) -> typename std::enable_if<v_number<T2>::value, T1>::type
-        {
-            setObject(buf, bufSize, buf_n, name, String(value), false, true);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        auto set(T1 ret, const T2 &value, String *buf, size_t bufSize, String &buf_n, const String &name) -> typename std::enable_if<v_sring<T2>::value, T1>::type
-        {
-            setObject(buf, bufSize, buf_n, name, value, true, true);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        auto set(T1 ret, const T2 &value, String *buf, size_t bufSize, String &buf_n, const String &name) -> typename std::enable_if<(!v_sring<T2>::value && !v_number<T2>::value && !std::is_same<T2, bool>::value), T1>::type
-        {
-            setObject(buf, bufSize, buf_n, name, value.c_str(), false, true);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        T1 append(T1 ret, bool value, String *buf, size_t bufSize, String &buf_n, const String &name)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf_n, name, owriter.getBoolStr(value), false);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        auto append(T1 ret, const T2 &value, String *buf, size_t bufSize, String &buf_n, const String &name) -> typename std::enable_if<v_number<T2>::value, T1>::type
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf_n, name, String(value), false);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        auto append(T1 ret, const T2 &value, String *buf, size_t bufSize, String &buf_n, const String &name) -> typename std::enable_if<v_sring<T2>::value, T1>::type
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf_n, name, value, true);
-            return ret;
-        }
-
-        template <typename T1, typename T2>
-        auto append(T1 ret, const T2 &value, String *buf, size_t bufSize, String &buf_n, const String &name) -> typename std::enable_if<(!v_sring<T2>::value && !v_number<T2>::value && !std::is_same<T2, bool>::value), T1>::type
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf_n, name, value.c_str(), false);
-            return ret;
-        }
-        void clear(String &buf) { buf.remove(0, buf.length()); }
-        void clear(String *buf, size_t bufSize) { owriter.clearBuf(buf, bufSize); }
-    };
-
-    class O1 : public Printable
-    {
-
-    protected:
-        String buf;
-        BufWriter wr;
-
-    public:
-        O1() {}
-        const char *c_str() const { return buf.c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
-        void clear() { buf.remove(0, buf.length()); }
-    };
-
-    class O2 : public Printable
-    {
-
-    protected:
-        static const size_t bufSize = 2;
-        String buf[bufSize];
-        BufWriter wr;
-
-    public:
-        O2() {}
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { wr.clear(buf, bufSize); }
-    };
-
-    class O4 : public Printable
-    {
-
-    protected:
-        static const size_t bufSize = 4;
-        String buf[bufSize];
-        BufWriter wr;
-
-    public:
-        O4() {}
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { wr.clear(buf, bufSize); }
-    };
-
-    class O6 : public Printable
-    {
-
-    protected:
-        static const size_t bufSize = 6;
-        String buf[bufSize];
-        BufWriter wr;
-
-    public:
-        O6() {}
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { wr.clear(buf, bufSize); }
-    };
-
-    class O8 : public Printable
-    {
-    protected:
-        static const size_t bufSize = 8;
-        String buf[bufSize];
-        BufWriter wr;
-
-    public:
-        O8() {}
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { wr.clear(buf, bufSize); }
-    };
-
-    class O12 : public Printable
-    {
-
-    protected:
-        static const size_t bufSize = 12;
-        String buf[bufSize];
-        BufWriter wr;
-
-    public:
-        O12() {}
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { wr.clear(buf, bufSize); }
-    };
-
-    class O16 : public Printable
-    {
-    protected:
-        static const size_t bufSize = 16;
-        String buf[bufSize];
-        BufWriter wr;
-
-    public:
-        O16() {}
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { wr.clear(buf, bufSize); }
-    };
 
 }
 

@@ -12,16 +12,19 @@ namespace GSHEET
     /**
      * A coordinate in a sheet. All indexes are zero-based.
      */
-    class GridCoordinate : public O4
+    class GridCoordinate : public BaseG4
     {
     public:
-        GridCoordinate() {}
+        GridCoordinate() = default;
+
         // The sheet this coordinate is on.
-        GridCoordinate &sheetId(int value) { return wr.set<GridCoordinate &, int>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
+        GridCoordinate &sheetId(int value) { return wr.set<GridCoordinate &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // The row index of the coordinate.
-        GridCoordinate &rowIndex(int value) { return wr.set<GridCoordinate &, int>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
+        GridCoordinate &rowIndex(int value) { return wr.set<GridCoordinate &, int>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
         // The column index of the coordinate.
-        GridCoordinate &columnIndex(int value) { return wr.set<GridCoordinate &, int>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
+        GridCoordinate &columnIndex(int value) { return wr.set<GridCoordinate &, int>(*this, value, buf, bufSize, 3, FPSTR(__func__)); }
     };
 
 }

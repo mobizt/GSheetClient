@@ -66,151 +66,45 @@ namespace GSHEET
         FILTER_EXPRESSION           //	The cell's value must follow the pattern specified. Requires a single ConditionValue.
     };
 
+    const struct key_str_30 _RelativeDate[RelativeDate::TOMORROW + 1] PROGMEM = {"RELATIVE_DATE_UNSPECIFIED", "PAST_YEAR", "PAST_MONTH", "PAST_WEEK", "YESTERDAY", "TODAY", "TOMORROW"};
+
+    const struct key_str_30 _ConditionType[ConditionType::FILTER_EXPRESSION + 1] PROGMEM = {"CONDITION_TYPE_UNSPECIFIED", "NUMBER_GREATER", "NUMBER_GREATER_THAN_EQ", "NUMBER_LESS", "NUMBER_LESS_THAN_EQ", "NUMBER_EQ", "NUMBER_NOT_EQ", "NUMBER_BETWEEN", "NUMBER_NOT_BETWEEN", "TEXT_CONTAINS", "TEXT_NOT_CONTAINS", "TEXT_STARTS_WITH", "TEXT_ENDS_WITH", "TEXT_EQ", "TEXT_IS_EMAIL", "TEXT_IS_URL", "DATE_EQ", "DATE_BEFORE", "DATE_AFTER", "DATE_ON_OR_BEFORE", "DATE_ON_OR_AFTER",
+                                                                                            "DATE_BETWEEN", "DATE_NOT_BETWEEN", "DATE_IS_VALID", "ONE_OF_RANGE", "ONE_OF_LIST", "BLANK", "NOT_BLANK", "CUSTOM_FORMULA", "BOOLEAN", "TEXT_NOT_EQ", "DATE_NOT_EQ", "FILTER_EXPRESSION"};
+
     /**
      * The value of the condition.
      */
-    class ConditionValue : public Printable
+    class ConditionValue : public BaseG1
     {
-    private:
-        String buf;
-        GSheetJSONUtil jut;
 
     public:
-        ConditionValue() {}
+        ConditionValue() = default;
+
         // Union field value
         //  A relative date (based on the current date). Valid only if the type is DATE_BEFORE, DATE_AFTER, DATE_ON_OR_BEFORE or DATE_ON_OR_AFTER.
         //  Relative dates are not supported in data validation. They are supported only in conditional formatting and conditional filters.
-        ConditionValue &relativeDate(RelativeDate value)
-        {
-            clear();
-            if (value == RELATIVE_DATE_UNSPECIFIED)
-                jut.addObject(buf, "relativeDate", "RELATIVE_DATE_UNSPECIFIED", true, true);
-            else if (value == PAST_YEAR)
-                jut.addObject(buf, "relativeDate", "PAST_YEAR", true, true);
-            else if (value == PAST_MONTH)
-                jut.addObject(buf, "relativeDate", "PAST_MONTH", true, true);
-            else if (value == PAST_WEEK)
-                jut.addObject(buf, "relativeDate", "PAST_WEEK", true, true);
-            else if (value == YESTERDAY)
-                jut.addObject(buf, "relativeDate", "YESTERDAY", true, true);
-            else if (value == TODAY)
-                jut.addObject(buf, "relativeDate", "TODAY", true, true);
-            else if (value == TOMORROW)
-                jut.addObject(buf, "relativeDate", "TOMORROW", true, true);
-            return *this;
-        }
+        ConditionValue &relativeDate(RelativeDate value) { return wr.add<ConditionValue &, String>(*this, _RelativeDate[value].text, buf, FPSTR(__func__)); }
+
         // Union field value
         //  A value the condition is based on. The value is parsed as if the user typed into a cell. Formulas are supported (and must begin with an = or a '+').
-        ConditionValue &userEnteredValue(const String &value)
-        {
-            clear();
-            jut.addObject(buf, "userEnteredValue", value, true, true);
-            return *this;
-        }
-        const char *c_str() const { return buf.c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf.c_str()); }
-        void clear() { buf.remove(0, buf.length()); }
+        ConditionValue &userEnteredValue(const String &value) { return wr.add<ConditionValue &, String>(*this, value, buf, FPSTR(__func__)); }
     };
 
     /**
      * A condition that can evaluate to true or false. BooleanConditions are used by conditional formatting, data validation, and the criteria in filters.
      */
-    class BooleanCondition : public Printable
+    class BooleanCondition : public BaseG4
     {
     private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        BooleanCondition &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
-        BooleanCondition() {}
+        BooleanCondition() = default;
+
         // The type of condition.
-        BooleanCondition &type(ConditionType value)
-        {
-            if (value == CONDITION_TYPE_UNSPECIFIED)
-                return setObject(buf[1], "type", "CONDITION_TYPE_UNSPECIFIED", true, true);
-            else if (value == NUMBER_GREATER)
-                return setObject(buf[1], "type", "NUMBER_GREATER", true, true);
-            else if (value == NUMBER_GREATER_THAN_EQ)
-                return setObject(buf[1], "type", "NUMBER_GREATER_THAN_EQ", true, true);
-            else if (value == NUMBER_LESS)
-                return setObject(buf[1], "type", "NUMBER_LESS", true, true);
-            else if (value == NUMBER_LESS_THAN_EQ)
-                return setObject(buf[1], "type", "NUMBER_LESS_THAN_EQ", true, true);
-            else if (value == NUMBER_EQ)
-                return setObject(buf[1], "type", "NUMBER_EQ", true, true);
-            else if (value == NUMBER_NOT_EQ)
-                return setObject(buf[1], "type", "NUMBER_NOT_EQ", true, true);
-            else if (value == NUMBER_BETWEEN)
-                return setObject(buf[1], "type", "NUMBER_BETWEEN", true, true);
-            else if (value == NUMBER_NOT_BETWEEN)
-                return setObject(buf[1], "type", "NUMBER_NOT_BETWEEN", true, true);
-            else if (value == TEXT_CONTAINS)
-                return setObject(buf[1], "type", "TEXT_CONTAINS", true, true);
-            else if (value == TEXT_NOT_CONTAINS)
-                return setObject(buf[1], "type", "TEXT_NOT_CONTAINS", true, true);
-            else if (value == TEXT_STARTS_WITH)
-                return setObject(buf[1], "type", "TEXT_STARTS_WITH", true, true);
-            else if (value == TEXT_ENDS_WITH)
-                return setObject(buf[1], "type", "TEXT_ENDS_WITH", true, true);
-            else if (value == TEXT_EQ)
-                return setObject(buf[1], "type", "TEXT_EQ", true, true);
-            else if (value == TEXT_IS_EMAIL)
-                return setObject(buf[1], "type", "TEXT_IS_EMAIL", true, true);
-            else if (value == TEXT_IS_URL)
-                return setObject(buf[1], "type", "TEXT_IS_URL", true, true);
-            else if (value == DATE_EQ)
-                return setObject(buf[1], "type", "DATE_EQ", true, true);
-            else if (value == DATE_BEFORE)
-                return setObject(buf[1], "type", "DATE_BEFORE", true, true);
-            else if (value == DATE_AFTER)
-                return setObject(buf[1], "type", "DATE_AFTER", true, true);
-            else if (value == DATE_ON_OR_BEFORE)
-                return setObject(buf[1], "type", "DATE_ON_OR_BEFORE", true, true);
-            else if (value == DATE_ON_OR_AFTER)
-                return setObject(buf[1], "type", "DATE_ON_OR_AFTER", true, true);
-            else if (value == DATE_BETWEEN)
-                return setObject(buf[1], "type", "DATE_BETWEEN", true, true);
-            else if (value == DATE_NOT_BETWEEN)
-                return setObject(buf[1], "type", "DATE_NOT_BETWEEN", true, true);
-            else if (value == DATE_IS_VALID)
-                return setObject(buf[1], "type", "DATE_IS_VALID", true, true);
-            else if (value == ONE_OF_RANGE)
-                return setObject(buf[1], "type", "ONE_OF_RANGE", true, true);
-            else if (value == ONE_OF_LIST)
-                return setObject(buf[1], "type", "ONE_OF_LIST", true, true);
-            else if (value == BLANK)
-                return setObject(buf[1], "type", "BLANK", true, true);
-            else if (value == NOT_BLANK)
-                return setObject(buf[1], "type", "NOT_BLANK", true, true);
-            else if (value == CUSTOM_FORMULA)
-                return setObject(buf[1], "type", "CUSTOM_FORMULA", true, true);
-            else if (value == BOOLEAN)
-                return setObject(buf[1], "type", "BOOLEAN", true, true);
-            else if (value == TEXT_NOT_EQ)
-                return setObject(buf[1], "type", "TEXT_NOT_EQ", true, true);
-            else if (value == DATE_NOT_EQ)
-                return setObject(buf[1], "type", "DATE_NOT_EQ", true, true);
-            else if (value == FILTER_EXPRESSION)
-                return setObject(buf[1], "type", "FILTER_EXPRESSION", true, true);
-            return *this;
-        }
+        BooleanCondition &type(ConditionType value) { return wr.set<BooleanCondition &, const char *>(*this, _ConditionType[value].text, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // This value represents the item to add to an array.
         // The values of the condition. The number of supported values depends on the condition type. Some support zero values, others one or two values, and ConditionType.ONE_OF_LIST supports an arbitrary number of values.
-        BooleanCondition &addValues(const ConditionValue &value)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf[2], FPSTR("values"), value.c_str(), false);
-            return *this;
-        }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        BooleanCondition &values(const ConditionValue &value) { return wr.append<BooleanCondition &, ConditionValue>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
     };
 
 }

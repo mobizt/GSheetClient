@@ -11,21 +11,26 @@ namespace GSHEET
     /**
      * A range on a sheet. All indexes are zero-based. Indexes are half open, i.e. the start index is inclusive and the end index is exclusive -- [startIndex, endIndex). Missing indexes indicate the range is unbounded on that side.
      */
-    class GridRange : public O6
+    class GridRange : public BaseG6
     {
 
     public:
-        GridRange() {}
+        GridRange() = default;
+
         // The sheet this range is on.
-        GridRange &sheetId(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, buf[1], FPSTR(__func__)); }
+        GridRange &sheetId(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // The start row (inclusive) of the range, or not set if unbounded.
-        GridRange &startRowIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, buf[2], FPSTR(__func__)); }
+        GridRange &startRowIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
         // The end row (exclusive) of the range, or not set if unbounded.
-        GridRange &endRowIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, buf[3], FPSTR(__func__)); }
+        GridRange &endRowIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, 3, FPSTR(__func__)); }
+
         // The start column (inclusive) of the range, or not set if unbounded.
-        GridRange &startColumnIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, buf[4], FPSTR(__func__)); }
+        GridRange &startColumnIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, 4, FPSTR(__func__)); }
+
         // The end column (exclusive) of the range, or not set if unbounded.
-        GridRange &endColumnIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, buf[5], FPSTR(__func__)); }
+        GridRange &endColumnIndex(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, 5, FPSTR(__func__)); }
     };
 }
 

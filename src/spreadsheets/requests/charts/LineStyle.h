@@ -13,63 +13,32 @@ namespace GSHEET
     {
         LINE_DASH_TYPE_UNSPECIFIED, //	Default value, do not use.
         INVISIBLE,                  //	No dash type, which is equivalent to a non-visible line.
-        CUSTOM_DASH,                     //	A custom dash for a line. Modifying the exact custom dash style is currently unsupported.
-        SOLID_LINE,                      //	A solid line.
-        DOTTED_LINE,                     //	A dotted line.
+        CUSTOM_DASH,                //	A custom dash for a line. Modifying the exact custom dash style is currently unsupported.
+        SOLID_LINE,                 //	A solid line.
+        DOTTED_LINE,                //	A dotted line.
         MEDIUM_DASHED,              //	A dashed line where the dashes have "medium" length.
         MEDIUM_DASHED_DOTTED,       //	A line that alternates between a "medium" dash and a dot.
         LONG_DASHED,                //	A dashed line where the dashes have "long" length.
         LONG_DASHED_DOTTED          //	A line that alternates between a "long" dash and a dot.
 
     };
-    
+
+    const struct key_str_40 _LineDashType[LineDashType::LONG_DASHED_DOTTED + 1] PROGMEM = {"LINE_DASH_TYPE_UNSPECIFIED", "INVISIBLE", "CUSTOM_DASH", "SOLID_LINE", "DOTTED_LINE", "MEDIUM_DASHED", "MEDIUM_DASHED_DOTTED", "LONG_DASHED", "LONG_DASHED_DOTTED"};
+
     /**
      * Properties that describe the style of a line.
      */
-    class LineStyle : public Printable
+    class LineStyle : public BaseG4
     {
-    private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        LineStyle &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
-        LineStyle() {}
+        LineStyle() = default;
+
         // The thickness of the line, in px.
-        LineStyle &width(int value) { return setObject(buf[1], "width", String(value), false, true); }
+        LineStyle &width(int value) { return wr.set<LineStyle &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // The dash type of the line.
-        LineStyle &type(LineDashType value)
-        {
-            if (value == LINE_DASH_TYPE_UNSPECIFIED)
-                return setObject(buf[2], "type", "LINE_DASH_TYPE_UNSPECIFIED", true, true);
-            else if (value == INVISIBLE)
-                return setObject(buf[2], "type", "INVISIBLE", true, true);
-            else if (value == CUSTOM_DASH)
-                return setObject(buf[2], "type", "CUSTOM", true, true);
-            else if (value == SOLID_LINE)
-                return setObject(buf[2], "type", "SOLID", true, true);
-            else if (value == DOTTED_LINE)
-                return setObject(buf[2], "type", "DOTTED", true, true);
-            else if (value == MEDIUM_DASHED)
-                return setObject(buf[2], "type", "MEDIUM_DASHED", true, true);
-            else if (value == MEDIUM_DASHED_DOTTED)
-                return setObject(buf[2], "type", "MEDIUM_DASHED_DOTTED", true, true);
-            else if (value == LONG_DASHED)
-                return setObject(buf[2], "type", "LONG_DASHED", true, true);
-            else if (value == LONG_DASHED_DOTTED)
-                return setObject(buf[2], "type", "LONG_DASHED_DOTTED", true, true);
-            return *this;
-        }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        LineStyle &type(LineDashType value) { return wr.set<LineStyle &, const char *>(*this, _LineDashType[value].text, buf, bufSize, 2, FPSTR(__func__)); }
     };
 
 }

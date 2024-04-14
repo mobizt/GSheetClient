@@ -138,7 +138,7 @@ public:
     bool ota = false;
     bool auth_param = false;
     app_token_t *app_token = nullptr;
-    gsheet_slot_options_t() {}
+    gsheet_slot_options_t() = default;
     gsheet_slot_options_t(bool auth_used, bool sse, bool async, bool sv, bool ota, bool no_etag, bool auth_param = false)
     {
         this->auth_used = auth_used;

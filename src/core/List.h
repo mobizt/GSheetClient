@@ -33,8 +33,8 @@ namespace gsheet
     {
     private:
     public:
-        GSheetList(){};
-        ~GSheetList(){};
+        GSheetList() = default;
+        ~GSheetList() = default;
 
         void addRemoveList(std::vector<uint32_t> &vec, uint32_t addr, bool add)
         {

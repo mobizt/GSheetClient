@@ -34,188 +34,125 @@ namespace GSHEET
     enum WaterfallChartStackedType
     {
         WATERFALL_STACKED_TYPE_UNSPECIFIED, //	Default value, do not use.
-        TYPE_STACKED,                            //	Values corresponding to the same domain (horizontal axis) value will be stacked vertically.
-        TYPE_SEQUENTIAL                          //	Series will spread out along the horizontal axis.
+        TYPE_STACKED,                       //	Values corresponding to the same domain (horizontal axis) value will be stacked vertically.
+        TYPE_SEQUENTIAL                     //	Series will spread out along the horizontal axis.
     };
+
+    const struct key_str_40 _WaterfallChartStackedType[WaterfallChartStackedType::TYPE_SEQUENTIAL + 1] PROGMEM = {"WATERFALL_STACKED_TYPE_UNSPECIFIED", "TYPE_STACKED", "TYPE_SEQUENTIAL"};
 
     /**
      * The domain of a waterfall chart.
      */
-    class WaterfallChartDomain : public Printable
+    class WaterfallChartDomain : public BaseG4
     {
-    private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        WaterfallChartDomain &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
-        WaterfallChartDomain() {}
+        WaterfallChartDomain() = default;
+
         // The data of the WaterfallChartDomain.
-        WaterfallChartDomain &data(const ChartData &value) { return setObject(buf[1], "data", value.c_str(), false, true); }
+        WaterfallChartDomain &data(const ChartData &value) { return wr.set<WaterfallChartDomain &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // True to reverse the order of the domain values (horizontal axis).
-        WaterfallChartDomain &reversed(bool value) { return setObject(buf[2], "reversed", owriter.getBoolStr(value), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        WaterfallChartDomain &reversed(bool value) { return wr.set<WaterfallChartDomain &, bool>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
     };
 
     /**
      * Styles for a waterfall chart column.
      */
-    class WaterfallChartColumnStyle : public Printable
+    class WaterfallChartColumnStyle : public BaseG4
     {
-    private:
-        size_t bufSize = 3;
-        String buf[3];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        WaterfallChartColumnStyle &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
-        WaterfallChartColumnStyle() {}
+        WaterfallChartColumnStyle() = default;
+
         // The label of the column's legend.
-        WaterfallChartColumnStyle &label(const String &value) { return setObject(buf[1], "label", value, true, true); }
+        WaterfallChartColumnStyle &label(const String &value) { return wr.set<WaterfallChartColumnStyle &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // The color of the column. If color is also set, this field takes precedence.
-        WaterfallChartColumnStyle &colorStyle(const ColorStyle &value) { return setObject(buf[2], "colorStyle", value.c_str(), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        WaterfallChartColumnStyle &colorStyle(const ColorStyle &value) { return wr.set<WaterfallChartColumnStyle &, ColorStyle>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
     };
 
     /**
      * A custom subtotal column for a waterfall chart series.
      */
-    class WaterfallChartCustomSubtotal : public Printable
+    class WaterfallChartCustomSubtotal : public BaseG4
     {
-    private:
-        size_t bufSize = 4;
-        String buf[4];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        WaterfallChartCustomSubtotal &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
-
     public:
-        WaterfallChartCustomSubtotal() {}
+        WaterfallChartCustomSubtotal() = default;
+
         // The zero-based index of a data point within the series. If dataIsSubtotal is true, the data point at this index is the subtotal. Otherwise, the subtotal appears after the data point with this index. A series can have multiple subtotals at arbitrary indices, but subtotals do not affect the indices of the data points. For example, if a series has three data points, their indices will always be 0, 1, and 2, regardless of how many subtotals exist on the series or what data points they are associated with., String(value), false, true); }
         // The format of this run. Absent values inherit the cell's format.
-        WaterfallChartCustomSubtotal &subtotalIndex(int value) { return setObject(buf[1], "subtotalIndex", String(value), false, true); }
+        WaterfallChartCustomSubtotal &subtotalIndex(int value) { return wr.set<WaterfallChartCustomSubtotal &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // A label for the subtotal column.
-        WaterfallChartCustomSubtotal &label(const String &value) { return setObject(buf[2], "label", value.c_str(), false, true); }
+        WaterfallChartCustomSubtotal &label(const String &value) { return wr.set<WaterfallChartCustomSubtotal &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
         // True if the data point at subtotalIndex is the subtotal. If false, the subtotal will be computed and appear after the data point.
-        WaterfallChartCustomSubtotal &dataIsSubtotal(bool value) { return setObject(buf[3], "dataIsSubtotal", owriter.getBoolStr(value), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        WaterfallChartCustomSubtotal &dataIsSubtotal(bool value) { return wr.set<WaterfallChartCustomSubtotal &, bool>(*this, value, buf, bufSize, 3, FPSTR(__func__)); }
     };
 
     /**
      * A single series of data for a waterfall chart.
      */
-    class WaterfallChartSeries : public Printable
+    class WaterfallChartSeries : public BaseG8
     {
-    private:
-        size_t bufSize = 8;
-        String buf[8];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        WaterfallChartSeries &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
-        WaterfallChartSeries() {}
+        WaterfallChartSeries() = default;
+
         // The data being visualized in this series.
-        WaterfallChartSeries &data(const ChartData &value) { return setObject(buf[1], "data", value.c_str(), false, true); }
+        WaterfallChartSeries &data(const ChartData &value) { return wr.set<WaterfallChartSeries &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
         // Styles for all columns in this series with positive values.
-        WaterfallChartSeries &positiveColumnsStyle(const WaterfallChartColumnStyle &value) { return setObject(buf[2], "positiveColumnsStyle", value.c_str(), false, true); }
+        WaterfallChartSeries &positiveColumnsStyle(const WaterfallChartColumnStyle &value) { return wr.set<WaterfallChartSeries &, WaterfallChartColumnStyle>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
         // Styles for all columns in this series with negative values.
-        WaterfallChartSeries &negativeColumnsStyle(const WaterfallChartColumnStyle &value) { return setObject(buf[3], "negativeColumnsStyle", value.c_str(), false, true); }
+        WaterfallChartSeries &negativeColumnsStyle(const WaterfallChartColumnStyle &value) { return wr.set<WaterfallChartSeries &, WaterfallChartColumnStyle>(*this, value, buf, bufSize, 3, FPSTR(__func__)); }
+
         // Styles for all subtotal columns in this series.
-        WaterfallChartSeries &subtotalColumnsStyle(const WaterfallChartColumnStyle &value) { return setObject(buf[4], "subtotalColumnsStyle", value.c_str(), false, true); }
+        WaterfallChartSeries &subtotalColumnsStyle(const WaterfallChartColumnStyle &value) { return wr.set<WaterfallChartSeries &, WaterfallChartColumnStyle>(*this, value, buf, bufSize, 4, FPSTR(__func__)); }
+
         // True to hide the subtotal column from the end of the series. By default, a subtotal column will appear at the end of each series. Setting this field to true will hide that subtotal column for this series.
-        WaterfallChartSeries &hideTrailingSubtotal(bool value) { return setObject(buf[5], "hideTrailingSubtotal", owriter.getBoolStr(value), false, true); }
+        WaterfallChartSeries &hideTrailingSubtotal(bool value) { return wr.set<WaterfallChartSeries &, bool>(*this, value, buf, bufSize, 5, FPSTR(__func__)); }
+
+        // This value represents the item to add to an array.
         // Custom subtotal columns appearing in this series. The order in which subtotals are defined is not significant. Only one subtotal may be defined for each data point.
-        WaterfallChartSeries &addCustomSubtotals(const WaterfallChartCustomSubtotal &value)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf[6], FPSTR("customSubtotals"), value.c_str(), false);
-            return *this;
-        }
+        WaterfallChartSeries &customSubtotals(const WaterfallChartCustomSubtotal &value) { return wr.append<WaterfallChartSeries &, WaterfallChartCustomSubtotal>(*this, value, buf, bufSize, 6, FPSTR(__func__)); }
+
         // Information about the data labels for this series.
-        WaterfallChartSeries &dataLabel(const DataLabel &value) { return setObject(buf[7], "dataLabel", value.c_str(), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        WaterfallChartSeries &dataLabel(const DataLabel &value) { return wr.set<WaterfallChartSeries &, DataLabel>(*this, value, buf, bufSize, 7, FPSTR(__func__)); }
     };
 
     /**
      * A waterfall chart.
      */
-    class WaterfallChartSpec : public Printable
+    class WaterfallChartSpec : public BaseG8
     {
-    private:
-        size_t bufSize = 8;
-        String buf[8];
-        GSheetObjectWriter owriter;
-        GSheetJSONUtil jut;
-
-        WaterfallChartSpec &setObject(String &buf_n, const String &key, const String &value, bool isString, bool last)
-        {
-            owriter.setObject(buf, bufSize, buf_n, key, value, isString, last);
-            return *this;
-        }
 
     public:
-        WaterfallChartSpec() {}
+        WaterfallChartSpec() = default;
+
         // The domain data (horizontal axis) for the waterfall chart.
-        WaterfallChartSpec &domain(const WaterfallChartDomain &value) { return setObject(buf[1], "domain", value.c_str(), false, true); }
+        WaterfallChartSpec &domain(const WaterfallChartDomain &value) { return wr.set<WaterfallChartSpec &, WaterfallChartDomain>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // This value represents the item to add to an array.
         // The data this waterfall chart is visualizing.
-        WaterfallChartSpec &addSeries(const WaterfallChartSeries &value)
-        {
-            owriter.addMapArrayMember(buf, bufSize, buf[2], FPSTR("series"), value.c_str(), false);
-            return *this;
-        }
+        WaterfallChartSpec &series(const WaterfallChartSeries &value) { return wr.append<WaterfallChartSpec &, WaterfallChartSeries>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
         // The stacked type.
-        WaterfallChartSpec &stackedType(WaterfallChartStackedType value)
-        {
-            if (value == WATERFALL_STACKED_TYPE_UNSPECIFIED)
-                return setObject(buf[3], "stackedType", "WATERFALL_STACKED_TYPE_UNSPECIFIED", true, true);
-            else if (value == TYPE_STACKED)
-                return setObject(buf[3], "stackedType", "STACKED", true, true);
-            else if (value == TYPE_SEQUENTIAL)
-                return setObject(buf[3], "stackedType", "SEQUENTIAL", true, true);
-            return *this;
-        }
+        WaterfallChartSpec &stackedType(WaterfallChartStackedType value) { return wr.set<WaterfallChartSpec &, const char *>(*this, _WaterfallChartStackedType[value].text, buf, bufSize, 3, FPSTR(__func__)); }
+
         // True to interpret the first value as a total.
-        WaterfallChartSpec &firstValueIsTotal(bool value) { return setObject(buf[4], "firstValueIsTotal", owriter.getBoolStr(value), false, true); }
+        WaterfallChartSpec &firstValueIsTotal(bool value) { return wr.set<WaterfallChartSpec &, bool>(*this, value, buf, bufSize, 4, FPSTR(__func__)); }
+
         // True to hide connector lines between columns.
-        WaterfallChartSpec &hideConnectorLines(bool value) { return setObject(buf[5], "hideConnectorLines", owriter.getBoolStr(value), false, true); }
+        WaterfallChartSpec &hideConnectorLines(bool value) { return wr.set<WaterfallChartSpec &, bool>(*this, value, buf, bufSize, 5, FPSTR(__func__)); }
+
         // The line style for the connector lines.
-        WaterfallChartSpec &connectorLineStyle(const LineStyle &value) { return setObject(buf[6], "connectorLineStyle", value.c_str(), false, true); }
+        WaterfallChartSpec &connectorLineStyle(const LineStyle &value) { return wr.set<WaterfallChartSpec &, LineStyle>(*this, value, buf, bufSize, 6, FPSTR(__func__)); }
+
         // Controls whether to display additional data labels on stacked charts which sum the total value of all stacked values at each value along the domain axis. stackedType must be STACKED and neither CUSTOM nor placement can be set on the totalDataLabel.
-        WaterfallChartSpec &totalDataLabel(const DataLabel &value) { return setObject(buf[7], "totalDataLabel", value.c_str(), false, true); }
-        const char *c_str() const { return buf[0].c_str(); }
-        size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
-        void clear() { owriter.clearBuf(buf, bufSize); }
+        WaterfallChartSpec &totalDataLabel(const DataLabel &value) { return wr.set<WaterfallChartSpec &, DataLabel>(*this, value, buf, bufSize, 7, FPSTR(__func__)); }
     };
 }
 

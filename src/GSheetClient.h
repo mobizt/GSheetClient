@@ -41,14 +41,14 @@ using namespace gsheet;
 
 namespace gsheet
 {
-    class GSheetClient: public GSheetBase
+    class GSheetClient : public GSheetBase
     {
     private:
         void configApp(GSheetAsyncClientClass &aClient, GSheetApp &app, user_auth_data &auth, core_auth_task_type task_type = core_auth_task_type_undefined)
         {
             app.aClient = &aClient;
             app.aclient_addr = reinterpret_cast<uint32_t>(&aClient);
-            
+
             app.aClient->addRemoveClientVec(reinterpret_cast<uint32_t>(&(app.cVec)), true);
             app.auth_data.user_auth.copy(auth);
 
