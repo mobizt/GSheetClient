@@ -142,6 +142,24 @@ namespace Metadata
         DOCUMENT,                                  //	Document-visible metadata is accessible from any developer project with access to the document.
         PROJECT,                                   //	Project-visible metadata is only visible to and accessible by the developer project that created the metadata.
     };
+
+    // An enumeration of the types of locations on which developer metadata may be associated.
+    enum DeveloperMetadataLocationType
+    {
+        DEVELOPER_METADATA_LOCATION_TYPE_UNSPECIFIED, //	Default value.
+        ROW,                                          //	Developer metadata associated on an entire row dimension.
+        COLUMN,                                       //	Developer metadata associated on an entire column dimension.
+        SHEET,                                        //	Developer metadata associated on an entire sheet.
+        SPREADSHEET                                   //	Developer metadata associated on the entire spreadsheet.
+    };
+
+    // An enumeration of strategies for matching developer metadata locations.
+    enum DeveloperMetadataLocationMatchingStrategy
+    {
+        DEVELOPER_METADATA_LOCATION_MATCHING_STRATEGY_UNSPECIFIED, //	Default value. This value must not be used.
+        EXACT_LOCATION,                                            //	Indicates that a specified location should be matched exactly. For example, if row three were specified as a location this matching strategy would only match developer metadata also associated on row three. Metadata associated on other locations would not be considered.
+        INTERSECTING_LOCATION                                      //	Indicates that a specified location should match that exact location as well as any intersecting locations. For example, if row three were specified as a location this matching strategy would match developer metadata associated on row three as well as metadata associated on locations that intersect row three. If, for instance, there was developer metadata associated on column B, this matching strategy would also match that location because column B intersects row three.
+    };
 }
 
 namespace Dimensions
@@ -386,6 +404,12 @@ namespace GSHEET
     {
         char text[40];
     };
+
+    struct key_str_50
+    {
+        char text[50];
+    };
+
     struct key_str_60
     {
         char text[60];
@@ -406,6 +430,10 @@ namespace GSHEET
     const struct key_str_60 _DataSourceTableColumnSelectionType[Selection::DataSourceTableColumnSelectionType::SYNC_ALL + 1] PROGMEM = {"DATA_SOURCE_TABLE_COLUMN_SELECTION_TYPE_UNSPECIFIED", "SELECTED", "SYNC_ALL"};
 
     const struct key_str_60 _DeveloperMetadataVisibility[Metadata::DeveloperMetadataVisibility::PROJECT + 1] PROGMEM = {"DEVELOPER_METADATA_VISIBILITY_UNSPECIFIED", "DOCUMENT", "PROJECT"};
+
+    const struct key_str_50 _DeveloperMetadataLocationType[Metadata::DeveloperMetadataLocationType::SPREADSHEET + 1] PROGMEM = {"DEVELOPER_METADATA_LOCATION_TYPE_UNSPECIFIED", "ROW", "COLUMN", "SHEET", "SPREADSHEET"};
+
+    const struct key_str_60 _DeveloperMetadataLocationMatchingStrategy[Metadata::DeveloperMetadataLocationMatchingStrategy::INTERSECTING_LOCATION + 1] PROGMEM = {"DEVELOPER_METADATA_LOCATION_MATCHING_STRATEGY_UNSPECIFIED", "EXACT_LOCATION", "INTERSECTING_LOCATION"};
 
     const struct key_str_30 _Dimension[Dimensions::Dimension::COLUMNS + 1] PROGMEM = {"DIMENSION_UNSPECIFIED", "ROWS", "COLUMNS"};
 
@@ -444,7 +472,6 @@ namespace GSHEET
     const struct key_str_40 _BasicChartStackedType[Basic::BasicChartStackedType::PERCENT_STACKED + 1] PROGMEM = {"BASIC_CHART_STACKED_TYPE_UNSPECIFIED", "NOT_STACKED", "STACKED", "PERCENT_STACKED"};
 
     const struct key_str_40 _BasicChartCompareMode[Basic::BasicChartCompareMode::CATEGORY + 1] PROGMEM = {"BASIC_CHART_COMPARE_MODE_UNSPECIFIED", "DATUM", "CATEGORY"};
-
 
 }
 

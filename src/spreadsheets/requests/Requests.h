@@ -11,6 +11,7 @@
 #include "./spreadsheets/requests/GridCoordinate.h"
 #include "./spreadsheets/requests/Spreadsheets.h"
 #include "./spreadsheets/requests/Common.h"
+#include "./spreadsheets/requests/DataFilter.h"
 
 namespace GSHEET
 {
@@ -693,6 +694,447 @@ namespace GSHEET
     };
 
     /**
+     * Sets the basic filter associated with a sheet.
+     */
+    class SetBasicFilterRequest : public BaseG1
+    {
+
+    public:
+        SetBasicFilterRequest() = default;
+
+        // The filter to set.
+        SetBasicFilterRequest &filyer(const BasicFilter &value) { return wr.add<SetBasicFilterRequest &, BasicFilter>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Adds a new protected range.
+     */
+    class AddProtectedRangeRequest : public BaseG1
+    {
+
+    public:
+        AddProtectedRangeRequest() = default;
+
+        // The protected range to be added. The protectedRangeId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a range that already exists.)
+        AddProtectedRangeRequest &protectedRange(const ProtectedRange &value) { return wr.add<AddProtectedRangeRequest &, ProtectedRange>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Updates an existing protected range with the specified protectedRangeId.
+     */
+    class UpdateProtectedRangeRequest : public BaseG4
+    {
+
+    public:
+        UpdateProtectedRangeRequest() = default;
+
+        // The protected range to update with the new properties.
+        UpdateProtectedRangeRequest &protectedRange(const ProtectedRange &value) { return wr.set<UpdateProtectedRangeRequest &, ProtectedRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The fields that should be updated. At least one field must be specified. The root protectedRange is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
+        UpdateProtectedRangeRequest &fields(const String &value) { return wr.set<UpdateProtectedRangeRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Deletes the protected range with the given ID.
+     */
+    class DeleteProtectedRangeRequest : public BaseG1
+    {
+
+    public:
+        DeleteProtectedRangeRequest() = default;
+
+        // The ID of the protected range to delete.
+        DeleteProtectedRangeRequest &protectedRangeId(int value) { return wr.add<DeleteProtectedRangeRequest &, int>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Automatically resizes one or more dimensions based on the contents of the cells in that dimension.
+     */
+    class AutoResizeDimensionsRequest : public BaseG1
+    {
+
+    public:
+        AutoResizeDimensionsRequest() = default;
+
+        // Union field dimension_range
+        // The dimensions to automatically resize.
+        AutoResizeDimensionsRequest &dimensions(const DimensionRange &value) { return wr.add<AutoResizeDimensionsRequest &, DimensionRange>(*this, value, buf, FPSTR(__func__)); }
+
+        // Union field dimension_range
+        // The dimensions on a data source sheet to automatically resize.
+        AutoResizeDimensionsRequest &dataSourceSheetDimensions(const DataSourceSheetDimensionRange &value) { return wr.add<AutoResizeDimensionsRequest &, DataSourceSheetDimensionRange>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Adds a chart to a sheet in the spreadsheet.
+     */
+    class AddChartRequest : public BaseG1
+    {
+
+    public:
+        AddChartRequest() = default;
+
+        // The chart that should be added to the spreadsheet, including the position where it should be placed. The chartId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of an embedded object that already exists.)
+        AddChartRequest &chart(const EmbeddedChart &value) { return wr.add<AddChartRequest &, EmbeddedChart>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Updates a chart's specifications. (This does not move or resize a chart. To move or resize a chart, use UpdateEmbeddedObjectPositionRequest.)
+     */
+    class UpdateChartSpecRequest : public BaseG4
+    {
+
+    public:
+        UpdateChartSpecRequest() = default;
+
+        // The ID of the chart to update.
+        UpdateChartSpecRequest &chartId(int value) { return wr.set<UpdateChartSpecRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The specification to apply to the chart.
+        UpdateChartSpecRequest &spec(const ChartSpec &value) { return wr.set<UpdateChartSpecRequest &, ChartSpec>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Updates properties of the supplied banded range.
+     */
+    class UpdateBandingRequest : public BaseG4
+    {
+
+    public:
+        UpdateBandingRequest() = default;
+
+        // The banded range to update with the new properties.
+        UpdateBandingRequest &bandedRange(const BandedRange &value) { return wr.set<UpdateBandingRequest &, BandedRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The fields that should be updated. At least one field must be specified. The root bandedRange is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
+        UpdateBandingRequest &fields(const String &value) { return wr.set<UpdateBandingRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Adds a new banded range to the spreadsheet.
+     */
+    class AddBandingRequest : public BaseG1
+    {
+
+    public:
+        AddBandingRequest() = default;
+
+        // The banded range to add. The bandedRangeId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a range that already exists.)
+        AddBandingRequest &bandedRange(const BandedRange &value) { return wr.add<AddBandingRequest &, BandedRange>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Removes the banded range with the given ID from the spreadsheet.
+     */
+    class DeleteBandingRequest : public BaseG1
+    {
+
+    public:
+        DeleteBandingRequest() = default;
+
+        // The ID of the banded range to delete.
+        DeleteBandingRequest &bandedRangeId(int value) { return wr.add<DeleteBandingRequest &, int>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * A request to create developer metadata.
+     */
+    class CreateDeveloperMetadataRequest : public BaseG1
+    {
+
+    public:
+        CreateDeveloperMetadataRequest() = default;
+
+        // The developer metadata to create.
+        CreateDeveloperMetadataRequest &developerMetadata(const DeveloperMetadata &value) { return wr.add<CreateDeveloperMetadataRequest &, DeveloperMetadata>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * A request to update properties of developer metadata. Updates the properties of the developer metadata selected by the filters to the values provided in the DeveloperMetadata resource. Callers must specify the properties they wish to update in the fields parameter, as well as specify at least one DataFilter matching the metadata they wish to update.
+     */
+    class UpdateDeveloperMetadataRequest : public BaseG4
+    {
+
+    public:
+        UpdateDeveloperMetadataRequest() = default;
+
+        // This value represents the item to add to an array.
+        // The filters matching the developer metadata entries to update.
+        UpdateDeveloperMetadataRequest &dataFilters(const DataFilter &value) { return wr.append<UpdateDeveloperMetadataRequest &, DataFilter>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The value that all metadata matched by the data filters will be updated to.
+        UpdateDeveloperMetadataRequest &developerMetadata(const DeveloperMetadata &value) { return wr.set<UpdateDeveloperMetadataRequest &, DeveloperMetadata>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // The fields that should be updated. At least one field must be specified. The root developerMetadata is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
+        UpdateDeveloperMetadataRequest &fields(const String &value) { return wr.set<UpdateDeveloperMetadataRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * A request to delete developer metadata.
+     */
+    class DeleteDeveloperMetadataRequest : public BaseG1
+    {
+
+    public:
+        DeleteDeveloperMetadataRequest() = default;
+
+        // The data filter describing the criteria used to select which developer metadata entry to delete.
+        DeleteDeveloperMetadataRequest &dataFilter(const DataFilter &value) { return wr.add<DeleteDeveloperMetadataRequest &, DataFilter>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Randomizes the order of the rows in a range.
+     */
+    class RandomizeRangeRequest : public BaseG1
+    {
+
+    public:
+        RandomizeRangeRequest() = default;
+
+        // The range to randomize.
+        RandomizeRangeRequest &range(const GridRange &value) { return wr.add<RandomizeRangeRequest &, GridRange>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Creates a group over the specified range.
+     * If the requested range is a superset of the range of an existing group G, then the depth of G is incremented and this new group G' has the depth of that group. For example, a group [C:D, depth 1] + [B:E] results in groups [B:E, depth 1] and [C:D, depth 2]. If the requested range is a subset of the range of an existing group G, then the depth of the new group G' becomes one greater than the depth of G. For example, a group [B:E, depth 1] + [C:D] results in groups [B:E, depth 1] and [C:D, depth 2]. If the requested range starts before and ends within, or starts within and ends after, the range of an existing group G, then the range of the existing group G becomes the union of the ranges, and the new group G' has depth one greater than the depth of G and range as the intersection of the ranges. For example, a group [B:D, depth 1] + [C:E] results in groups [B:E, depth 1] and [C:D, depth 2].
+     */
+    class AddDimensionGroupRequest : public BaseG1
+    {
+
+    public:
+        AddDimensionGroupRequest() = default;
+
+        // The range over which to create a group.
+        AddDimensionGroupRequest &range(const DimensionRange &value) { return wr.add<AddDimensionGroupRequest &, DimensionRange>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Deletes a group over the specified range by decrementing the depth of the dimensions in the range.
+     * For example, assume the sheet has a depth-1 group over B:E and a depth-2 group over C:D. Deleting a group over D:E leaves the sheet with a depth-1 group over B:D and a depth-2 group over C:C.
+     */
+    class DeleteDimensionGroupRequest : public BaseG1
+    {
+
+    public:
+        DeleteDimensionGroupRequest() = default;
+
+        // The range of the group to be deleted.
+        DeleteDimensionGroupRequest &range(const DimensionRange &value) { return wr.add<DeleteDimensionGroupRequest &, DimensionRange>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Updates the state of the specified group.
+     */
+    class UpdateDimensionGroupRequest : public BaseG4
+    {
+
+    public:
+        UpdateDimensionGroupRequest() = default;
+
+        // The group whose state should be updated. The range and depth of the group should specify a valid group on the sheet, and all other fields updated.
+        UpdateDimensionGroupRequest &dimensionGroup(const DimensionGroup &value) { return wr.set<UpdateDimensionGroupRequest &, DimensionGroup>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The fields that should be updated. At least one field must be specified. The root dimensionGroup is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
+        UpdateDimensionGroupRequest &fields(const String &value) { return wr.set<UpdateDimensionGroupRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Trims the whitespace (such as spaces, tabs, or new lines) in every cell in the specified range. This request removes all whitespace from the start and end of each cell's text, and reduces any subsequence of remaining whitespace characters to a single space. If the resulting trimmed text starts with a '+' or '=' character, the text remains as a string value and isn't interpreted as a formula.
+     */
+    class TrimWhitespaceRequest : public BaseG1
+    {
+
+    public:
+        TrimWhitespaceRequest() = default;
+
+        // The range whose cells to trim.
+        TrimWhitespaceRequest &range(const GridRange &value) { return wr.add<TrimWhitespaceRequest &, GridRange>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Removes rows within this range that contain values in the specified columns that are duplicates of values in any previous row. Rows with identical values but different letter cases, formatting, or formulas are considered to be duplicates.
+     * This request also removes duplicate rows hidden from view (for example, due to a filter). When removing duplicates, the first instance of each duplicate row scanning from the top downwards is kept in the resulting range. Content outside of the specified range isn't removed, and rows considered duplicates do not have to be adjacent to each other in the range.
+     */
+    class DeleteDuplicatesRequest : public BaseG4
+    {
+
+    public:
+        DeleteDuplicatesRequest() = default;
+
+        // The range to remove duplicates rows from.
+        DeleteDuplicatesRequest &range(const GridRange &value) { return wr.set<DeleteDuplicatesRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // This value represents the item to add to an array.
+        // The columns in the range to analyze for duplicate values. If no columns are selected then all columns are analyzed for duplicates.
+        DeleteDuplicatesRequest &comparisonColumns(const DimensionRange &value) { return wr.append<DeleteDuplicatesRequest &, DimensionRange>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Updates an embedded object's border property.
+     */
+    class UpdateEmbeddedObjectBorderRequest : public BaseG4
+    {
+
+    public:
+        UpdateEmbeddedObjectBorderRequest() = default;
+
+        // The ID of the embedded object to update.
+        UpdateEmbeddedObjectBorderRequest &objectId(int value) { return wr.set<UpdateEmbeddedObjectBorderRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The border that applies to the embedded object.
+        UpdateEmbeddedObjectBorderRequest &border(const EmbeddedObjectBorder &value) { return wr.set<UpdateEmbeddedObjectBorderRequest &, EmbeddedObjectBorder>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // The fields that should be updated. At least one field must be specified. The root developerMetadata is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
+        UpdateEmbeddedObjectBorderRequest &fields(const String &value) { return wr.set<UpdateEmbeddedObjectBorderRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Adds a slicer to a sheet in the spreadsheet.
+     */
+    class AddSlicerRequest : public BaseG1
+    {
+
+    public:
+        AddSlicerRequest() = default;
+
+        // The slicer that should be added to the spreadsheet, including the position where it should be placed. The slicerId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a slicer that already exists.)
+        AddSlicerRequest &slicer(const Slicer &value) { return wr.add<AddSlicerRequest &, Slicer>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Updates a slicer's specifications. (This does not move or resize a slicer. To move or resize a slicer use UpdateEmbeddedObjectPositionRequest.
+     */
+    class UpdateSlicerSpecRequest : public BaseG4
+    {
+
+    public:
+        UpdateSlicerSpecRequest() = default;
+
+        // The id of the slicer to update.
+        UpdateSlicerSpecRequest &slicerId(int value) { return wr.set<UpdateSlicerSpecRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The specification to apply to the slicer.
+        UpdateSlicerSpecRequest &spec(const SlicerSpec &value) { return wr.set<UpdateSlicerSpecRequest &, SlicerSpec>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // The fields that should be updated. At least one field must be specified. The root developerMetadata is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
+        UpdateSlicerSpecRequest &fields(const String &value) { return wr.set<UpdateSlicerSpecRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Adds a data source. After the data source is added successfully, an associated DATA_SOURCE sheet is created and an execution is triggered to refresh the sheet to read data from the data source. The request requires an additional bigquery.readonly OAuth scope.
+     */
+    class AddDataSourceRequest : public BaseG1
+    {
+
+    public:
+        AddDataSourceRequest() = default;
+
+        // The data source to add.
+        AddDataSourceRequest &dataSource(const DataSource &value) { return wr.add<AddDataSourceRequest &, DataSource>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Updates a data source. After the data source is updated successfully, an execution is triggered to refresh the associated DATA_SOURCE sheet to read data from the updated data source. The request requires an additional bigquery.readonly OAuth scope.
+     */
+    class UpdateDataSourceRequest : public BaseG4
+    {
+
+    public:
+        UpdateDataSourceRequest() = default;
+
+        // The data source to update.
+        UpdateDataSourceRequest &dataSource(const DataSource &value) { return wr.set<UpdateDataSourceRequest &, DataSource>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The fields that should be updated. At least one field must be specified. The root dataSource is implied and should not be specified. A single "*" can be used as short-hand for listing every field.
+        UpdateDataSourceRequest &fields(const String &value) { return wr.set<UpdateDataSourceRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
+     * Deletes a data source. The request also deletes the associated data source sheet, and unlinks all associated data source objects.
+     */
+    class DeleteDataSourceRequest : public BaseG1
+    {
+
+    public:
+        DeleteDataSourceRequest() = default;
+
+        // The ID of the data source to delete.
+        DeleteDataSourceRequest &dataSourceId(const String &value) { return wr.add<DeleteDataSourceRequest &, String>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * Reference to a data source object.
+     */
+    class DataSourceObjectReference : public BaseG1
+    {
+
+    public:
+        DataSourceObjectReference() = default;
+
+        // Union field value.
+        // References to a DATA_SOURCE sheet.
+        DataSourceObjectReference &sheetId(const String &value) { return wr.add<DataSourceObjectReference &, String>(*this, value, buf, FPSTR(__func__)); }
+
+        // Union field value.
+        // References to a data source chart.
+        DataSourceObjectReference &chartId(int value) { return wr.add<DataSourceObjectReference &, int>(*this, value, buf, FPSTR(__func__)); }
+
+        // Union field value.
+        // References to a DataSourceTable anchored at the cell.
+        DataSourceObjectReference &dataSourceTableAnchorCell(const GridCoordinate &value) { return wr.add<DataSourceObjectReference &, GridCoordinate>(*this, value, buf, FPSTR(__func__)); }
+
+        // Union field value.
+        // References to a data source PivotTable anchored at the cell.
+        DataSourceObjectReference &dataSourcePivotTableAnchorCell(const GridCoordinate &value) { return wr.add<DataSourceObjectReference &, GridCoordinate>(*this, value, buf, FPSTR(__func__)); }
+
+        // Union field value.
+        // References to a cell containing DataSourceFormula.
+        DataSourceObjectReference &dataSourceFormulaCell(const GridCoordinate &value) { return wr.add<DataSourceObjectReference &, GridCoordinate>(*this, value, buf, FPSTR(__func__)); }
+    };
+
+    /**
+     * A list of references to data source objects.
+     */
+    class DataSourceObjectReferences : public BaseG2
+    {
+
+    public:
+        DataSourceObjectReferences() = default;
+
+        // This value represents the item to add to an array.
+        // The references.
+        DataSourceObjectReferences &references(const DataSourceObjectReference &value) { return wr.append<DataSourceObjectReferences &, DataSourceObjectReference>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+    };
+
+    /**
+     * Refreshes one or multiple data source objects in the spreadsheet by the specified references. The request requires an additional bigquery.readonly OAuth scope.
+     * If there are multiple refresh requests referencing the same data source objects in one batch, only the last refresh request is processed, and all those requests will have the same response accordingly.
+     */
+    class RefreshDataSourceRequest : public BaseG4
+    {
+
+    public:
+        RefreshDataSourceRequest() = default;
+
+        // Refreshes the data source objects regardless of the current state. If not set and a referenced data source object was in error state, the refresh will fail immediately.
+        RefreshDataSourceRequest &force(bool value) { return wr.set<RefreshDataSourceRequest &, bool>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // Union field target.
+        // References to data source objects to refresh.
+        RefreshDataSourceRequest &references(const DataSourceObjectReferences &value) { return wr.set<RefreshDataSourceRequest &, DataSourceObjectReferences>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // Union field target.
+        // Reference to a DataSource. If specified, refreshes all associated data source objects for the data source.
+        RefreshDataSourceRequest &dataSourceId(const String &value) { return wr.set<RefreshDataSourceRequest &, String>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // Union field target.
+        // Refreshes all existing data source objects in the spreadsheet.
+        RefreshDataSourceRequest &isAll(bool value) { return wr.set<RefreshDataSourceRequest &, bool>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+    };
+
+    /**
      * Fills in more data based on existing data.
      */
     class AutoFillRequest : public BaseG4
@@ -802,32 +1244,58 @@ namespace GSHEET
                 name = "sortRange";
             else if (std::is_same<T, SetDataValidationRequest>::value)
                 name = "setDataValidation";
-            name = "setBasicFilter";
-            name = "addProtectedRange";
-            name = "updateProtectedRange";
-            name = "deleteProtectedRange";
-            name = "autoResizeDimensions";
-            name = "addChart";
-            name = "updateChartSpec";
-            name = "updateBanding";
-            name = "addBanding";
-            name = "deleteBanding";
-            name = "createDeveloperMetadata";
-            name = "updateDeveloperMetadata";
-            name = "deleteDeveloperMetadata";
-            name = "randomizeRange";
-            name = "addDimensionGroup";
-            name = "deleteDimensionGroup";
-            name = "updateDimensionGroup";
-            name = "trimWhitespace";
-            name = "deleteDuplicates";
-            name = "updateEmbeddedObjectBorder";
-            name = "addSlicer";
-            name = "updateSlicerSpec";
-            name = "addDataSource";
-            name = "updateDataSource";
-            name = "deleteDataSource";
-            name = "refreshDataSource";
+            else if (std::is_same<T, SetBasicFilterRequest>::value)
+                name = "setBasicFilter";
+            else if (std::is_same<T, AddProtectedRangeRequest>::value)
+                name = "addProtectedRange";
+            else if (std::is_same<T, UpdateProtectedRangeRequest>::value)
+                name = "updateProtectedRange";
+            else if (std::is_same<T, DeleteProtectedRangeRequest>::value)
+                name = "deleteProtectedRange";
+            else if (std::is_same<T, AutoResizeDimensionsRequest>::value)
+                name = "autoResizeDimensions";
+            else if (std::is_same<T, AddChartRequest>::value)
+                name = "addChart";
+            else if (std::is_same<T, UpdateChartSpecRequest>::value)
+                name = "updateChartSpec";
+            else if (std::is_same<T, UpdateBandingRequest>::value)
+                name = "updateBanding";
+            else if (std::is_same<T, AddBandingRequest>::value)
+                name = "addBanding";
+            else if (std::is_same<T, DeleteBandingRequest>::value)
+                name = "deleteBanding";
+            else if (std::is_same<T, CreateDeveloperMetadataRequest>::value)
+                name = "createDeveloperMetadata";
+            else if (std::is_same<T, UpdateDeveloperMetadataRequest>::value)
+                name = "updateDeveloperMetadata";
+            else if (std::is_same<T, DeleteDeveloperMetadataRequest>::value)
+                name = "deleteDeveloperMetadata";
+            else if (std::is_same<T, RandomizeRangeRequest>::value)
+                name = "randomizeRange";
+            else if (std::is_same<T, AddDimensionGroupRequest>::value)
+                name = "addDimensionGroup";
+            else if (std::is_same<T, DeleteDimensionGroupRequest>::value)
+                name = "deleteDimensionGroup";
+            else if (std::is_same<T, UpdateDimensionGroupRequest>::value)
+                name = "updateDimensionGroup";
+            else if (std::is_same<T, TrimWhitespaceRequest>::value)
+                name = "trimWhitespace";
+            else if (std::is_same<T, DeleteDuplicatesRequest>::value)
+                name = "deleteDuplicates";
+            else if (std::is_same<T, UpdateEmbeddedObjectBorderRequest>::value)
+                name = "updateEmbeddedObjectBorder";
+            else if (std::is_same<T, AddSlicerRequest>::value)
+                name = "addSlicer";
+            else if (std::is_same<T, UpdateSlicerSpecRequest>::value)
+                name = "updateSlicerSpec";
+            else if (std::is_same<T, AddDataSourceRequest>::value)
+                name = "addDataSource";
+            else if (std::is_same<T, UpdateDataSourceRequest>::value)
+                name = "updateDataSource";
+            else if (std::is_same<T, DeleteDataSourceRequest>::value)
+                name = "deleteDataSource";
+            else if (std::is_same<T, RefreshDataSourceRequest>::value)
+                name = "refreshDataSource";
 
             if (name.length())
                 wr.add<Request &, T>(*this, value, buf, FPSTR(__func__));
