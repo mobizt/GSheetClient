@@ -158,7 +158,7 @@ public:
      * @param aResult The async result (GSheetAsyncResult).
      *
      */
-    void deleteFile(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, GSheetAsyncResult &aResult)
+    void remove(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, GSheetAsyncResult &aResult)
     {
     }
 
@@ -177,7 +177,7 @@ public:
      * @param aResult The async result (GSheetAsyncResult).
      *
      */
-    void listFiles(GSheetAsyncClientClass &aClient, GSHEET::ListOptions options, GSheetAsyncResult &aResult)
+    void list(GSheetAsyncClientClass &aClient, GSHEET::ListOptions options, GSheetAsyncResult &aResult)
     {
     }
 
