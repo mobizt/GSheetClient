@@ -255,6 +255,22 @@ namespace GSHEET
         OBJECT,                 //	The sheet has no grid and instead has an object like a chart or image.
         DATA_SOURCE             //	The sheet connects with an external DataSource and shows the preview of data.
     };
+
+    // Determines how values should be rendered in the output.
+    enum ValueRenderOption
+    {
+        FORMATTED_VALUE,   //	Values will be calculated & formatted in the response according to the cell's formatting. Formatting is based on the spreadsheet's locale, not the requesting user's locale. For example, if A1 is 1.23 and A2 is =A1 and formatted as currency, then A2 would return "$1.23".
+        UNFORMATTED_VALUE, //	Values will be calculated, but not formatted in the reply. For example, if A1 is 1.23 and A2 is =A1 and formatted as currency, then A2 would return the number 1.23.
+        FORMULA            // Values will not be calculated. The reply will include the formulas. For example, if A1 is 1.23 and A2 is =A1 and formatted as currency, then A2 would return "=A1".
+        // Sheets treats date and time values as decimal values. This lets you perform arithmetic on them in formulas. For more information on interpreting date and time values, see About date & time values.
+    };
+
+    // Determines how dates should be rendered in the output.
+    enum DateTimeRenderOption
+    {
+        SERIAL_NUMBER,   //	Instructs date, time, datetime, and duration fields to be output as doubles in "serial number" format, as popularized by Lotus 1-2-3. The whole number portion of the value (left of the decimal) counts the days since December 30th 1899. The fractional portion (right of the decimal) counts the time as a fraction of the day. For example, January 1st 1900 at noon would be 2.5, 2 because it's 2 days after December 30th 1899, and .5 because noon is half a day. February 1st 1900 at 3pm would be 33.625. This correctly treats the year 1900 as not a leap year.
+        FORMATTED_STRING //	Instructs date, time, datetime, and duration fields to be output as strings in their given number format (which depends on the spreadsheet locale).
+    };
 }
 
 namespace UpdateInterval
@@ -473,6 +489,9 @@ namespace GSHEET
 
     const struct key_str_40 _BasicChartCompareMode[Basic::BasicChartCompareMode::CATEGORY + 1] PROGMEM = {"BASIC_CHART_COMPARE_MODE_UNSPECIFIED", "DATUM", "CATEGORY"};
 
+    const struct key_str_40 _ValueRenderOption[ValueRenderOption::FORMULA + 1] PROGMEM = {"FORMATTED_VALUE", "UNFORMATTED_VALUE", "FORMULA"};
+
+    const struct key_str_40 _DateTimeRenderOption[DateTimeRenderOption::FORMATTED_STRING + 1] PROGMEM = {"SERIAL_NUMBER", "FORMATTED_STRING"};
 }
 
 #endif

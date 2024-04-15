@@ -196,6 +196,70 @@ namespace GSHEET
         }
     };
 
+    class BatchGetOptions
+    {
+    private:
+        static const size_t bufSize = 4;
+        String qr[bufSize];
+
+    public:
+        BatchGetOptions() = default;
+
+        // The A1 notation or R1C1 notation of the range to retrieve values from.
+        BatchGetOptions &ranges(const String &value)
+        {
+            qr[0] = FPSTR(__func__);
+            qr[0] += "=";
+            qr[0] += value;
+            return *this;
+        }
+
+        // The major dimension that results should use.
+        // For example, if the spreadsheet data is: A1=1,B1=2,A2=3,B2=4, then requesting ranges=["A1:B2"],majorDimension=ROWS returns [[1,2],[3,4]], whereas requesting ranges=["A1:B2"],majorDimension=COLUMNS returns [[1,3],[2,4]].
+        BatchGetOptions &majorDimension(Dimensions::Dimension value)
+        {
+            qr[1] = FPSTR(__func__);
+            qr[1] += "=";
+            qr[1] += _Dimension[value].text;
+            return *this;
+        }
+
+        // How values should be represented in the output. The default render option is ValueRenderOption.FORMATTED_VALUE.
+        BatchGetOptions &valueRenderOption(GSHEET::ValueRenderOption value)
+        {
+            qr[2] = FPSTR(__func__);
+            qr[2] += "=";
+            qr[2] += _ValueRenderOption[value].text;
+            ;
+            return *this;
+        }
+
+        // How dates, times, and durations should be represented in the output. This is ignored if valueRenderOption is FORMATTED_VALUE. The default dateTime render option is SERIAL_NUMBER.
+        BatchGetOptions &dateTimeRenderOption(GSHEET::DateTimeRenderOption value)
+        {
+            qr[3] = FPSTR(__func__);
+            qr[3] += "=";
+            qr[3] += _DateTimeRenderOption[value].text;
+            ;
+            return *this;
+        }
+
+        String getQueryString()
+        {
+            String str;
+            for (size_t i = 0; i < bufSize; i++)
+            {
+                if (qr[i].length())
+                {
+                    if (str.length())
+                        str += "&";
+                    str += qr[i];
+                }
+            }
+            return str;
+        }
+    };
+
     class Parent
     {
         friend class GSheetBase;
