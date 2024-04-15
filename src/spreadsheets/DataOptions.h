@@ -90,6 +90,112 @@ namespace GSHEET
         BatchUpdateOptions &responseIncludeGridData(bool value) { return wr.set<BatchUpdateOptions &, bool>(*this, value, buf, bufSize, 4, FPSTR(__func__)); }
     };
 
+    class GetOptions : public BaseG2
+    {
+    private:
+        String qr[2];
+
+    public:
+        GetOptions() = default;
+
+        // The ranges to retrieve from the spreadsheet.
+        // Ranges separated with comma ",".
+        GetOptions &ranges(const String &value)
+        {
+            qr[0] = FPSTR(__func__);
+            qr[0] += "=";
+            qr[0] = value;
+            return *this;
+        }
+
+        // This value represents the item to add to an array.
+        // The DataFilters used to select which ranges to retrieve from the spreadsheet.
+        GetOptions &dataFilters(const DataFilter &value) { return wr.append<GetOptions &, DataFilter>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // True if grid data should be returned. This parameter is ignored if a field mask was set in the request.
+        GetOptions &includeGridData(bool value)
+        {
+            if (qr[1].indexOf("fields") == -1)
+            {
+                qr[1] = FPSTR(__func__);
+                qr[1] += "=";
+                qr[1] += value ? "true" : "false";
+            }
+            return *this;
+        }
+
+        // The desired fields.
+        GetOptions &fields(const String &value)
+        {
+            qr[1] = FPSTR(__func__);
+            qr[1] += "=";
+            qr[1] += value;
+            return *this;
+        }
+
+        String getQueryString()
+        {
+            String str;
+            if (qr[0].length())
+                str = qr[0];
+            if (qr[1].length())
+            {
+                if (str.length())
+                    str += "&";
+                str += qr[1];
+            }
+            return str;
+        }
+    };
+
+    class ListOptions
+    {
+    private:
+        String qr[3];
+
+    public:
+        ListOptions() = default;
+
+        ListOptions &pageSize(int value)
+        {
+            qr[0] = FPSTR(__func__);
+            qr[0] += "=";
+            qr[0] += value;
+            return *this;
+        }
+
+        ListOptions &orderBy(const String &value)
+        {
+            qr[1] = FPSTR(__func__);
+            qr[1] += "=";
+            qr[1] += value;
+            return *this;
+        }
+
+        ListOptions &pageToken(const String &value)
+        {
+            qr[2] = FPSTR(__func__);
+            qr[2] += "=";
+            qr[2] += value;
+            return *this;
+        }
+
+        String getQueryString()
+        {
+            String str;
+            for (size_t i = 0; i < 3; i++)
+            {
+                if (qr[i].length())
+                {
+                    if (str.length())
+                        str += "&";
+                    str += qr[i];
+                }
+            }
+            return str;
+        }
+    };
+
     class Parent
     {
         friend class GSheetBase;

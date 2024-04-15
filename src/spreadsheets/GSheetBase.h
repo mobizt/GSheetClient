@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created April 15, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -104,14 +104,81 @@ public:
      * - includeSpreadsheetInResponse: Bool option. Determines if the update response should include the spreadsheet resource.
      * - responseRanges: Limits the ranges included in the response spreadsheet. Meaningful only if includeSpreadsheetInResponse is 'true'.
      * - responseIncludeGridData: Bool option. True if grid data should be returned. Meaningful only if includeSpreadsheetInResponse is 'true'. This parameter is ignored if a field mask was set in the request.
-     * @return Boolean type status indicates the success of the operation.
+     * @param aResult The async result (GSheetAsyncResult).
      *
      * For ref doc go to https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/batchUpdate
      *
      */
-    bool batchUpdate(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, GSHEET::BatchUpdateOptions options)
+    void batchUpdate(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, const GSHEET::BatchUpdateOptions &options, GSheetAsyncResult &aResult)
     {
-        return true;
+       
+    }
+
+    /** Creates a spreadsheet, returning the newly created spreadsheet.
+     *
+     * @param aClient The async client.
+     * @param spreadsheet The GSHEET::Spreadsheet object that represents a spreadsheet.
+     * @param sharedUserEmail The Email of user to share the access.
+     * @param aResult The async result (GSheetAsyncResult).
+     *
+     * @note Drive API should be enabled at, https://console.cloud.google.com/apis/library/drive.googleapis.com
+     *
+     * For ref doc, go to https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create
+     *
+     */
+    void create(GSheetAsyncClientClass &aClient, const GSHEET::Spreadsheet &spreadsheet, const String &sharedUserEmail, GSheetAsyncResult &aResult)
+    {
+        
+    }
+
+    /** Returns the spreadsheet at the given ID. The caller must specify the spreadsheet ID.
+     *
+     * @param aClient The async client.
+     * @param parent The GSHEET::Parent object included spreadsheet Id in its constructor.
+     * @param options The GSHEET::GetOptions object included ranges, dataFilters, includeGridData and fields in its constructor.
+     * The GSHEET::GetOptions constructor parameters.
+     * - ranges: The ranges to retrieve from the spreadsheet.
+     * - dataFilters: The DataFilters used to select which ranges to retrieve from the spreadsheet.
+     * - includeGridData: True if grid data should be returned. This parameter is ignored if a field mask was set in the request.
+     * - fields: The desired fields.
+     * @param aResult The async result (GSheetAsyncResult).
+     *
+     * For ref doc, go to https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
+     * For the dataFilters, go to https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/getByDataFilter
+     *
+     */
+    void get(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, GSHEET::GetOptions options, GSheetAsyncResult &aResult)
+    {
+    }
+
+    /** Delete spreadsheets from Google Drive.
+     *
+     * @param aClient The async client.
+     * @param parent The GSHEET::Parent object included spreadsheet Id in its constructor.
+     * @param aResult The async result (GSheetAsyncResult).
+     *
+     */
+    void deleteFile(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, GSheetAsyncResult &aResult)
+    {
+    }
+
+    /** List the spreadsheets in Google Drive.
+     *
+     * @param aClient The async client.
+     * @param options The GSHEET::ListOptions object included pageSize, orderBy and pageToken in its constructor.
+     * The GSHEET::ListOptions constructor parameters.
+     * - pageSize: The maximum number of files to return per page.
+     * - orderBy: The comma-separated list of sort keys.
+     * The Valid keys are 'createdTime', 'folder', 'modifiedByMeTime', 'modifiedTime', 'name', 'name_natural',
+     * 'quotaBytesUsed', 'recency', 'sharedWithMeTime', 'starred', and 'viewedByMeTime'.
+     * Each key sorts ascending by default, but may be reversed with the 'desc' modifier.
+     * Example usage: ?orderBy=folder,modifiedTime desc,name.
+     * - pageToken: The token for continuing a previous list request on the next page.
+     * @param aResult The async result (GSheetAsyncResult).
+     *
+     */
+    void listFiles(GSheetAsyncClientClass &aClient, GSHEET::ListOptions options, GSheetAsyncResult &aResult)
+    {
     }
 
 protected:
