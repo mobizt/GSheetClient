@@ -22,7 +22,7 @@ namespace GSHEET
     class UpdateSpreadsheetPropertiesRequest : public BaseG4
     {
     public:
-        UpdateSpreadsheetPropertiesRequest() = default;
+        UpdateSpreadsheetPropertiesRequest() {}
 
         // The properties to update.
         UpdateSpreadsheetPropertiesRequest &properties(const SpreadsheetProperties &value) { return wr.set<UpdateSpreadsheetPropertiesRequest &, SpreadsheetProperties>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -41,7 +41,7 @@ namespace GSHEET
         GSheetJSONUtil jut;
 
     public:
-        AddSheetRequest() = default;
+        AddSheetRequest() {}
 
         // The properties the new sheet should have. All properties are optional. The sheetId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a sheet that already exists.)
         AddSheetRequest &properties(const SheetProperties &value) { return wr.add<AddSheetRequest &, SheetProperties>(*this, value, buf, FPSTR(__func__)); }
@@ -53,7 +53,7 @@ namespace GSHEET
     class DeleteSheetRequest : public BaseG1
     {
     public:
-        DeleteSheetRequest() = default;
+        DeleteSheetRequest() {}
 
         // The ID of the sheet to delete.
         // If the sheet is of DATA_SOURCE type, the associated DataSource is also deleted.
@@ -67,7 +67,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateSheetPropertiesRequest() = default;
+        UpdateSheetPropertiesRequest() {}
 
         // The properties to update.
         UpdateSheetPropertiesRequest &properties(const SheetProperties &value) { return wr.set<UpdateSheetPropertiesRequest &, SheetProperties>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -83,7 +83,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateDimensionPropertiesRequest() = default;
+        UpdateDimensionPropertiesRequest() {}
 
         // Properties to update.
         UpdateDimensionPropertiesRequest &properties(const DimensionProperties &value) { return wr.set<UpdateDimensionPropertiesRequest &, DimensionProperties>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -107,7 +107,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateNamedRangeRequest() = default;
+        UpdateNamedRangeRequest() {}
 
         // The named range to update with the new properties.
         UpdateNamedRangeRequest &namedRange(const String &value) { return wr.set<UpdateNamedRangeRequest &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -125,7 +125,7 @@ namespace GSHEET
     {
 
     public:
-        RepeatCellRequest() = default;
+        RepeatCellRequest() {}
 
         // The range to repeat the cell in.
         RepeatCellRequest &range(const GridRange &value) { return wr.set<RepeatCellRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -143,7 +143,7 @@ namespace GSHEET
     class AddNamedRangeRequest : public BaseG1
     {
     public:
-        AddNamedRangeRequest() = default;
+        AddNamedRangeRequest() {}
 
         // The named range to add. The namedRangeId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a range that already exists.)
         AddNamedRangeRequest &name(const NamedRange &value) { return wr.add<AddNamedRangeRequest &, NamedRange>(*this, value, buf, FPSTR(__func__)); }
@@ -154,7 +154,7 @@ namespace GSHEET
     class DeleteNamedRangeRequest : public BaseG1
     {
     public:
-        DeleteNamedRangeRequest() = default;
+        DeleteNamedRangeRequest() {}
 
         // The ID of the named range to delete.
         DeleteNamedRangeRequest &namedRangeId(const String &value) { return wr.add<DeleteNamedRangeRequest &, String>(*this, value, buf, FPSTR(__func__)); }
@@ -167,7 +167,7 @@ namespace GSHEET
     {
 
     public:
-        CutPasteRequest() = default;
+        CutPasteRequest() {}
 
         // The source data to cut.
         CutPasteRequest &source(const GridRange &value) { return wr.set<CutPasteRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -183,7 +183,7 @@ namespace GSHEET
     {
 
     public:
-        CopyPasteRequest() = default;
+        CopyPasteRequest() {}
 
         // The source range to copy.
         CopyPasteRequest &source(const GridRange &value) { return wr.set<CopyPasteRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -205,7 +205,7 @@ namespace GSHEET
     {
 
     public:
-        MergeCellsRequest() = default;
+        MergeCellsRequest() {}
 
         // The range of cells to merge.
         MergeCellsRequest &range(const GridRange &value) { return wr.set<MergeCellsRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -221,7 +221,7 @@ namespace GSHEET
     {
 
     public:
-        UnmergeCellsRequest() = default;
+        UnmergeCellsRequest() {}
 
         // The range within which all cells should be unmerged. If the range spans multiple merges, all will be unmerged. The range must not partially span any merge.
         UnmergeCellsRequest &range(const GridRange &value) { return wr.add<UnmergeCellsRequest &, GridRange>(*this, value, buf, FPSTR(__func__)); }
@@ -237,7 +237,7 @@ namespace GSHEET
     class UpdateBordersRequest : public BaseG8
     {
     public:
-        UpdateBordersRequest() = default;
+        UpdateBordersRequest() {}
 
         // The range whose borders should be updated.
         UpdateBordersRequest &range(const GridRange &value) { return wr.set<UpdateBordersRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -267,7 +267,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateCellsRequest() = default;
+        UpdateCellsRequest() {}
 
         // This value represents the item to add to an array.
         // The data to write.
@@ -291,7 +291,7 @@ namespace GSHEET
     class AddFilterViewRequest : public BaseG1
     {
     public:
-        AddFilterViewRequest() = default;
+        AddFilterViewRequest() {}
 
         // The filter to add. The filterViewId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a filter that already exists.)
         AddFilterViewRequest &filter(const FilterView &value) { return wr.add<AddFilterViewRequest &, FilterView>(*this, value, buf, FPSTR(__func__)); }
@@ -304,7 +304,7 @@ namespace GSHEET
     {
 
     public:
-        AppendCellsRequest() = default;
+        AppendCellsRequest() {}
 
         // The sheet ID to append the data to.
         AppendCellsRequest &sheetId(int value) { return wr.set<AppendCellsRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -323,7 +323,7 @@ namespace GSHEET
     class ClearBasicFilterRequest : public BaseG1
     {
     public:
-        ClearBasicFilterRequest() = default;
+        ClearBasicFilterRequest() {}
 
         // The sheet ID on which the basic filter should be cleared.
         ClearBasicFilterRequest &sheetId(int value) { return wr.add<ClearBasicFilterRequest &, int>(*this, value, buf, FPSTR(__func__)); }
@@ -335,7 +335,7 @@ namespace GSHEET
     class DeleteDimensionRequest : public BaseG1
     {
     public:
-        DeleteDimensionRequest() = default;
+        DeleteDimensionRequest() {}
 
         // The dimensions to delete from the sheet.
         DeleteDimensionRequest &range(const DimensionRange &value) { return wr.add<DeleteDimensionRequest &, DimensionRange>(*this, value, buf, FPSTR(__func__)); }
@@ -347,7 +347,7 @@ namespace GSHEET
     class DeleteEmbeddedObjectRequest : public BaseG1
     {
     public:
-        DeleteEmbeddedObjectRequest() = default;
+        DeleteEmbeddedObjectRequest() {}
 
         // The ID of the embedded object to delete.
         DeleteEmbeddedObjectRequest &objectId(int value) { return wr.add<DeleteEmbeddedObjectRequest &, int>(*this, value, buf, FPSTR(__func__)); }
@@ -359,7 +359,7 @@ namespace GSHEET
     class DeleteFilterViewRequest : public BaseG1
     {
     public:
-        DeleteFilterViewRequest() = default;
+        DeleteFilterViewRequest() {}
 
         // The ID of the filter to delete.
         DeleteFilterViewRequest &filterId(int value) { return wr.add<DeleteFilterViewRequest &, int>(*this, value, buf, FPSTR(__func__)); }
@@ -371,7 +371,7 @@ namespace GSHEET
     class DuplicateFilterViewRequest : public BaseG1
     {
     public:
-        DuplicateFilterViewRequest() = default;
+        DuplicateFilterViewRequest() {}
 
         // The ID of the filter being duplicated.
         DuplicateFilterViewRequest &filterId(int value) { return wr.add<DuplicateFilterViewRequest &, int>(*this, value, buf, FPSTR(__func__)); }
@@ -384,7 +384,7 @@ namespace GSHEET
     {
 
     public:
-        DuplicateSheetRequest() = default;
+        DuplicateSheetRequest() {}
 
         // The sheet to duplicate.
         // If the source sheet is of DATA_SOURCE type, its backing DataSource is also duplicated and associated with the new copy of the sheet. No data execution is triggered, the grid data of this sheet is also copied over but only available after the batch request completes.
@@ -407,7 +407,7 @@ namespace GSHEET
     {
 
     public:
-        FindReplaceRequest() = default;
+        FindReplaceRequest() {}
 
         // The value to search.
         FindReplaceRequest &find(const String &value) { return wr.set<FindReplaceRequest &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -447,7 +447,7 @@ namespace GSHEET
     {
 
     public:
-        InsertDimensionRequest() = default;
+        InsertDimensionRequest() {}
 
         // The dimensions to insert. Both the start and end indexes must be bounded.
         InsertDimensionRequest &range(const DimensionRange &value) { return wr.set<InsertDimensionRequest &, DimensionRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -464,7 +464,7 @@ namespace GSHEET
     {
 
     public:
-        InsertRangeRequest() = default;
+        InsertRangeRequest() {}
 
         // The range to insert new cells into.
         InsertRangeRequest &range(const GridRange &value) { return wr.set<InsertRangeRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -479,7 +479,7 @@ namespace GSHEET
     class MoveDimensionRequest : public BaseG4
     {
     public:
-        MoveDimensionRequest() = default;
+        MoveDimensionRequest() {}
 
         // The source dimensions to move.
         MoveDimensionRequest &source(const DimensionRange &value) { return wr.set<MoveDimensionRequest &, DimensionRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -495,7 +495,7 @@ namespace GSHEET
     class UpdateEmbeddedObjectPositionRequest : public BaseG4
     {
     public:
-        UpdateEmbeddedObjectPositionRequest() = default;
+        UpdateEmbeddedObjectPositionRequest() {}
 
         // The ID of the object to moved.
         UpdateEmbeddedObjectPositionRequest &objectId(int value) { return wr.set<UpdateEmbeddedObjectPositionRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -514,7 +514,7 @@ namespace GSHEET
     {
 
     public:
-        PasteDataRequest() = default;
+        PasteDataRequest() {}
 
         // The coordinate at which the data should start being inserted.
         PasteDataRequest &coordinate(const GridCoordinate &value) { return wr.set<PasteDataRequest &, GridCoordinate>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -541,7 +541,7 @@ namespace GSHEET
     {
 
     public:
-        TextToColumnsRequest() = default;
+        TextToColumnsRequest() {}
 
         // The source data range. This must span exactly one column.
         TextToColumnsRequest &source(const GridRange &value) { return wr.set<TextToColumnsRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -560,7 +560,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateFilterViewRequest() = default;
+        UpdateFilterViewRequest() {}
 
         // The new properties of the filter view.
         UpdateFilterViewRequest &filter(const FilterView &value) { return wr.set<UpdateFilterViewRequest &, FilterView>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -576,7 +576,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteRangeRequest() = default;
+        DeleteRangeRequest() {}
 
         // The range of cells to delete.
         DeleteRangeRequest &range(const GridRange &value) { return wr.set<DeleteRangeRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -592,7 +592,7 @@ namespace GSHEET
     {
 
     public:
-        AppendDimensionRequest() = default;
+        AppendDimensionRequest() {}
 
         // The sheet to append rows or columns to.
         AppendDimensionRequest &sheetId(int value) { return wr.set<AppendDimensionRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -611,7 +611,7 @@ namespace GSHEET
     {
 
     public:
-        AddConditionalFormatRuleRequest() = default;
+        AddConditionalFormatRuleRequest() {}
 
         // The rule to add.
         AddConditionalFormatRuleRequest &rule(const ConditionalFormatRule &value) { return wr.set<AddConditionalFormatRuleRequest &, ConditionalFormatRule>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -627,7 +627,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateConditionalFormatRuleRequest() = default;
+        UpdateConditionalFormatRuleRequest() {}
 
         // The zero-based index of the rule that should be replaced or moved.
         UpdateConditionalFormatRuleRequest &index(int value) { return wr.set<UpdateConditionalFormatRuleRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -651,7 +651,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteConditionalFormatRuleRequest() = default;
+        DeleteConditionalFormatRuleRequest() {}
 
         // The zero-based index of the rule to be deleted.
         DeleteConditionalFormatRuleRequest &index(int value) { return wr.set<DeleteConditionalFormatRuleRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -667,7 +667,7 @@ namespace GSHEET
     {
 
     public:
-        SortRangeRequest() = default;
+        SortRangeRequest() {}
 
         // The range to sort.
         SortRangeRequest &range(const GridRange &value) { return wr.set<SortRangeRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -684,7 +684,7 @@ namespace GSHEET
     {
 
     public:
-        SetDataValidationRequest() = default;
+        SetDataValidationRequest() {}
 
         // The range the data validation rule should apply to.
         SetDataValidationRequest &range(const GridRange &value) { return wr.set<SetDataValidationRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -700,7 +700,7 @@ namespace GSHEET
     {
 
     public:
-        SetBasicFilterRequest() = default;
+        SetBasicFilterRequest() {}
 
         // The filter to set.
         SetBasicFilterRequest &filyer(const BasicFilter &value) { return wr.add<SetBasicFilterRequest &, BasicFilter>(*this, value, buf, FPSTR(__func__)); }
@@ -713,7 +713,7 @@ namespace GSHEET
     {
 
     public:
-        AddProtectedRangeRequest() = default;
+        AddProtectedRangeRequest() {}
 
         // The protected range to be added. The protectedRangeId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a range that already exists.)
         AddProtectedRangeRequest &protectedRange(const ProtectedRange &value) { return wr.add<AddProtectedRangeRequest &, ProtectedRange>(*this, value, buf, FPSTR(__func__)); }
@@ -726,7 +726,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateProtectedRangeRequest() = default;
+        UpdateProtectedRangeRequest() {}
 
         // The protected range to update with the new properties.
         UpdateProtectedRangeRequest &protectedRange(const ProtectedRange &value) { return wr.set<UpdateProtectedRangeRequest &, ProtectedRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -742,7 +742,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteProtectedRangeRequest() = default;
+        DeleteProtectedRangeRequest() {}
 
         // The ID of the protected range to delete.
         DeleteProtectedRangeRequest &protectedRangeId(int value) { return wr.add<DeleteProtectedRangeRequest &, int>(*this, value, buf, FPSTR(__func__)); }
@@ -755,7 +755,7 @@ namespace GSHEET
     {
 
     public:
-        AutoResizeDimensionsRequest() = default;
+        AutoResizeDimensionsRequest() {}
 
         // Union field dimension_range
         // The dimensions to automatically resize.
@@ -773,7 +773,7 @@ namespace GSHEET
     {
 
     public:
-        AddChartRequest() = default;
+        AddChartRequest() {}
 
         // The chart that should be added to the spreadsheet, including the position where it should be placed. The chartId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of an embedded object that already exists.)
         AddChartRequest &chart(const EmbeddedChart &value) { return wr.add<AddChartRequest &, EmbeddedChart>(*this, value, buf, FPSTR(__func__)); }
@@ -786,7 +786,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateChartSpecRequest() = default;
+        UpdateChartSpecRequest() {}
 
         // The ID of the chart to update.
         UpdateChartSpecRequest &chartId(int value) { return wr.set<UpdateChartSpecRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -802,7 +802,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateBandingRequest() = default;
+        UpdateBandingRequest() {}
 
         // The banded range to update with the new properties.
         UpdateBandingRequest &bandedRange(const BandedRange &value) { return wr.set<UpdateBandingRequest &, BandedRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -818,7 +818,7 @@ namespace GSHEET
     {
 
     public:
-        AddBandingRequest() = default;
+        AddBandingRequest() {}
 
         // The banded range to add. The bandedRangeId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a range that already exists.)
         AddBandingRequest &bandedRange(const BandedRange &value) { return wr.add<AddBandingRequest &, BandedRange>(*this, value, buf, FPSTR(__func__)); }
@@ -831,7 +831,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteBandingRequest() = default;
+        DeleteBandingRequest() {}
 
         // The ID of the banded range to delete.
         DeleteBandingRequest &bandedRangeId(int value) { return wr.add<DeleteBandingRequest &, int>(*this, value, buf, FPSTR(__func__)); }
@@ -844,7 +844,7 @@ namespace GSHEET
     {
 
     public:
-        CreateDeveloperMetadataRequest() = default;
+        CreateDeveloperMetadataRequest() {}
 
         // The developer metadata to create.
         CreateDeveloperMetadataRequest &developerMetadata(const DeveloperMetadata &value) { return wr.add<CreateDeveloperMetadataRequest &, DeveloperMetadata>(*this, value, buf, FPSTR(__func__)); }
@@ -857,7 +857,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateDeveloperMetadataRequest() = default;
+        UpdateDeveloperMetadataRequest() {}
 
         // This value represents the item to add to an array.
         // The filters matching the developer metadata entries to update.
@@ -877,7 +877,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteDeveloperMetadataRequest() = default;
+        DeleteDeveloperMetadataRequest() {}
 
         // The data filter describing the criteria used to select which developer metadata entry to delete.
         DeleteDeveloperMetadataRequest &dataFilter(const DataFilter &value) { return wr.add<DeleteDeveloperMetadataRequest &, DataFilter>(*this, value, buf, FPSTR(__func__)); }
@@ -890,7 +890,7 @@ namespace GSHEET
     {
 
     public:
-        RandomizeRangeRequest() = default;
+        RandomizeRangeRequest() {}
 
         // The range to randomize.
         RandomizeRangeRequest &range(const GridRange &value) { return wr.add<RandomizeRangeRequest &, GridRange>(*this, value, buf, FPSTR(__func__)); }
@@ -904,7 +904,7 @@ namespace GSHEET
     {
 
     public:
-        AddDimensionGroupRequest() = default;
+        AddDimensionGroupRequest() {}
 
         // The range over which to create a group.
         AddDimensionGroupRequest &range(const DimensionRange &value) { return wr.add<AddDimensionGroupRequest &, DimensionRange>(*this, value, buf, FPSTR(__func__)); }
@@ -918,7 +918,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteDimensionGroupRequest() = default;
+        DeleteDimensionGroupRequest() {}
 
         // The range of the group to be deleted.
         DeleteDimensionGroupRequest &range(const DimensionRange &value) { return wr.add<DeleteDimensionGroupRequest &, DimensionRange>(*this, value, buf, FPSTR(__func__)); }
@@ -931,7 +931,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateDimensionGroupRequest() = default;
+        UpdateDimensionGroupRequest() {}
 
         // The group whose state should be updated. The range and depth of the group should specify a valid group on the sheet, and all other fields updated.
         UpdateDimensionGroupRequest &dimensionGroup(const DimensionGroup &value) { return wr.set<UpdateDimensionGroupRequest &, DimensionGroup>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -947,7 +947,7 @@ namespace GSHEET
     {
 
     public:
-        TrimWhitespaceRequest() = default;
+        TrimWhitespaceRequest() {}
 
         // The range whose cells to trim.
         TrimWhitespaceRequest &range(const GridRange &value) { return wr.add<TrimWhitespaceRequest &, GridRange>(*this, value, buf, FPSTR(__func__)); }
@@ -961,7 +961,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteDuplicatesRequest() = default;
+        DeleteDuplicatesRequest() {}
 
         // The range to remove duplicates rows from.
         DeleteDuplicatesRequest &range(const GridRange &value) { return wr.set<DeleteDuplicatesRequest &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -978,7 +978,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateEmbeddedObjectBorderRequest() = default;
+        UpdateEmbeddedObjectBorderRequest() {}
 
         // The ID of the embedded object to update.
         UpdateEmbeddedObjectBorderRequest &objectId(int value) { return wr.set<UpdateEmbeddedObjectBorderRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -997,7 +997,7 @@ namespace GSHEET
     {
 
     public:
-        AddSlicerRequest() = default;
+        AddSlicerRequest() {}
 
         // The slicer that should be added to the spreadsheet, including the position where it should be placed. The slicerId field is optional; if one is not set, an id will be randomly generated. (It is an error to specify the ID of a slicer that already exists.)
         AddSlicerRequest &slicer(const Slicer &value) { return wr.add<AddSlicerRequest &, Slicer>(*this, value, buf, FPSTR(__func__)); }
@@ -1010,7 +1010,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateSlicerSpecRequest() = default;
+        UpdateSlicerSpecRequest() {}
 
         // The id of the slicer to update.
         UpdateSlicerSpecRequest &slicerId(int value) { return wr.set<UpdateSlicerSpecRequest &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -1029,7 +1029,7 @@ namespace GSHEET
     {
 
     public:
-        AddDataSourceRequest() = default;
+        AddDataSourceRequest() {}
 
         // The data source to add.
         AddDataSourceRequest &dataSource(const DataSource &value) { return wr.add<AddDataSourceRequest &, DataSource>(*this, value, buf, FPSTR(__func__)); }
@@ -1042,7 +1042,7 @@ namespace GSHEET
     {
 
     public:
-        UpdateDataSourceRequest() = default;
+        UpdateDataSourceRequest() {}
 
         // The data source to update.
         UpdateDataSourceRequest &dataSource(const DataSource &value) { return wr.set<UpdateDataSourceRequest &, DataSource>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -1058,7 +1058,7 @@ namespace GSHEET
     {
 
     public:
-        DeleteDataSourceRequest() = default;
+        DeleteDataSourceRequest() {}
 
         // The ID of the data source to delete.
         DeleteDataSourceRequest &dataSourceId(const String &value) { return wr.add<DeleteDataSourceRequest &, String>(*this, value, buf, FPSTR(__func__)); }
@@ -1071,7 +1071,7 @@ namespace GSHEET
     {
 
     public:
-        DataSourceObjectReference() = default;
+        DataSourceObjectReference() {}
 
         // Union field value.
         // References to a DATA_SOURCE sheet.
@@ -1101,7 +1101,7 @@ namespace GSHEET
     {
 
     public:
-        DataSourceObjectReferences() = default;
+        DataSourceObjectReferences() {}
 
         // This value represents the item to add to an array.
         // The references.
@@ -1116,7 +1116,7 @@ namespace GSHEET
     {
 
     public:
-        RefreshDataSourceRequest() = default;
+        RefreshDataSourceRequest() {}
 
         // Refreshes the data source objects regardless of the current state. If not set and a referenced data source object was in error state, the refresh will fail immediately.
         RefreshDataSourceRequest &force(bool value) { return wr.set<RefreshDataSourceRequest &, bool>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -1141,7 +1141,7 @@ namespace GSHEET
     {
 
     public:
-        AutoFillRequest() = default;
+        AutoFillRequest() {}
 
         // True if we should generate data with the "alternate" series. This differs based on the type and amount of source data.
         AutoFillRequest &useAlternateSeries(bool value) { return wr.set<AutoFillRequest &, bool>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

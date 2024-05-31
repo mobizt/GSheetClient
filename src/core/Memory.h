@@ -40,8 +40,8 @@ class GSheetMemory
 {
 private:
 public:
-    GSheetMemory() = default;
-    ~GSheetMemory() = default;
+    GSheetMemory() {}
+    ~GSheetMemory() {}
 
     // Free reserved memory at pointer.
     void release(void *ptr)

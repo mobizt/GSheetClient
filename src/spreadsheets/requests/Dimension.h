@@ -18,7 +18,7 @@ namespace GSHEET
     class DataSourceSheetDimensionRange : public BaseG4
     {
     public:
-        DataSourceSheetDimensionRange() = default;
+        DataSourceSheetDimensionRange() {}
 
         // The ID of the data source sheet the range is on.
         DataSourceSheetDimensionRange &sheetId(int value) { return wr.set<DataSourceSheetDimensionRange &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -35,7 +35,7 @@ namespace GSHEET
     {
 
     public:
-        DimensionRange() = default;
+        DimensionRange() {}
 
         // The sheet this span is on.
         DimensionRange &sheetId(int value) { return wr.set<DimensionRange &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -56,7 +56,7 @@ namespace GSHEET
     class DeveloperMetadataLocation : public BaseG4
     {
     public:
-        DeveloperMetadataLocation() = default;
+        DeveloperMetadataLocation() {}
 
         // True when metadata is associated with an entire spreadsheet.
         DeveloperMetadataLocation &spreadsheet(bool value) { return wr.set<DeveloperMetadataLocation &, bool>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -74,7 +74,7 @@ namespace GSHEET
     class DeveloperMetadata : public BaseG6
     {
     public:
-        DeveloperMetadata() = default;
+        DeveloperMetadata() {}
 
         // The spreadsheet-scoped unique ID that identifies the metadata. IDs may be specified when metadata is created, otherwise one will be randomly generated and assigned. Must be positive.
         DeveloperMetadata &metadataId(int value) { return wr.set<DeveloperMetadata &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -98,7 +98,7 @@ namespace GSHEET
     class DimensionProperties : public BaseG6
     {
     public:
-        DimensionProperties() = default;
+        DimensionProperties() {}
 
         // True if this dimension is being filtered. This field is read-only.
         DimensionProperties &hiddenByFilter(bool value) { return wr.set<DimensionProperties &, bool>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -120,7 +120,7 @@ namespace GSHEET
     class SourceAndDestination : public BaseG4
     {
     public:
-        SourceAndDestination() = default;
+        SourceAndDestination() {}
 
         // The location of the data to use as the source of the autofill.
         SourceAndDestination &source(const GridRange &value) { return wr.set<SourceAndDestination &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

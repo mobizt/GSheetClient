@@ -15,7 +15,7 @@ namespace GSHEET
     {
 
     public:
-        GridRange() = default;
+        GridRange() {}
 
         // The sheet this range is on.
         GridRange &sheetId(int value) { return wr.set<GridRange &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

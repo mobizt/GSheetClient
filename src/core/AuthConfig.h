@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -72,80 +72,81 @@ namespace gsheet_app_tk_ns
 
 namespace gsheet
 {
-    enum core_auth_task_type
+    enum gsheet_core_auth_task_type
     {
-        core_auth_task_type_undefined = -1,
-        core_auth_task_type_authenticate,
-        core_auth_task_type_refresh_token
+        gsheet_core_auth_task_type_undefined = -1,
+        gsheet_core_auth_task_type_authenticate,
+        gsheet_core_auth_task_type_refresh_token
     };
 
-    enum auth_event_type
+    enum gsheet_auth_event_type
     {
-        auth_event_uninitialized = 0,
-        auth_event_initializing = 1,
-        auth_event_token_signing = 2,
-        auth_event_authenticating = 3,
-        auth_event_auth_request_sent = 4,
-        auth_event_auth_response_received = 5,
-        auth_event_ready = 6,
-        auth_event_error = 7
+        gsheet_auth_event_uninitialized = 0,
+        gsheet_auth_event_initializing = 1,
+        gsheet_auth_event_token_signing = 2,
+        gsheet_auth_event_authenticating = 3,
+        gsheet_auth_event_auth_request_sent = 4,
+        gsheet_auth_event_auth_response_received = 5,
+        gsheet_auth_event_ready = 6,
+        gsheet_auth_event_error = 7
     };
 
-    enum jwt_step
+    enum gsheet_jwt_step
     {
-        jwt_step_begin,
-        jwt_step_sign,
-        jwt_step_ready,
-        jwt_step_error
+        gsheet_jwt_step_begin,
+        gsheet_jwt_step_create_jwt,
+        gsheet_jwt_step_sign,
+        gsheet_jwt_step_ready,
+        gsheet_jwt_step_error
     };
 
-    enum auth_token_type
+    enum gsheet_auth_token_type
     {
-        auth_unknown_token,
-        auth_sa_access_token,
-        auth_access_token,
-        auth_refresh_token
+        gsheet_auth_unknown_token,
+        gsheet_auth_sa_access_token,
+        gsheet_auth_access_token,
+        gsheet_auth_refresh_token
     };
 
-    enum user_auth_data_type
+    enum gsheet_user_auth_data_type
     {
-        user_auth_data_undefined,
-        user_auth_data_service_account,
-        user_auth_data_access_token
+        gsheet_user_auth_data_undefined,
+        gsheet_user_auth_data_service_account,
+        gsheet_user_auth_data_access_token
     };
 
     struct auth_status
     {
-        friend class user_auth_data;
+        friend class gsheet_user_auth_data;
         friend class GSheetApp;
 
     private:
-        auth_event_type _event = auth_event_uninitialized;
+        gsheet_auth_event_type _event = gsheet_auth_event_uninitialized;
 
-        String authEventString(auth_event_type ev)
+        String authEventString(gsheet_auth_event_type ev)
         {
             String evstr;
             switch (ev)
             {
-            case auth_event_initializing:
+            case gsheet_auth_event_initializing:
                 evstr = FPSTR("initializing");
                 break;
-            case auth_event_token_signing:
+            case gsheet_auth_event_token_signing:
                 evstr = FPSTR("token signing");
                 break;
-            case auth_event_authenticating:
+            case gsheet_auth_event_authenticating:
                 evstr = FPSTR("authenticating");
                 break;
-            case auth_event_auth_request_sent:
+            case gsheet_auth_event_auth_request_sent:
                 evstr = FPSTR("auth request sent");
                 break;
-            case auth_event_auth_response_received:
+            case gsheet_auth_event_auth_response_received:
                 evstr = FPSTR("auth response received");
                 break;
-            case auth_event_ready:
+            case gsheet_auth_event_ready:
                 evstr = FPSTR("ready");
                 break;
-            case auth_event_error:
+            case gsheet_auth_event_error:
                 evstr = FPSTR("error");
                 break;
             default:
@@ -157,12 +158,12 @@ namespace gsheet
         }
 
     public:
-        auth_event_type event() const { return _event; }
+        gsheet_auth_event_type event() const { return _event; }
     };
 
     typedef void (*GSheetTimeStatusCallback)(uint32_t &ts);
 
-    struct user_auth_data
+    struct gsheet_user_auth_data
     {
         friend class GSheetSAParser;
         friend class GSheetServiceAuth;
@@ -174,7 +175,7 @@ namespace gsheet
 
 #if defined(GSHEET_ENABLE_SERVICE_AUTH)
 
-        struct service_account
+        struct gsheet_service_account
         {
             friend class GSheetSAParser;
             friend class GSheetServiceAuth;
@@ -184,9 +185,9 @@ namespace gsheet
             friend class GSheetUserTokenFileParser;
 
         public:
-            service_account() = default;
-            ~service_account() { clear(); }
-            void copy(service_account &rhs)
+            gsheet_service_account() {}
+            ~gsheet_service_account() { clear(); }
+            void copy(gsheet_service_account &rhs)
             {
                 for (size_t i = 0; i < gsheet_sa_ns::max_type; i++)
                     this->val[i] = rhs.val[i];
@@ -201,28 +202,28 @@ namespace gsheet
                     val[i].remove(0, val[i].length());
                 timestatus_cb = NULL;
                 expire = GSHEET_DEFAULT_TOKEN_TTL;
-                step = jwt_step_begin;
+                step = gsheet_jwt_step_begin;
             }
 
         protected:
             String val[gsheet_sa_ns::max_type];
-            jwt_step step = jwt_step_begin;
+            gsheet_jwt_step step = gsheet_jwt_step_begin;
             GSheetTimeStatusCallback timestatus_cb = NULL;
             size_t expire = GSHEET_DEFAULT_TOKEN_TTL;
         };
 #endif
 
 #if defined(GSHEET_ENABLE_ACCESS_TOKEN)
-        struct access_token_data
+        struct gsheet_access_token_data
         {
             String val[gsheet_access_tk_ns::max_type];
             size_t expire = GSHEET_DEFAULT_TOKEN_TTL;
             GSheetTimeStatusCallback timestatus_cb = NULL;
 
         public:
-            access_token_data() = default;
-            ~access_token_data() { clear(); }
-            void copy(access_token_data &rhs)
+            gsheet_access_token_data() {}
+            ~gsheet_access_token_data() { clear(); }
+            void copy(gsheet_access_token_data &rhs)
             {
                 for (size_t i = 0; i < gsheet_access_tk_ns::max_type; i++)
                     this->val[i] = rhs.val[i];
@@ -240,14 +241,14 @@ namespace gsheet
 #endif
 
     public:
-        user_auth_data() = default;
-        ~user_auth_data() { clear(); }
-        user_auth_data &operator=(user_auth_data &rhs)
+        gsheet_user_auth_data() {}
+        ~gsheet_user_auth_data() { clear(); }
+        gsheet_user_auth_data &operator=(gsheet_user_auth_data &rhs)
         {
             copy(rhs);
             return *this;
         }
-        void copy(user_auth_data &rhs)
+        void copy(gsheet_user_auth_data &rhs)
         {
 #if defined(GSHEET_ENABLE_SERVICE_AUTH)
             this->sa.copy(rhs.sa);
@@ -282,23 +283,25 @@ namespace gsheet
 
     protected:
 #if defined(GSHEET_ENABLE_SERVICE_AUTH)
-        service_account sa;
+        gsheet_service_account sa;
 #endif
 
 #if defined(GSHEET_ENABLE_ACCESS_TOKEN)
-        access_token_data access_token;
+        gsheet_access_token_data access_token;
 #endif
 
         bool anonymous = false;
         bool initialized = false;
         bool jwt_signing = false;
         bool jwt_loop = false;
+        bool jwt_time_debug = false;
         uint32_t jwt_ts = 0;
-        auth_token_type auth_type = auth_unknown_token;
-        user_auth_data_type auth_data_type = user_auth_data_undefined;
-        core_auth_task_type task_type = core_auth_task_type_undefined;
+        gsheet_auth_token_type auth_type = gsheet_auth_unknown_token;
+        gsheet_user_auth_data_type auth_data_type = gsheet_user_auth_data_undefined;
+        gsheet_core_auth_task_type task_type = gsheet_core_auth_task_type_undefined;
         auth_status status;
         GSheetTimeStatusCallback timestatus_cb = NULL;
+        gsheet_file_config_data file_data;
     };
 
 #if defined(GSHEET_ENABLE_FS)
@@ -317,7 +320,7 @@ namespace gsheet
             token_type_legacy_token
         };
 
-        static bool parseUserFile(token_type type, FILEOBJ userfile, user_auth_data &auth_data)
+        static bool parseUserFile(token_type type, FILEOBJ userfile, gsheet_user_auth_data &auth_data)
         {
             String buff;
 
@@ -372,7 +375,7 @@ namespace gsheet
             return false;
         }
 
-        static bool saveUserFile(token_type type, GSHEET_FILEOBJ userfile, user_auth_data &auth_data)
+        static bool saveUserFile(token_type type, GSHEET_FILEOBJ userfile, gsheet_user_auth_data &auth_data)
         {
             String buff;
 
@@ -401,7 +404,7 @@ namespace gsheet
     class GSheetSAParser
     {
     public:
-        static bool parseSAFile(FILEOBJ safile, user_auth_data &auth_data)
+        static bool parseSAFile(FILEOBJ safile, gsheet_user_auth_data &auth_data)
         {
             bool ret = false;
 
@@ -435,6 +438,7 @@ namespace gsheet
                 if (p1 > -1 && p2 > -1)
                 {
                     auth_data.sa.val[gsheet_sa_ns::pk] = buf.substring(p1 + 1, p2 - 1);
+                    auth_data.sa.val[gsheet_sa_ns::pk].replace("\\n", "\n");
                     p1 = p2;
                     auth_data.initialized = true;
                     ret = true;
@@ -475,8 +479,8 @@ namespace gsheet
             data.sa.val[gsheet_sa_ns::pk] = privateKey;
             data.sa.expire = expire;
             data.initialized = isInitialized();
-            data.auth_type = auth_sa_access_token;
-            data.auth_data_type = user_auth_data_service_account;
+            data.auth_type = gsheet_auth_sa_access_token;
+            data.auth_data_type = gsheet_user_auth_data_service_account;
             data.timestatus_cb = timeCb;
         };
 
@@ -486,12 +490,7 @@ namespace gsheet
             data.clear();
             if (safile.initialized)
             {
-                safile.cb(safile.file, safile.filename.c_str(), gsheet_file_mode_open_read);
-                if (safile.file)
-                {
-                    GSheetSAParser::parseSAFile(safile.file, data);
-                    safile.file.close();
-                }
+                data.file_data.copy(safile);
                 data.timestatus_cb = timeCb;
             }
 #endif
@@ -499,11 +498,30 @@ namespace gsheet
 
         ~GSheetServiceAuth() { data.clear(); };
         void clear() { data.clear(); }
-        user_auth_data &get() { return data; }
+        gsheet_user_auth_data &get()
+        {
+#if defined(GSHEET_ENABLE_FS)
+
+            if (data.file_data.cb)
+                data.file_data.cb(data.file_data.file, data.file_data.filename.c_str(), gsheet_file_mode_open_read);
+            if (data.file_data.file)
+            {
+                bool ret = GSheetSAParser::parseSAFile(data.file_data.file, data);
+                data.file_data.file.close();
+                if (ret)
+                {
+                    data.initialized = isInitialized();
+                    data.auth_type = gsheet_auth_sa_access_token;
+                    data.auth_data_type = gsheet_user_auth_data_service_account;
+                }
+            }
+#endif
+            return data;
+        }
         bool isInitialized() { return data.sa.val[gsheet_sa_ns::cm].length() > 0 && data.sa.val[gsheet_sa_ns::pid].length() > 0 && data.sa.val[gsheet_sa_ns::pk].length() > 0; }
 
     private:
-        user_auth_data data;
+        gsheet_user_auth_data data;
     };
 
 #endif
@@ -524,8 +542,8 @@ namespace gsheet
             this->data.access_token.val[gsheet_access_tk_ns::csec] = client_secret;
             this->data.access_token.expire = expire;
             this->data.initialized = true;
-            this->data.auth_type = auth_access_token;
-            this->data.auth_data_type = user_auth_data_access_token;
+            this->data.auth_type = gsheet_auth_access_token;
+            this->data.auth_data_type = gsheet_user_auth_data_access_token;
         }
 
         GSheetAccessToken(gsheet_file_config_data &tokenFile)
@@ -534,17 +552,7 @@ namespace gsheet
             data.clear();
             if (tokenFile.initialized)
             {
-                tokenFile.cb(tokenFile.file, tokenFile.filename.c_str(), gsheet_file_mode_open_read);
-                if (tokenFile.file)
-                {
-                    if (GSheetUserTokenFileParser::parseUserFile(GSheetUserTokenFileParser::token_type_access_token, tokenFile.file, data))
-                    {
-                        data.initialized = true;
-                        data.auth_type = auth_access_token;
-                        data.auth_data_type = user_auth_data_access_token;
-                    }
-                    tokenFile.file.close();
-                }
+                data.file_data.copy(tokenFile);
             }
 #endif
         }
@@ -567,39 +575,57 @@ namespace gsheet
         }
 
         void clear() { data.clear(); }
-        user_auth_data &get() { return data; }
+        gsheet_user_auth_data &get()
+        {
+#if defined(GSHEET_ENABLE_FS)
+            if (data.file_data.cb)
+                data.file_data.cb(data.file_data.file, data.file_data.filename.c_str(), gsheet_file_mode_open_read);
+            if (data.file_data.file)
+            {
+                if (GSheetUserTokenFileParser::parseUserFile(GSheetUserTokenFileParser::token_type_access_token, data.file_data.file, data))
+                {
+                    data.initialized = true;
+                    data.auth_type = gsheet_auth_access_token;
+                    data.auth_data_type = gsheet_user_auth_data_access_token;
+                }
+                data.file_data.file.close();
+            }
+#endif
+            return data;
+        }
 
     private:
-        user_auth_data data;
+        gsheet_user_auth_data data;
     };
 
 #endif
 
-    struct app_token_t
+    struct gsheet_app_token_t
     {
     public:
         String val[gsheet_app_tk_ns::max_type];
         uint32_t expire = 0;
         bool authenticated = false;
-        auth_token_type auth_type = auth_unknown_token;
-        user_auth_data_type auth_data_type = user_auth_data_undefined;
+        gsheet_auth_token_type auth_type = gsheet_auth_unknown_token;
+        gsheet_user_auth_data_type auth_data_type = gsheet_user_auth_data_undefined;
         void clear()
         {
             for (size_t i = 0; i < gsheet_app_tk_ns::max_type; i++)
                 val[i].remove(0, val[i].length());
             expire = GSHEET_DEFAULT_TOKEN_TTL;
             authenticated = false;
-            auth_type = auth_unknown_token;
-            auth_data_type = user_auth_data_undefined;
+            auth_type = gsheet_auth_unknown_token;
+            auth_data_type = gsheet_user_auth_data_undefined;
         }
-        app_token_t() = default;
+        gsheet_app_token_t() {}
     };
 
     struct auth_data_t
     {
-        user_auth_data user_auth;
-        app_token_t app_token;
+        gsheet_user_auth_data user_auth;
+        gsheet_app_token_t app_token;
         GSheetAsyncResultCallback cb;
+        GSheetAsyncResult *refResult = nullptr;
     };
 
 };

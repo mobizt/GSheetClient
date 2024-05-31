@@ -41,7 +41,7 @@ private:
 
 public:
     GSheetTimer(unsigned long sec = 60) { setInterval(sec); }
-    ~GSheetTimer() = default;
+    ~GSheetTimer() {}
     void reset() { end = ts + period; }
     void start()
     {

@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -33,13 +33,16 @@
 #include "./core/JWT.h"
 #endif
 #include "./core/Timer.h"
+#include "./core/AppBase.h"
 
 namespace gsheet
 {
 
+#if defined(GSHEET_ENABLE_JWT)
     static GSheetJWTClass GSheetJWT;
+#endif
 
-    class GSheetApp
+    class GSheetApp : public GSheetAppBase, public GSheetResultBase
     {
         friend class GSheetClient;
 
@@ -49,23 +52,28 @@ namespace gsheet
         auth_data_t auth_data;
         GSheetAsyncClientClass *aClient = nullptr;
         uint32_t aclient_addr = 0, app_addr = 0, ref_ts = 0;
-        std::vector<uint32_t> aVec; // FirebaseApp vector
-        std::vector<uint32_t> cVec; // AsyncClient vector
+        std::vector<uint32_t> aVec; // GSheetApp vector
+        std::vector<uint32_t> cVec; // GSheetAsyncClient vector
         GSheetAsyncResultCallback resultCb = NULL;
-        GSheetTimer req_timer, auth_timer, err_timer;
+        GSheetAsyncResult *refResult = nullptr;
+        uint32_t ref_result_addr = 0;
+        GSheetTimer req_timer, auth_timer, err_timer, app_ready_timer;
         GSheetList vec;
         bool processing = false;
         uint32_t expire = GSHEET_DEFAULT_TOKEN_TTL;
         GSheetJSONUtil json;
         String extras, subdomain, host;
         gsheet_slot_options_t sop;
+        String uid;
+#if defined(GSHEET_ENABLE_JWT)
+        GSheetJWTClass *jwtClass = nullptr;
+#endif
 
 #if defined(GSHEET_ENABLE_JWT)
 
         void setLastError(GSheetAsyncResult *aResult, int code, const String &message)
         {
-            if (aResult)
-                aResult->lastError.setLastError(code, message);
+            setLastErrorBase(aResult, code, message);
         }
 
 #endif
@@ -176,25 +184,34 @@ namespace gsheet
             return token.length() > 0;
         }
 
-        void setEvent(auth_event_type event)
+        GSheetAsyncClientClass *getClient()
         {
+            GSheetList vec;
+            return vec.existed(cVec, aclient_addr) ? aClient : nullptr;
+        }
+
+        void setEvent(gsheet_auth_event_type event)
+        {
+            if (auth_data.user_auth.status._event == event)
+                return;
+
             auth_data.user_auth.status._event = event;
 
-            if (event == auth_event_initializing || event == auth_event_authenticating)
+            if (event == gsheet_auth_event_initializing || event == gsheet_auth_event_authenticating)
                 processing = true;
 
-            if (event == auth_event_error)
+            if (event == gsheet_auth_event_error)
             {
                 err_timer.feed(5);
                 auth_timer.stop();
             }
 
-            setEventResult(sData ? &sData->aResult : nullptr, auth_data.user_auth.status.authEventString(auth_data.user_auth.status._event), auth_data.user_auth.status._event);
+            setEventResult(sData ? &sData->aResult : getRefResult(), auth_data.user_auth.status.authEventString(auth_data.user_auth.status._event), auth_data.user_auth.status._event);
 
-            if (event == auth_event_error || event == auth_event_ready)
+            if (event == gsheet_auth_event_error || event == gsheet_auth_event_ready)
             {
                 processing = false;
-                event = auth_event_uninitialized;
+                event = gsheet_auth_event_uninitialized;
                 clearLastError(sData ? &sData->aResult : nullptr);
                 if (getClient())
                     stop(aClient);
@@ -203,14 +220,7 @@ namespace gsheet
 
         void clearLastError(GSheetAsyncResult *aResult)
         {
-            if (aResult)
-                aResult->lastError.setLastError(0, "");
-        }
-
-        GSheetAsyncClientClass *getClient()
-        {
-            GSheetList vec;
-            return vec.existed(cVec, aclient_addr) ? aClient : nullptr;
+            clearLastErrorBase(aResult);
         }
 
         void setEventResult(GSheetAsyncResult *aResult, const String &msg, int code)
@@ -218,10 +228,27 @@ namespace gsheet
             // If aResult was not initiated, create and send temporary result to callback
             bool isRes = aResult != nullptr;
 
-            if (!isRes)
-                aResult = new GSheetAsyncResult();
+            // Set uid from user defined async result.
+            if (getRefResult())
+                uid = refResult->uid();
 
-            aResult->app_event.setEvent(code, msg);
+            if (!isRes)
+            {
+                aResult = new GSheetAsyncResult();
+                resultSetEvent(aResult, getAppEvent(aClient));
+                resultSetDebug(aResult, getAppDebug(aClient));
+
+                // Store the uid;
+                if (uid.length() == 0)
+                    uid = aResult->uid();
+                else
+                    setResultUID(aResult, uid);
+            }
+
+            if (!getRefResult())
+                resetEvent(*getAppEvent(aClient));
+
+            setEventBase(*getAppEvent(aClient), code, msg);
 
             if (resultCb)
                 resultCb(*aResult);
@@ -250,7 +277,27 @@ namespace gsheet
 
         void createSlot(GSheetAsyncClientClass *aClient, gsheet_slot_options_t &soption)
         {
-            sData = aClient->createSlot(soption);
+            if (aClient)
+                sData = createSlotBase(aClient, soption);
+        }
+
+        GSheetAsyncResult *getRefResult()
+        {
+            GSheetList vec;
+            return aClient && vec.existed(getRVec(aClient), ref_result_addr) ? refResult : nullptr;
+        }
+
+        void setRefResult(GSheetAsyncResult *refResult, uint32_t rvec_addr)
+        {
+            this->refResult = refResult;
+            ref_result_addr = reinterpret_cast<uint32_t>(refResult);
+            setRVec(this->refResult, rvec_addr);
+            if (rvec_addr > 0)
+            {
+                std::vector<uint32_t> *rVec = reinterpret_cast<std::vector<uint32_t> *>(rvec_addr);
+                GSheetList vec;
+                vec.addRemoveList(*rVec, ref_result_addr, true);
+            }
         }
 
         void newRequest(GSheetAsyncClientClass *aClient, gsheet_slot_options_t &soption, const String &subdomain, const String &extras, GSheetAsyncResultCallback resultCb, const String &uid = "")
@@ -263,13 +310,15 @@ namespace gsheet
             if (sData)
             {
                 addGAPIsHost(host, subdomain.c_str());
-                aClient->newRequest(sData, host, extras, "", gsheet_async_request_handler_t::http_post, soption, uid);
+                newRequestBase(aClient, sData, host, extras, "", gsheet_async_request_handler_t::http_post, soption, uid);
 
                 addContentTypeHeader(sData->request.val[gsheet_req_hndlr_ns::header], "application/json");
-                aClient->setContentLength(sData, sData->request.val[gsheet_req_hndlr_ns::payload].length());
+                setContentLengthBase(aClient, sData, sData->request.val[gsheet_req_hndlr_ns::payload].length());
                 req_timer.feed(GSHEET_TCP_READ_TIMEOUT_SEC);
-                slot = aClient->slotCount() - 1;
-                sData->aResult.setDebug(FPSTR("Connecting to server..."));
+                slot = slotCountBase(aClient) - 1;
+
+                setDebugBase(*getAppDebug(aClient), FPSTR("Connecting to server..."));
+
                 if (resultCb)
                     resultCb(sData->aResult);
             }
@@ -280,19 +329,26 @@ namespace gsheet
             if (!aClient)
                 return;
 
-            aClient->process(true);
-            aClient->handleRemove();
+            processBase(aClient, true);
+            handleRemoveBase(aClient);
         }
 
+        // Stop client and remove slot
         void stop(GSheetAsyncClientClass *aClient)
         {
             if (!aClient)
                 return;
-            aClient->stop(sData);
+
+            stopAsync(aClient, sData);
+
             if (sData)
             {
-                delete sData;
+                removeSlotBase(aClient, slot, false);
+                if (sData)
+                    delete sData;
+                sData = nullptr;
             }
+
             sData = nullptr;
         }
 
@@ -304,6 +360,9 @@ namespace gsheet
             if (!getClient())
                 return false;
 
+            updateDebug(*getAppDebug(aClient));
+            updateEvent(*getAppEvent(aClient));
+
             process(aClient, sData ? &sData->aResult : nullptr, resultCb);
 
             if (!isExpired())
@@ -311,92 +370,105 @@ namespace gsheet
 
             if (!processing)
             {
-                if (auth_data.user_auth.auth_type == auth_access_token && isExpired())
+                if (auth_data.user_auth.auth_type == gsheet_auth_access_token && isExpired())
                 {
                     processing = true;
-                    auth_data.user_auth.task_type = core_auth_task_type_refresh_token;
-                    setEvent(auth_event_uninitialized);
+                    auth_data.user_auth.task_type = gsheet_core_auth_task_type_refresh_token;
+                    setEvent(gsheet_auth_event_uninitialized);
                 }
-                else if ((auth_data.user_auth.status._event == auth_event_error || auth_data.user_auth.status._event == auth_event_ready) && (auth_data.app_token.expire == 0 || (auth_data.app_token.expire > 0 && isExpired())))
+                else if ((auth_data.user_auth.status._event == gsheet_auth_event_error || auth_data.user_auth.status._event == gsheet_auth_event_ready) && (auth_data.app_token.expire == 0 || (auth_data.app_token.expire > 0 && isExpired())))
                 {
                     processing = true;
-                    setEvent(auth_event_uninitialized);
+                    setEvent(gsheet_auth_event_uninitialized);
                 }
             }
 
-            if (auth_data.user_auth.jwt_signing && auth_data.user_auth.jwt_ts == 0 && err_timer.remaining() == 0)
+            if (auth_data.user_auth.jwt_signing && auth_data.user_auth.jwt_ts == 0)
             {
-                err_timer.feed(3);
-                GSheetJWT.jwt_data.err_code = GSHEET_ERROR_JWT_CREATION_REQUIRED;
-                GSheetJWT.jwt_data.msg = "JWT process has not begun";
-                GSheetJWT.sendErrCB(auth_data.cb, nullptr);
+#if defined(GSHEET_ENABLE_JWT)
+                if (err_timer.remaining() == 0)
+                {
+                    err_timer.feed(3);
+                    jwtProcessor()->jwt_data.err_code = GSHEET_ERROR_JWT_CREATION_REQUIRED;
+                    jwtProcessor()->jwt_data.msg = "JWT process has not begun";
+                    if (getRefResult())
+                        jwtProcessor()->sendErrResult(auth_data.refResult);
+                    else
+                        jwtProcessor()->sendErrCB(auth_data.cb, nullptr);
+                }
+#endif
+                return false;
             }
 
-            if (auth_data.user_auth.status._event == auth_event_uninitialized && err_timer.remaining() > 0)
+            if (auth_data.user_auth.status._event == gsheet_auth_event_uninitialized && err_timer.remaining() > 0)
                 return false;
 
-            if (auth_data.user_auth.auth_type == auth_access_token ||
-                auth_data.user_auth.auth_type == auth_sa_access_token)
+            if (auth_data.user_auth.auth_type == gsheet_auth_access_token ||
+                auth_data.user_auth.auth_type == gsheet_auth_sa_access_token)
             {
 
-                if (auth_data.user_auth.status._event == auth_event_uninitialized)
+                if (auth_data.user_auth.status._event == gsheet_auth_event_uninitialized)
                 {
-                    if (auth_data.user_auth.auth_type == auth_access_token && auth_data.user_auth.task_type == core_auth_task_type_refresh_token)
-                        setEvent(auth_event_authenticating);
+                    if (auth_data.user_auth.auth_type == gsheet_auth_access_token && auth_data.user_auth.task_type == gsheet_core_auth_task_type_refresh_token)
+                        setEvent(gsheet_auth_event_authenticating);
                     else
-                        setEvent(auth_event_initializing);
+                        setEvent(gsheet_auth_event_initializing);
                 }
 
-                if (auth_data.user_auth.status._event == auth_event_initializing || auth_data.user_auth.status._event == auth_event_token_signing)
+                if (auth_data.user_auth.status._event == gsheet_auth_event_initializing || auth_data.user_auth.status._event == gsheet_auth_event_token_signing)
                 {
                     gsheet_sys_idle();
 #if defined(GSHEET_ENABLE_JWT)
-                    if (auth_data.user_auth.sa.step == jwt_step_begin)
+                    if (auth_data.user_auth.sa.step == gsheet_jwt_step_begin)
                     {
-                        auth_data.user_auth.sa.step = jwt_step_sign;
                         if (getClient())
                             stop(aClient);
 
-                        if (auth_data.user_auth.status._event != auth_event_token_signing)
-                            setEvent(auth_event_token_signing);
+                        if (auth_data.user_auth.status._event != gsheet_auth_event_token_signing)
+                            setEvent(gsheet_auth_event_token_signing);
 
                         auth_data.user_auth.jwt_signing = true;
+
+                        jwtProcessor()->begin(&auth_data);
                     }
-                    else if (auth_data.user_auth.sa.step == jwt_step_sign || auth_data.user_auth.sa.step == jwt_step_ready)
+                    else if (auth_data.user_auth.sa.step == gsheet_jwt_step_sign || auth_data.user_auth.sa.step == gsheet_jwt_step_ready)
                     {
-                        if (GSheetJWT.ready())
+                        if (jwtProcessor()->ready())
                         {
-                            setEvent(auth_event_authenticating);
-                            auth_data.user_auth.sa.step = jwt_step_begin;
+                            auth_data.user_auth.jwt_signing = false;
+                            setEvent(gsheet_auth_event_authenticating);
+                            auth_data.user_auth.sa.step = gsheet_jwt_step_begin;
                         }
                     }
 #endif
                 }
-                else if (auth_data.user_auth.status._event == auth_event_authenticating)
+                else if (auth_data.user_auth.status._event == gsheet_auth_event_authenticating)
                 {
 
-                    subdomain = auth_data.user_auth.auth_type == auth_sa_access_token || auth_data.user_auth.auth_type == auth_access_token ? FPSTR("oauth2") : FPSTR("identitytoolkit");
+                    subdomain = auth_data.user_auth.auth_type == gsheet_auth_sa_access_token || auth_data.user_auth.auth_type == gsheet_auth_access_token ? FPSTR("oauth2") : FPSTR("identitytoolkit");
                     sop.async = true;
                     sop.auth_used = true;
 
                     // Remove all slots except sse in case ServiceAuth and CustomAuth to free up memory.
                     if (getClient())
                     {
-                        for (size_t i = aClient->slotCount() - 1; i == 0; i--)
-                            aClient->removeSlot(i, false);
+                        for (size_t i = slotCountBase(aClient) - 1; i == 0; i--)
+                            removeSlotBase(aClient, i, false);
 
                         createSlot(aClient, sop);
                     }
 
-                    if (auth_data.user_auth.auth_type == auth_sa_access_token)
+                    if (auth_data.user_auth.auth_type == gsheet_auth_sa_access_token)
                     {
 #if defined(GSHEET_ENABLE_SERVICE_AUTH)
                         json.addObject(sData->request.val[gsheet_req_hndlr_ns::payload], "grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer", true);
-                        json.addObject(sData->request.val[gsheet_req_hndlr_ns::payload], "assertion", GSheetJWT.token(), true, true);
-                        GSheetJWT.clear();
+#if defined(GSHEET_ENABLE_JWT)
+                        json.addObject(sData->request.val[gsheet_req_hndlr_ns::payload], "assertion", jwtProcessor()->token(), true, true);
+                        jwtProcessor()->clear();
+#endif
 #endif
                     }
-                    else if (auth_data.user_auth.auth_type == auth_access_token && auth_data.user_auth.task_type == core_auth_task_type_refresh_token)
+                    else if (auth_data.user_auth.auth_type == gsheet_auth_access_token && auth_data.user_auth.task_type == gsheet_core_auth_task_type_refresh_token)
                     {
 #if defined(GSHEET_ENABLE_ACCESS_TOKEN)
                         json.addObject(sData->request.val[gsheet_req_hndlr_ns::payload], "client_id", auth_data.user_auth.access_token.val[gsheet_access_tk_ns::cid], true);
@@ -406,31 +478,39 @@ namespace gsheet
 #endif
                     }
 
-                    if (auth_data.user_auth.auth_type == auth_sa_access_token || auth_data.user_auth.auth_type == auth_access_token)
+                    if (auth_data.user_auth.auth_type == gsheet_auth_sa_access_token || auth_data.user_auth.auth_type == gsheet_auth_access_token)
                         extras = FPSTR("/token");
+
                     if (getClient())
                         newRequest(aClient, sop, subdomain, extras, resultCb);
+
                     extras.remove(0, extras.length());
                     host.remove(0, host.length());
-                    setEvent(auth_event_auth_request_sent);
+                    setEvent(gsheet_auth_event_auth_request_sent);
                 }
             }
 
-            if (auth_data.user_auth.status._event == auth_event_auth_request_sent)
+            if (auth_data.user_auth.status._event == gsheet_auth_event_auth_request_sent || auth_data.user_auth.status._event == gsheet_auth_event_auth_response_received)
             {
+                gsheet_sys_idle();
+
                 if (sData && ((sData->response.payloadLen > 0 && sData->aResult.error().code() != 0) || req_timer.remaining() == 0))
                 {
-
                     // In case of googleapis returns http status code >= 400 or request is timed out.
                     // Note that, only status line was read in case http status code >= 400
-                    setEvent(auth_event_error);
+                    setEvent(gsheet_auth_event_error);
                     return false;
                 }
 
                 if (sData && sData->response.auth_data_available)
                 {
 
-                    setEvent(auth_event_auth_response_received);
+                    if (auth_data.user_auth.status._event != gsheet_auth_event_auth_response_received)
+                    {
+                        setEvent(gsheet_auth_event_auth_response_received);
+                        if (getRefResult())
+                            return false;
+                    }
 
                     if (parseToken(sData->response.val[gsheet_res_hndlr_ns::payload].c_str()))
                     {
@@ -438,20 +518,29 @@ namespace gsheet
                         auth_timer.feed(expire && expire < auth_data.app_token.expire ? expire : auth_data.app_token.expire - 2 * 60);
                         auth_data.app_token.authenticated = true;
                         if (getClient())
-                            aClient->setAuthTs(millis());
+                            setAuthTsBase(aClient, millis());
                         auth_data.app_token.auth_type = auth_data.user_auth.auth_type;
                         auth_data.app_token.auth_data_type = auth_data.user_auth.auth_data_type;
-                        setEvent(auth_event_ready);
+                        setEvent(gsheet_auth_event_ready);
+                        app_ready_timer.feed(1);
                     }
                     else
                     {
-                        setEvent(auth_event_error);
+                        setEvent(gsheet_auth_event_error);
                     }
                 }
             }
 
+            // Defer the ready status to allow the remaining information to be read or printed inside the waiting loop.
+            if (auth_data.user_auth.status._event == gsheet_auth_event_ready && auth_data.app_token.authenticated && app_ready_timer.remaining() > 0)
+                return false;
+
             return true;
         }
+
+#if defined(GSHEET_ENABLE_JWT)
+        GSheetJWTClass *jwtProcessor() { return jwtClass ? jwtClass : &GSheetJWT; }
+#endif
 
     public:
         GSheetApp()
@@ -467,8 +556,16 @@ namespace gsheet
             vec.addRemoveList(aVec, app_addr, false);
         };
 
+        /**
+         * Get the app initialization status.
+         *
+         * @return bool Return true if initialized.
+         */
         bool isInitialized() const { return auth_data.user_auth.initialized; }
 
+        /**
+         * The authentication/authorization handler.
+         */
         void loop()
         {
             auth_data.user_auth.jwt_loop = true;
@@ -476,29 +573,112 @@ namespace gsheet
             auth_data.user_auth.jwt_loop = false;
         }
 
+        /**
+         * Get the authentication/autorization process status.
+         *
+         * @return bool Return true if the auth process was finished. Returns false if isExpired() returns true.
+         */
         bool ready() { return processAuth() && auth_data.app_token.authenticated; }
 
+        /**
+         * Appy the authentication/authorization credentials to the Firebase services app.
+         *
+         * @param app The Firebase services calss object e.g. RealtimeDatabase, Storage, Messaging, CloudStorage and CloudFunctions.
+         */
         template <typename T>
-        void getApp(T &app) { app.setApp(app_addr, &auth_data.app_token, reinterpret_cast<uint32_t>(&aVec)); }
+        void getApp(T &app) { setAppBase(app, app_addr, &auth_data.app_token, reinterpret_cast<uint32_t>(&aVec)); }
 
+        /**
+         * Get the auth token.
+         *
+         * @return String of auth tokens based on the authentication/authoeization e.g. ID token and access token.
+         */
         String getToken() const { return auth_data.app_token.val[gsheet_app_tk_ns::token]; }
 
+        /**
+         * Get the refresh token.
+         *
+         * @return String of refresh token after user sign in or authorization using ID token.
+         */
         String getRefreshToken() const { return auth_data.app_token.val[gsheet_app_tk_ns::refresh]; }
 
+        /**
+         * Get unique identifier.
+         *
+         * @return String of unique identifier after user sign in or authorization using ID token.
+         */
         String getUid() const { return auth_data.app_token.val[gsheet_app_tk_ns::uid]; }
 
+        /**
+         * Get the authentication status since app initialized.
+         *
+         * @return bool Return true once authenticated since initialized. It will reset when app re-initialized and user management task was executed.
+         */
         bool isAuthenticated() const { return auth_data.app_token.authenticated; }
 
+        /**
+         * Get the auth token expiration status.
+         *
+         * @return bool Return true if auth token was expired upon the expire period setup.
+         */
         bool isExpired() { return auth_timer.remaining() == 0; }
 
+        /**
+         * Get the remaining time to live of token until expired.
+         *
+         * @return integer value of ttl.
+         */
         unsigned long ttl() { return auth_timer.remaining(); }
 
+        /**
+         * Set the async result callback function.
+         *
+         * @param cb The async result callback function (AsyncResultCallback).
+         */
         void setCallback(GSheetAsyncResultCallback cb)
         {
             this->resultCb = cb;
             auth_data.cb = cb;
         }
 
+        /**
+         * Set the async result class object.
+         *
+         * @param aResult The async result class object (AsyncResult).
+         */
+        void setAsyncResult(GSheetAsyncResult &aResult)
+        {
+            refResult = &aResult;
+            auth_data.refResult = &aResult;
+        }
+
+        /**
+         * Set the UID for authentication task.
+         *
+         * @param uid The unique identifier for the authentication task.
+         *
+         * The UID will be applied when used with the async result callback only.
+         * The async result object set via initializeApp and GSheetApp::setAsyncResult will not take effect.
+         */
+        void setUID(const String &uid) { this->uid = uid; }
+
+#if defined(GSHEET_ENABLE_JWT)
+        /**
+         * Set the JWT token processor object.
+         *
+         * This function should be executed before calling initializeApp.
+         *
+         * @param jwtClass The JWT token processor object.
+         *
+         */
+        void setJWTProcessor(GSheetJWTClass &jwtClass) { this->jwtClass = &jwtClass; }
+#endif
+
+        /**
+         * Get the pointer to the internal auth data.
+         *
+         * @return auth_data_t* The pointer to internal auth data.
+         */
         auth_data_t *getAuth() { return &auth_data; }
     };
 };

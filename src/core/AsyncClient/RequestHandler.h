@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 31, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -88,7 +88,7 @@ public:
 
     String val[gsheet_req_hndlr_ns::max_type];
     String location;
-    app_token_t *app_token = nullptr;
+    gsheet_app_token_t *app_token = nullptr;
     uint16_t port = 443;
     uint8_t *data = nullptr;
     gsheet_file_config_data file_data;
@@ -225,10 +225,10 @@ public:
     }
 
     /* Append the string with first part of Authorization header */
-    void addAuthHeaderFirst(auth_token_type type)
+    void addAuthHeaderFirst(gsheet_auth_token_type type)
     {
         val[gsheet_req_hndlr_ns::header] += FPSTR("Authorization: ");
-        if (type == auth_access_token || type == auth_sa_access_token)
+        if (type == gsheet_auth_access_token || type == gsheet_auth_sa_access_token)
             val[gsheet_req_hndlr_ns::header] += FPSTR("Bearer ");
         else
             val[gsheet_req_hndlr_ns::header] += FPSTR("key=");

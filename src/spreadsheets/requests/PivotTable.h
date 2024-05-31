@@ -58,7 +58,7 @@ namespace GSHEET
     class ExtendedValue : public BaseG1
     {
     public:
-        ExtendedValue() = default;
+        ExtendedValue() {}
 
         // Union field value
         // Represents a double value. Note: Dates, Times and DateTimes are represented as doubles in SERIAL_NUMBER format.
@@ -84,7 +84,7 @@ namespace GSHEET
     {
 
     public:
-        PivotGroupValueMetadata() = default;
+        PivotGroupValueMetadata() {}
 
         // The calculated value the metadata corresponds to. (Note that formulaValue is not valid, because the values will be calculated.)
         PivotGroupValueMetadata &value(ExtendedValue value) { return wr.set<PivotGroupValueMetadata &, ExtendedValue>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -99,7 +99,7 @@ namespace GSHEET
     class PivotGroupSortValueBucket : public BaseG4
     {
     public:
-        PivotGroupSortValueBucket() = default;
+        PivotGroupSortValueBucket() {}
 
         // The offset in the PivotTable.values list which the values in this grouping should be sorted by.
         PivotGroupSortValueBucket &valuesIndex(int value) { return wr.set<PivotGroupSortValueBucket &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -116,7 +116,7 @@ namespace GSHEET
     class ManualRuleGroup : public BaseG4
     {
     public:
-        ManualRuleGroup() = default;
+        ManualRuleGroup() {}
 
         // The group name, which must be a string. Each group in a given ManualRule must have a unique group name.
         ManualRuleGroup &groupName(const ExtendedValue &value) { return wr.set<ManualRuleGroup &, ExtendedValue>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -141,7 +141,7 @@ namespace GSHEET
     {
 
     public:
-        ManualRule() = default;
+        ManualRule() {}
 
         // The list of group names and the corresponding items from the source data that map to each group name.
         ManualRule &addGroups(const ManualRuleGroup &value) { return wr.add<ManualRule &, ManualRuleGroup>(*this, value, buf, FPSTR(__func__)); }
@@ -153,7 +153,7 @@ namespace GSHEET
     class HistogramRule : public BaseG4
     {
     public:
-        HistogramRule() = default;
+        HistogramRule() {}
 
         // The size of the buckets that are created. Must be positive.
         HistogramRule &interval(double value) { return wr.set<HistogramRule &, double>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -178,7 +178,7 @@ namespace GSHEET
     class DateTimeRule : public BaseG1
     {
     public:
-        DateTimeRule() = default;
+        DateTimeRule() {}
 
         // The size of the buckets that are created. Must be positive.
         DateTimeRule &type(Group::DateTimeRuleType value) { return wr.add<DateTimeRule &, const char *>(*this, _DateTimeRuleType[value].text, buf, FPSTR(__func__)); }
@@ -190,7 +190,7 @@ namespace GSHEET
     class PivotGroupRule : public BaseG1
     {
     public:
-        PivotGroupRule() = default;
+        PivotGroupRule() {}
 
         // Union field rule
         // A ManualRule.
@@ -211,7 +211,7 @@ namespace GSHEET
     class PivotGroupLimit : public BaseG4
     {
     public:
-        PivotGroupLimit() = default;
+        PivotGroupLimit() {}
 
         // The count limit.
         PivotGroupLimit &countLimit(int value) { return wr.set<PivotGroupLimit &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -228,7 +228,7 @@ namespace GSHEET
     class PivotGroup : public BaseG12
     {
     public:
-        PivotGroup() = default;
+        PivotGroup() {}
 
         // True if the pivot table should include the totals for this grouping.
         PivotGroup &showTotals(bool value) { return wr.set<PivotGroup &, bool>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -273,7 +273,7 @@ namespace GSHEET
     {
 
     public:
-        PivotFilterCriteria() = default;
+        PivotFilterCriteria() {}
 
         // Values that should be included. Values not listed here are excluded.
         PivotFilterCriteria &addVisibleValues(const String &value) { return wr.append<PivotFilterCriteria &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -291,7 +291,7 @@ namespace GSHEET
     class PivotFilterSpec : public BaseG4
     {
     public:
-        PivotFilterSpec() = default;
+        PivotFilterSpec() {}
 
         // The criteria for the column.
         PivotFilterSpec &filterCriteria(const PivotFilterCriteria &value) { return wr.set<PivotFilterSpec &, PivotFilterCriteria>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -311,7 +311,7 @@ namespace GSHEET
     class PivotValue : public BaseG6
     {
     public:
-        PivotValue() = default;
+        PivotValue() {}
 
         // A function to summarize the value. If formula is set, the only supported values are SUM and CUSTOM. If sourceColumnOffset is set, then CUSTOM is not supported.
         PivotValue &summarizeFunction(Function::PivotValueSummarizeFunction value) { return wr.set<PivotValue &, const char *>(*this, _PivotValueSummarizeFunction[value].text, buf, bufSize, 1, FPSTR(__func__)); }
@@ -343,7 +343,7 @@ namespace GSHEET
     {
 
     public:
-        PivotTable() = default;
+        PivotTable() {}
 
         // This value represents the item to add to an array.
         //  Each row grouping in the pivot table.

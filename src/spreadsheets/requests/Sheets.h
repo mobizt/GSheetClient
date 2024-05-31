@@ -98,7 +98,7 @@ namespace GSHEET
     class GridProperties : public BaseG8
     {
     public:
-        GridProperties() = default;
+        GridProperties() {}
 
         // The number of rows in the grid.
         GridProperties &rowCount(int value) { return wr.set<GridProperties &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -128,7 +128,7 @@ namespace GSHEET
     class SheetProperties : public BaseG12
     {
     public:
-        SheetProperties() = default;
+        SheetProperties() {}
 
         // The ID of the sheet. Must be non-negative. This field cannot be changed once set.
         SheetProperties &sheetId(int value) { return wr.set<SheetProperties &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -162,7 +162,7 @@ namespace GSHEET
     class RowData : public BaseG2
     {
     public:
-        RowData() = default;
+        RowData() {}
 
         // This value represents the item to add to an array.
         // The values in the row, one per column.
@@ -175,7 +175,7 @@ namespace GSHEET
     class GridData : public BaseG6
     {
     public:
-        GridData() = default;
+        GridData() {}
 
         // The first row this GridData refers to, zero-based.
         GridData &startRow(int value) { return wr.set<GridData &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -203,7 +203,7 @@ namespace GSHEET
     {
 
     public:
-        BooleanRule() = default;
+        BooleanRule() {}
 
         // The condition of the rule. If the condition evaluates to true, the format is applied.
         BooleanRule &condition(const BooleanCondition &value) { return wr.set<BooleanRule &, BooleanCondition>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -218,7 +218,7 @@ namespace GSHEET
     class InterpolationPoint : public BaseG4
     {
     public:
-        InterpolationPoint() = default;
+        InterpolationPoint() {}
 
         // The color this interpolation point should use. If color is also set, this field takes precedence.
         InterpolationPoint &colorStyle(const ColorStyle &value) { return wr.set<InterpolationPoint &, ColorStyle>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -236,7 +236,7 @@ namespace GSHEET
     class Editors : public BaseG4
     {
     public:
-        Editors() = default;
+        Editors() {}
 
         // This value represents the item to add to an array.
         // The email addresses of users with edit access to the protected range.
@@ -256,7 +256,7 @@ namespace GSHEET
     class ProtectedRange : public BaseG8
     {
     public:
-        ProtectedRange() = default;
+        ProtectedRange() {}
 
         // The range that is being protected. The range may be fully unbounded, in which case this is considered a protected sheet.
         ProtectedRange &range(const GridRange &value) { return wr.set<ProtectedRange &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -286,7 +286,7 @@ namespace GSHEET
     class GradientRule : public BaseG4
     {
     public:
-        GradientRule() = default;
+        GradientRule() {}
 
         // The starting interpolation point.
         GradientRule &minpoint(const InterpolationPoint &value) { return wr.set<GradientRule &, InterpolationPoint>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -304,7 +304,7 @@ namespace GSHEET
     class ConditionalFormatRule : public BaseG4
     {
     public:
-        ConditionalFormatRule() = default;
+        ConditionalFormatRule() {}
 
         // This value represents the item to add to an array.
         // The ranges that are formatted if the condition is true. All the ranges must be on the same grid.
@@ -325,7 +325,7 @@ namespace GSHEET
     class BasicFilter : public BaseG4
     {
     public:
-        BasicFilter() = default;
+        BasicFilter() {}
 
         // The range the filter covers.
         BasicFilter &range(const GridRange &value) { return wr.set<BasicFilter &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -349,7 +349,7 @@ namespace GSHEET
     class BandingProperties : public BaseG6
     {
     public:
-        BandingProperties() = default;
+        BandingProperties() {}
 
         // The color of the first row or column. If this field is set, the first row or column is filled with this color and the colors alternate between firstBandColor and secondBandColor starting from the second row or column. Otherwise, the first row or column is filled with firstBandColor and the colors proceed to alternate as they normally would. If headerColor is also set, this field takes precedence.
         BandingProperties &headerColorStyle(const ColorStyle &value) { return wr.set<BandingProperties &, ColorStyle>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -370,7 +370,7 @@ namespace GSHEET
     class BandedRange : public BaseG6
     {
     public:
-        BandedRange() = default;
+        BandedRange() {}
 
         // The ID of the banded range.
         BandedRange &bandedRangeId(int value) { return wr.set<BandedRange &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -391,7 +391,7 @@ namespace GSHEET
     class DimensionGroup : public BaseG4
     {
     public:
-        DimensionGroup() = default;
+        DimensionGroup() {}
 
         // The range over which this group exists.
         DimensionGroup &range(const DimensionRange &value) { return wr.set<DimensionGroup &, DimensionRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -410,7 +410,7 @@ namespace GSHEET
     class FilterView : public BaseG8
     {
     public:
-        FilterView() = default;
+        FilterView() {}
 
         // The ID of the filter view.
         FilterView &filterViewId(int value) { return wr.set<FilterView &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -442,7 +442,7 @@ namespace GSHEET
     class SlicerSpec : public BaseG12
     {
     public:
-        SlicerSpec() = default;
+        SlicerSpec() {}
 
         // The data range of the slicer.
         SlicerSpec &dataRange(const GridRange &value) { return wr.set<SlicerSpec &, GridRange>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -475,7 +475,7 @@ namespace GSHEET
     class Slicer : public BaseG4
     {
     public:
-        Slicer() = default;
+        Slicer() {}
 
         // The ID of the slicer.
         Slicer &slicerId(int value) { return wr.set<Slicer &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -494,7 +494,7 @@ namespace GSHEET
     {
 
     public:
-        Sheet() = default;
+        Sheet() {}
 
         // The properties of the sheet.
         Sheet &properties(const SheetProperties &value) { return wr.set<Sheet &, SheetProperties>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

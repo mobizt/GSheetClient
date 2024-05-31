@@ -47,7 +47,7 @@ namespace GSHEET
     {
 
     public:
-        WaterfallChartDomain() = default;
+        WaterfallChartDomain() {}
 
         // The data of the WaterfallChartDomain.
         WaterfallChartDomain &data(const ChartData &value) { return wr.set<WaterfallChartDomain &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -63,7 +63,7 @@ namespace GSHEET
     {
 
     public:
-        WaterfallChartColumnStyle() = default;
+        WaterfallChartColumnStyle() {}
 
         // The label of the column's legend.
         WaterfallChartColumnStyle &label(const String &value) { return wr.set<WaterfallChartColumnStyle &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -78,7 +78,7 @@ namespace GSHEET
     class WaterfallChartCustomSubtotal : public BaseG4
     {
     public:
-        WaterfallChartCustomSubtotal() = default;
+        WaterfallChartCustomSubtotal() {}
 
         // The zero-based index of a data point within the series. If dataIsSubtotal is true, the data point at this index is the subtotal. Otherwise, the subtotal appears after the data point with this index. A series can have multiple subtotals at arbitrary indices, but subtotals do not affect the indices of the data points. For example, if a series has three data points, their indices will always be 0, 1, and 2, regardless of how many subtotals exist on the series or what data points they are associated with., String(value), false, true); }
         // The format of this run. Absent values inherit the cell's format.
@@ -98,7 +98,7 @@ namespace GSHEET
     {
 
     public:
-        WaterfallChartSeries() = default;
+        WaterfallChartSeries() {}
 
         // The data being visualized in this series.
         WaterfallChartSeries &data(const ChartData &value) { return wr.set<WaterfallChartSeries &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -130,7 +130,7 @@ namespace GSHEET
     {
 
     public:
-        WaterfallChartSpec() = default;
+        WaterfallChartSpec() {}
 
         // The domain data (horizontal axis) for the waterfall chart.
         WaterfallChartSpec &domain(const WaterfallChartDomain &value) { return wr.set<WaterfallChartSpec &, WaterfallChartDomain>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

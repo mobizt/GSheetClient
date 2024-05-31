@@ -38,7 +38,7 @@ private:
     }
 
 public:
-    gsheet_boolean_t() = default;
+    gsheet_boolean_t() {}
     gsheet_boolean_t(bool v) { buf = v ? FPSTR("true") : FPSTR("false"); }
     const char *c_str() const { return buf.c_str(); }
     size_t printTo(Print &p) const { return p.print(buf.c_str()); }
@@ -50,7 +50,7 @@ private:
     String buf;
 
 public:
-    gsheet_number_t() = default;
+    gsheet_number_t() {}
     template <typename T1 = int, typename T = int>
     gsheet_number_t(T1 v, T d) { buf = String(v, d); }
     template <typename T = int>
@@ -65,7 +65,7 @@ private:
     String buf;
 
 public:
-    gsheet_string_t() = default;
+    gsheet_string_t() {}
     template <typename T = const char *>
     gsheet_string_t(T v)
     {
@@ -135,7 +135,7 @@ private:
     String buf;
 
 public:
-    gsheet_object_t() = default;
+    gsheet_object_t() {}
     gsheet_object_t(const String &o) { buf = o; }
     const char *c_str() const { return buf.c_str(); }
     template <typename T = const char *>
@@ -173,8 +173,8 @@ private:
 class GSheetValueConverter
 {
 public:
-    GSheetValueConverter() = default;
-    ~GSheetValueConverter() = default;
+    GSheetValueConverter() {}
+    ~GSheetValueConverter() {}
 
     template <typename T>
     struct v_sring

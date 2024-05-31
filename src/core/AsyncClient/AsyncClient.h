@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * For MCU build target (CORE_ARDUINO_XXXX), see Options.h.
  *
@@ -135,29 +135,32 @@ struct gsheet_slot_options_t
 public:
     bool auth_used = false;
     bool async = false;
-    bool ota = false;
-    bool auth_param = false;
-    app_token_t *app_token = nullptr;
-    gsheet_slot_options_t() = default;
-    gsheet_slot_options_t(bool auth_used, bool sse, bool async, bool sv, bool ota, bool no_etag, bool auth_param = false)
+    gsheet_app_token_t *app_token = nullptr;
+    gsheet_slot_options_t() {}
+    gsheet_slot_options_t(bool auth_used, bool async)
     {
         this->auth_used = auth_used;
         this->async = async;
-        this->ota = ota;
-        this->auth_param = auth_param;
     }
 };
 
-class GSheetAsyncClientClass
+class GSheetAsyncClientClass : public GSheetResultBase
 {
-    friend class GSheetApp;
+    friend class GSheetAppBase;
+    friend class GSheetBase;
 
 private:
+    gsheet_app_debug_t app_debug;
+    gsheet_app_event_t app_event;
     GSheetError lastErr;
     String header;
+    GSheetAsyncResult *refResult = nullptr;
+    GSheetAsyncResult aResult;
     int netErrState = 0;
     uint32_t auth_ts = 0;
     uint32_t cvec_addr = 0;
+    uint32_t result_addr = 0;
+    uint32_t sync_send_timeout_sec = 0, sync_read_timeout_sec = 0;
     Client *client = nullptr;
 #if defined(GSHEET_ENABLE_ASYNC_TCP_CLIENT)
     GSheetAsyncTCPConfig *async_tcp_config = nullptr;
@@ -165,6 +168,8 @@ private:
     void *async_tcp_config = nullptr;
 #endif
     gsheet_async_request_handler_t::tcp_client_type client_type = gsheet_async_request_handler_t::tcp_client_type_sync;
+    String host;
+    uint16_t port;
     std::vector<uint32_t> sVec;
     GSheetMemory mem;
     GSheetBase64Util but;
@@ -198,6 +203,36 @@ private:
 #endif
         sData->request.file_data.file_status = gsheet_file_config_data::gsheet_file_status_opened;
         return true;
+    }
+
+    void newCon(gsheet_async_data_item_t *sData, const char *host, uint16_t port)
+    {
+        if ((sData->auth_used && sData->state == gsheet_async_state_undefined) || strcmp(this->host.c_str(), host) != 0 || this->port != port)
+        {
+            stop(sData);
+            getResult()->clear();
+        }
+
+        // Required for sync task.
+        if (!sData->async)
+        {
+            sData->aResult.lastError.clearError();
+            lastErr.clearError();
+        }
+    }
+
+    gsheet_function_return_type networkConnect(gsheet_async_data_item_t *sData)
+    {
+        gsheet_function_return_type ret = netConnect(sData);
+
+        if (!sData || ret == gsheet_function_return_type_failure)
+        {
+            // In case TCP (network) disconnected error.
+            setAsyncError(sData, sData->state, GSHEET_ERROR_TCP_DISCONNECTED, true, false);
+            return gsheet_function_return_type_failure;
+        }
+
+        return ret;
     }
 
     gsheet_function_return_type sendHeader(gsheet_async_data_item_t *sData, const char *data)
@@ -267,6 +302,7 @@ private:
                     toSend = sData->request.file_data.file.read(buf, toSend);
                     if (toSend == 0)
                     {
+                        // In case file read error.
                         setAsyncError(sData, state, GSHEET_ERROR_FILE_READ, true, true);
                         ret = gsheet_function_return_type_failure;
                         goto exit;
@@ -295,6 +331,7 @@ private:
                     toSend = sData->request.file_data.file.read(buf, toSend);
                     if (toSend == 0)
                     {
+                        // In case file read error.
                         setAsyncError(sData, state, GSHEET_ERROR_FILE_READ, true, true);
                         ret = gsheet_function_return_type_failure;
                         goto exit;
@@ -384,13 +421,12 @@ private:
 
     gsheet_function_return_type send(gsheet_async_data_item_t *sData)
     {
-        if (!sData || !netConnect(sData))
-        {
-            setAsyncError(sData, sData->state, GSHEET_ERROR_TCP_DISCONNECTED, true, false);
-            return gsheet_function_return_type_failure;
-        }
+        gsheet_function_return_type ret = networkConnect(sData);
 
-        gsheet_function_return_type ret = gsheet_function_return_type_continue;
+        if (ret != gsheet_function_return_type_complete)
+            return ret;
+
+        ret = gsheet_function_return_type_continue;
 
         if (sData->state == gsheet_async_state_undefined || sData->state == gsheet_async_state_send_header)
         {
@@ -411,10 +447,11 @@ private:
                 sData->auth_ts = auth_ts;
             }
 
-            if (sData->request.app_token && sData->request.app_token->auth_data_type != user_auth_data_undefined)
+            if (sData->request.app_token && sData->request.app_token->auth_data_type != gsheet_user_auth_data_undefined)
             {
                 if (sData->request.app_token->val[gsheet_app_tk_ns::token].length() == 0)
                 {
+                    // In case missing auth token error.
                     setAsyncError(sData, sData->state, GSHEET_ERROR_UNAUTHENTICATE, true, false);
                     return gsheet_function_return_type_failure;
                 }
@@ -444,14 +481,14 @@ private:
     gsheet_function_return_type receive(gsheet_async_data_item_t *sData)
     {
 
-        if (!sData || !netConnect(sData))
-        {
-            setAsyncError(sData, sData->state, GSHEET_ERROR_TCP_DISCONNECTED, true, false);
-            return gsheet_function_return_type_failure;
-        }
+        gsheet_function_return_type ret = networkConnect(sData);
+
+        if (ret != gsheet_function_return_type_complete)
+            return ret;
 
         if (!readResponse(sData))
         {
+            // In case HTTP or TCP read error.
             setAsyncError(sData, sData->state, sData->response.httpCode > 0 ? sData->response.httpCode : GSHEET_ERROR_TCP_RECEIVE_TIMEOUT, true, false);
             return gsheet_function_return_type_failure;
         }
@@ -488,6 +525,7 @@ private:
 
     gsheet_function_return_type connErrorHandler(gsheet_async_data_item_t *sData, gsheet_async_state state)
     {
+        // In case TCP connection error.
         setAsyncError(sData, state, GSHEET_ERROR_TCP_CONNECTION, true, false);
         return gsheet_function_return_type_failure;
     }
@@ -516,6 +554,10 @@ private:
     gsheet_async_data_item_t *addSlot(int index = -1)
     {
         gsheet_async_data_item_t *sData = new gsheet_async_data_item_t();
+
+        sData->aResult.app_debug = &app_debug;
+        sData->aResult.app_event = &app_event;
+
         if (index > -1)
             sVec.insert(sVec.begin() + index, sData->addr);
         else
@@ -530,13 +572,19 @@ private:
         return vec.existed(rVec, sData->ref_result_addr) ? sData->refResult : nullptr;
     }
 
+    GSheetAsyncResult *getResult()
+    {
+        GSheetList vec;
+        return vec.existed(rVec, result_addr) ? refResult : &aResult;
+    }
+
     void returnResult(gsheet_async_data_item_t *sData, bool setData)
     {
 
         bool error_notify_timeout = false;
         if (sData->err_timer.remaining() == 0)
         {
-            sData->err_timer.feed(5000);
+            sData->err_timer.feed(5);
             error_notify_timeout = true;
         }
 
@@ -544,10 +592,7 @@ private:
         {
             if (setData || error_notify_timeout)
             {
-                uint32_t ms = sData->refResult->last_debug_ms;
                 *sData->refResult = sData->aResult;
-                // Restore last debug ms after.
-                sData->refResult->last_debug_ms = ms;
 
                 if (setData)
                     sData->refResult->setPayload(sData->aResult.val[gsheet_ares_ns::data_payload]);
@@ -563,22 +608,25 @@ private:
 
     void setLastError(gsheet_async_data_item_t *sData)
     {
-        if (!sData->aResult.error_available)
+        if (sData->error.code < 0)
         {
-            if (sData->error.code < 0)
-            {
-                sData->aResult.lastError.setClientError(sData->error.code);
-                lastErr.setClientError(sData->error.code);
-                sData->aResult.error_available = true;
-                sData->aResult.data_available = false;
-            }
-            else if (sData->response.httpCode > 0 && sData->response.httpCode >= GSHEET_ERROR_HTTP_CODE_BAD_REQUEST)
-            {
-                sData->aResult.lastError.setResponseError(sData->response.val[gsheet_res_hndlr_ns::payload], sData->response.httpCode);
-                lastErr.setResponseError(sData->response.val[gsheet_res_hndlr_ns::payload], sData->response.httpCode);
-                sData->aResult.error_available = true;
-                sData->aResult.data_available = false;
-            }
+            sData->aResult.lastError.setClientError(sData->error.code);
+            lastErr.setClientError(sData->error.code);
+            clearAppData(sData->aResult.app_data);
+
+            // Required for sync task.
+            if (!sData->async)
+                lastErr.isError();
+        }
+        else if (sData->response.httpCode > 0 && sData->response.httpCode >= GSHEET_ERROR_HTTP_CODE_BAD_REQUEST)
+        {
+            sData->aResult.lastError.setResponseError(sData->response.val[gsheet_res_hndlr_ns::payload], sData->response.httpCode);
+            lastErr.setResponseError(sData->response.val[gsheet_res_hndlr_ns::payload], sData->response.httpCode);
+            clearAppData(sData->aResult.app_data);
+
+            // Required for sync task.
+            if (!sData->async)
+                lastErr.isError();
         }
     }
 
@@ -931,7 +979,7 @@ private:
         lastErr.clearError();
 
         if (client && !client->connected() && !sData->auth_used) // This info is already show in auth task
-            sData->aResult.setDebug(FPSTR("Connecting to server..."));
+            setDebugBase(app_debug, FPSTR("Connecting to server..."));
 
         if (client && !client->connected() && client_type == gsheet_async_request_handler_t::tcp_client_type_sync)
             sData->return_type = client->connect(host, port) > 0 ? gsheet_function_return_type_complete : gsheet_function_return_type_failure;
@@ -959,6 +1007,9 @@ private:
 #endif
         }
 
+        this->host = host;
+        this->port = port;
+
         return sData->return_type;
     }
 
@@ -972,7 +1023,7 @@ private:
 
 #if defined(GSHEET_ENABLE_ETHERNET_NETWORK)
 
-#if defined(GSHEET_ETH_IS_AVAILABLE)
+#if defined(GSHEET_LWIP_ETH_IS_AVAILABLE)
 
 #if defined(ESP32)
         if (validIP(ETH.localIP()))
@@ -1043,64 +1094,82 @@ private:
         return strcmp(buf, "0.0.0.0") != 0;
     }
 
-    bool gprsConnect(gsheet_async_data_item_t *sData)
+    gsheet_function_return_type gprsConnect(gsheet_async_data_item_t *sData)
     {
+        bool ret = false;
+
 #if defined(GSHEET_GSM_MODEM_IS_AVAILABLE)
         TinyGsm *gsmModem = (TinyGsm *)net.gsm.modem;
+
         if (gsmModem)
         {
-            // Unlock your SIM card with a PIN if needed
-            if (net.gsm.pin.length() && gsmModem->getSimStatus() != 3)
-                gsmModem->simUnlock(net.gsm.pin.c_str());
+            if (net.gsm.conn_status == gsheet_network_config_data::gsm_conn_status_idle)
+            {
+                net.gsm.conn_status = gsheet_network_config_data::gsm_conn_status_waits_network;
+
+                gprsDisconnect();
+
+                // Unlock your SIM card with a PIN if needed
+                if (net.gsm.pin.length() && gsmModem->getSimStatus() != 3)
+                    gsmModem->simUnlock(net.gsm.pin.c_str());
 
 #if defined(TINY_GSM_MODEM_XBEE)
-            // The XBee must run the gprsConnect function BEFORE waiting for network!
-            gsmModem->gprsConnect(_apn.c_str(), _user.c_str(), _password.c_str());
+                // The XBee must run the gprsConnect function BEFORE waiting for network!
+                gsmModem->gprsConnect(_apn.c_str(), _user.c_str(), _password.c_str());
 #endif
-            if (netErrState == 0 && sData)
-                sData->aResult.setDebug(FPSTR("Waiting for network..."));
-            if (!gsmModem->waitForNetwork())
-            {
-                if (netErrState == 0 && sData)
-                    sData->aResult.setDebug(FPSTR("Network connection failed"));
-                netErrState = 1;
-                net.network_status = false;
-                return false;
+
+                setDebugBase(app_debug, FPSTR("Waiting for network..."));
+                return gsheet_function_return_type_continue;
             }
-
-            if (netErrState == 0 && sData)
-                sData->aResult.setDebug(FPSTR("Network connected"));
-
-            if (gsmModem->isNetworkConnected())
+            else if (net.gsm.conn_status == gsheet_network_config_data::gsm_conn_status_waits_network)
             {
-
-                if (netErrState == 0 && sData)
+                if (!gsmModem->waitForNetwork())
                 {
-                    String debug = FPSTR("Connecting to ");
-                    debug += net.gsm.apn.c_str();
-                    sData->aResult.setDebug(debug);
+                    setDebugBase(app_debug, FPSTR("Network connection failed"));
+                    netErrState = 1;
+                    net.network_status = false;
+                    net.gsm.conn_status = gsheet_network_config_data::gsm_conn_status_idle;
+                    return gsheet_function_return_type_failure;
                 }
 
-                net.network_status = gsmModem->gprsConnect(net.gsm.apn.c_str(), net.gsm.user.c_str(), net.gsm.password.c_str()) &&
-                                     gsmModem->isGprsConnected();
+                net.gsm.conn_status = gsheet_network_config_data::gsm_conn_status_waits_gprs;
 
-                if (netErrState == 0 && sData)
+                setDebugBase(app_debug, FPSTR("Network connected"));
+
+                if (gsmModem->isNetworkConnected())
                 {
-                    if (net.network_status)
-                        sData->aResult.setDebug(FPSTR("GPRS/EPS connected"));
-                    else
-                        sData->aResult.setDebug(FPSTR("GPRS/EPS connection failed"));
+                    if (netErrState == 0)
+                    {
+                        String debug = FPSTR("Connecting to ");
+                        debug += net.gsm.apn.c_str();
+                        setDebugBase(app_debug, debug);
+                    }
+                }
+
+                return gsheet_function_return_type_continue;
+            }
+            else if (net.gsm.conn_status == gsheet_network_config_data::gsm_conn_status_waits_gprs)
+            {
+                if (gsmModem->isNetworkConnected())
+                {
+
+                    net.network_status = gsmModem->gprsConnect(net.gsm.apn.c_str(), net.gsm.user.c_str(), net.gsm.password.c_str()) && gsmModem->isGprsConnected();
+
+                    if (netErrState == 0)
+                        setDebugBase(app_debug, net.network_status ? FPSTR("GPRS/EPS connected") : FPSTR("GPRS/EPS connection failed"));
+
+                    if (!net.network_status)
+                        netErrState = 1;
                 }
             }
 
-            if (!net.network_status)
-                netErrState = 1;
+            net.gsm.conn_status = gsheet_network_config_data::gsm_conn_status_idle;
 
-            return net.network_status;
+            return net.network_status ? gsheet_function_return_type_complete : gsheet_function_return_type_failure;
         }
 
 #endif
-        return false;
+        return gsheet_function_return_type_failure;
     }
 
     bool gprsConnected()
@@ -1121,83 +1190,110 @@ private:
         return !net.network_status;
     }
 
-    bool ethernetConnect(gsheet_async_data_item_t *sData)
+    gsheet_function_return_type ethernetConnect(gsheet_async_data_item_t *sData)
     {
         bool ret = false;
 
-#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(ENABLE_ETHERNET_NETWORK)
+#if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE) && defined(GSHEET_ENABLE_ETHERNET_NETWORK)
 
-        if (net.ethernet.ethernet_cs_pin > -1)
-            GSHEET_ETH_MODULE_CLASS.init(net.ethernet.ethernet_cs_pin);
+        if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_idle && net.ethernet.ethernet_cs_pin > -1)
+            GSHEET_ETHERNET_MODULE_CLASS_IMPL.init(net.ethernet.ethernet_cs_pin);
 
         if (net.ethernet.ethernet_reset_pin > -1)
         {
-            if (sData)
-                sData->aResult.setDebug(FPSTR("Resetting Ethernet Board..."));
-
-            pinMode(net.ethernet.ethernet_reset_pin, OUTPUT);
-            digitalWrite(net.ethernet.ethernet_reset_pin, HIGH);
-            delay(200);
-            digitalWrite(net.ethernet.ethernet_reset_pin, LOW);
-            delay(50);
-            digitalWrite(net.ethernet.ethernet_reset_pin, HIGH);
-            delay(200);
-        }
-
-        if (sData)
-            sData->aResult.setDebug(FPSTR("Starting Ethernet connection..."));
-
-        if (net.ethernet.static_ip)
-        {
-
-            if (net.ethernet.static_ip->optional == false)
-                GSHEET_ETH_MODULE_CLASS.begin(net.ethernet.ethernet_mac, net.ethernet.static_ip->ipAddress, net.ethernet.static_ip->dnsServer, net.ethernet.static_ip->defaultGateway, net.ethernet.static_ip->netMask);
-            else if (!GSHEET_ETH_MODULE_CLASS.begin(net.ethernet.ethernet_mac))
+            if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_idle)
             {
-                GSHEET_ETH_MODULE_CLASS.begin(net.ethernet.ethernet_mac, net.ethernet.static_ip->ipAddress, net.ethernet.static_ip->dnsServer, net.ethernet.static_ip->defaultGateway, net.ethernet.static_ip->netMask);
+                setDebugBase(app_debug, FPSTR("Resetting Ethernet Board..."));
+
+                pinMode(net.ethernet.ethernet_reset_pin, OUTPUT);
+                digitalWrite(net.ethernet.ethernet_reset_pin, HIGH);
+
+                net.ethernet.conn_satatus = gsheet_network_config_data::ethernet_conn_status_rst_pin_unselected;
+                net.ethernet.stobe_ms = millis();
+            }
+            else if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_rst_pin_unselected && millis() - net.ethernet.stobe_ms > 200)
+            {
+                digitalWrite(net.ethernet.ethernet_reset_pin, LOW);
+                net.ethernet.conn_satatus = gsheet_network_config_data::ethernet_conn_status_rst_pin_selected;
+                net.ethernet.stobe_ms = millis();
+            }
+            else if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_rst_pin_selected && millis() - net.ethernet.stobe_ms > 50)
+            {
+                digitalWrite(net.ethernet.ethernet_reset_pin, HIGH);
+                net.ethernet.conn_satatus = gsheet_network_config_data::ethernet_conn_status_rst_pin_released;
+                net.ethernet.stobe_ms = millis();
+            }
+            else if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_rst_pin_released && millis() - net.ethernet.stobe_ms > 200)
+            {
+                net.ethernet.conn_satatus = gsheet_network_config_data::ethernet_conn_status_begin;
             }
         }
-        else
-            GSHEET_ETH_MODULE_CLASS.begin(net.ethernet.ethernet_mac);
+        else if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_idle)
+            net.ethernet.conn_satatus = gsheet_network_config_data::ethernet_conn_status_begin;
 
-        net.eth_timer.feed(GSHEET_ETHERNET_MODULE_TIMEOUT);
-
-        while (GSHEET_ETH_MODULE_CLASS.linkStatus() == LinkOFF && net.eth_timer.remaining() > 0)
+        if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_begin)
         {
-            delay(100);
+
+            net.ethernet.conn_satatus = gsheet_network_config_data::ethernet_conn_status_waits;
+            setDebugBase(app_debug, FPSTR("Starting Ethernet connection..."));
+
+            if (net.ethernet.static_ip)
+            {
+                if (net.ethernet.static_ip->optional == false)
+                    GSHEET_ETHERNET_MODULE_CLASS_IMPL.begin(net.ethernet.ethernet_mac, net.ethernet.static_ip->ipAddress, net.ethernet.static_ip->dnsServer, net.ethernet.static_ip->defaultGateway, net.ethernet.static_ip->netMask);
+                else if (!GSHEET_ETHERNET_MODULE_CLASS_IMPL.begin(net.ethernet.ethernet_mac))
+                {
+                    GSHEET_ETHERNET_MODULE_CLASS_IMPL.begin(net.ethernet.ethernet_mac, net.ethernet.static_ip->ipAddress, net.ethernet.static_ip->dnsServer, net.ethernet.static_ip->defaultGateway, net.ethernet.static_ip->netMask);
+                }
+            }
+            else
+                GSHEET_ETHERNET_MODULE_CLASS_IMPL.begin(net.ethernet.ethernet_mac);
+
+            net.eth_timer.feed(GSHEET_ETHERNET_MODULE_TIMEOUT / 1000);
         }
-
-        ret = ethernetConnected();
-
-        if (ret && sData)
+        else if (net.ethernet.conn_satatus == gsheet_network_config_data::ethernet_conn_status_waits)
         {
-            String debug = FPSTR("Starting Ethernet connection...");
-            debug += GSHEET_ETH_MODULE_CLASS.localIP();
-            sData->aResult.setDebug(debug);
-        }
 
-        if (!ret && sData)
-            sData->aResult.setDebug(FPSTR("Can't connect to network"));
+            if (GSHEET_ETHERNET_MODULE_CLASS_IMPL.linkStatus() != LinkON && net.eth_timer.remaining() > 0)
+                return gsheet_function_return_type_continue;
+
+            net.ethernet.conn_satatus = gsheet_network_config_data::ethernet_conn_status_idle;
+
+            ret = ethernetConnected();
+
+            if (ret)
+            {
+                String msg = FPSTR("Connected, IP: ");
+                msg += GSHEET_ETHERNET_MODULE_CLASS_IMPL.localIP().toString();
+                setDebugBase(app_debug, msg);
+            }
+            else
+            {
+                setDebugBase(app_debug, FPSTR("Can't connect to network"));
+            }
+
+            return ret ? gsheet_function_return_type_complete : gsheet_function_return_type_failure;
+        }
 
 #endif
 
-        return ret;
+        return gsheet_function_return_type_continue;
     }
 
     bool ethernetConnected()
     {
 #if defined(GSHEET_ETHERNET_MODULE_IS_AVAILABLE)
-        net.network_status = GSHEET_ETH_MODULE_CLASS.linkStatus() == LinkON && validIP(GSHEET_ETH_MODULE_CLASS.localIP());
-        if (!net.network_status)
-        {
-            delay(GSHEET_ETHERNET_MODULE_TIMEOUT);
-            net.network_status = GSHEET_ETH_MODULE_CLASS.linkStatus() == LinkON && validIP(GSHEET_ETH_MODULE_CLASS.localIP());
-        }
+#if defined(GSHEET_ENABLE_ETHERNET_NETWORK)
+        if (net.ethernet.conn_satatus != gsheet_network_config_data::ethernet_conn_status_waits)
+            net.network_status = GSHEET_ETHERNET_MODULE_CLASS_IMPL.linkStatus() == LinkON && validIP(GSHEET_ETHERNET_MODULE_CLASS_IMPL.localIP());
+#else
+        net.network_status = GSHEET_ETHERNET_MODULE_CLASS_IMPL.linkStatus() == LinkON && validIP(GSHEET_ETHERNET_MODULE_CLASS_IMPL.localIP());
+#endif
 #endif
         return net.network_status;
     }
 
-    bool netConnect(gsheet_async_data_item_t *sData)
+    gsheet_function_return_type netConnect(gsheet_async_data_item_t *sData)
     {
         if (!netStatus(sData))
         {
@@ -1206,12 +1302,16 @@ private:
             if (net.wifi && net.net_timer.feedCount() == 0)
                 recon = true;
 
-            if (recon && (net.net_timer.remaining() == 0))
-            {
+            // Self network connection controls.
+            bool self_connect = net.network_data_type == gsheet_network_data_gsm_network || net.network_data_type == gsheet_network_data_ethernet_network;
+
+            if (!self_connect && net.net_timer.remaining() == 0)
                 net.net_timer.feed(GSHEET_NET_RECONNECT_TIMEOUT_SEC);
 
-                if (sData)
-                    sData->aResult.setDebug(FPSTR("Reconnecting to network..."));
+            if (recon && (self_connect || (!self_connect && net.net_timer.remaining() == 0)))
+            {
+                if (!self_connect)
+                    setDebugBase(app_debug, FPSTR("Reconnecting to network..."));
 
                 if (net.network_data_type == gsheet_network_data_generic_network)
                 {
@@ -1220,7 +1320,7 @@ private:
                     if (GSHEET_WIFI_CONNECTED)
                     {
                         WiFi.reconnect();
-                        return netStatus(sData);
+                        return netStatus(sData) ? gsheet_function_return_type_complete : gsheet_function_return_type_failure;
                     }
 #endif
                     if (net.generic.net_con_cb)
@@ -1228,12 +1328,13 @@ private:
                 }
                 else if (net.network_data_type == gsheet_network_data_gsm_network)
                 {
-                    gprsDisconnect();
-                    gprsConnect(sData);
+                    if (gprsConnect(sData) == gsheet_function_return_type_continue)
+                        return gsheet_function_return_type_continue;
                 }
                 else if (net.network_data_type == gsheet_network_data_ethernet_network)
                 {
-                    ethernetConnect(sData);
+                    if (ethernetConnect(sData) == gsheet_function_return_type_continue)
+                        return gsheet_function_return_type_continue;
                 }
                 else if (net.network_data_type == gsheet_network_data_default_network)
                 {
@@ -1253,7 +1354,7 @@ private:
             }
         }
 
-        return netStatus(sData);
+        return netStatus(sData) ? gsheet_function_return_type_complete : gsheet_function_return_type_failure;
     }
 
     bool netStatus(gsheet_async_data_item_t *sData)
@@ -1262,13 +1363,10 @@ private:
         if (net.network_data_type == gsheet_network_data_gsm_network)
         {
             net.network_status = gprsConnected();
-            if (!net.network_status)
-                gprsConnect(sData);
         }
         else if (net.network_data_type == gsheet_network_data_ethernet_network)
         {
-            if (!ethernetConnected())
-                ethernetConnect(sData);
+            net.network_status = ethernetConnected();
         }
         // also check the native network before calling external cb
         else if (net.network_data_type == gsheet_network_data_default_network || GSHEET_WIFI_CONNECTED || ethLinkUp())
@@ -1306,7 +1404,6 @@ private:
             if (auth_index > -1)
                 slot = auth_index + 1;
 
-            // Multiple SSE modes
             if (sVec.size() >= GSHEET_ASYNC_QUEUE_LIMIT)
                 slot = -2;
 
@@ -1367,8 +1464,11 @@ private:
     {
         if (sData->request.send_timer.remaining() == 0 || sData->cancel)
         {
+            // In case TCP write error.
             setAsyncError(sData, sData->state, GSHEET_ERROR_TCP_SEND, true, false);
             sData->return_type = gsheet_function_return_type_failure;
+            // This requires by WiFiSSLClient before stating a new connection in case session was reused.
+            reset(sData, true);
             return true;
         }
         return false;
@@ -1380,6 +1480,8 @@ private:
         {
             setAsyncError(sData, sData->state, GSHEET_ERROR_TCP_RECEIVE_TIMEOUT, true, false);
             sData->return_type = gsheet_function_return_type_failure;
+            // This requires by WiFiSSLClient before stating a new connection in case session was reused.
+            reset(sData, true);
             return true;
         }
         return false;
@@ -1436,9 +1538,271 @@ private:
         inStopAsync = false;
     }
 
-public:
+    void stop(gsheet_async_data_item_t *sData)
+    {
+        if (client && client->connected())
+            setDebugBase(app_debug, FPSTR("Terminating the server connection..."));
+
+        if (client_type == gsheet_async_request_handler_t::tcp_client_type_sync)
+        {
+            if (client)
+                client->stop();
+        }
+        else
+        {
+#if defined(GSHEET_ENABLE_ASYNC_TCP_CLIENT)
+            if (async_tcp_config && async_tcp_config->tcpStop)
+                async_tcp_config->tcpStop();
+#endif
+        }
+
+        clear(host);
+        port = 0;
+    }
+
+    gsheet_async_data_item_t *createSlot(gsheet_slot_options_t &options)
+    {
+        int slot_index = sMan(options);
+        if (slot_index == -2)
+            return nullptr;
+        gsheet_async_data_item_t *sData = addSlot(slot_index);
+        sData->reset();
+        return sData;
+    }
+
+    void newRequest(gsheet_async_data_item_t *sData, const String &url, const String &path, const String &extras, gsheet_async_request_handler_t::http_request_method method, gsheet_slot_options_t &options, const String &uid)
+    {
+        sData->async = options.async;
+        sData->request.val[gsheet_req_hndlr_ns::url] = url;
+        sData->request.val[gsheet_req_hndlr_ns::path] = path;
+        sData->request.method = method;
+
+        sData->aResult.val[gsheet_ares_ns::res_uid] = uid;
+        clear(sData->request.val[gsheet_req_hndlr_ns::header]);
+        sData->request.addRequestHeaderFirst(method);
+        if (path.length() == 0)
+            sData->request.val[gsheet_req_hndlr_ns::header] += '/';
+        else if (path.length() && path[0] != '/')
+            sData->request.val[gsheet_req_hndlr_ns::header] += '/';
+        sData->request.val[gsheet_req_hndlr_ns::header] += path;
+        sData->request.val[gsheet_req_hndlr_ns::header] += extras;
+        sData->request.addRequestHeaderLast();
+        sData->request.addHostHeader(getHost(sData, true).c_str());
+
+        sData->auth_used = options.auth_used;
+
+        if (!options.auth_used)
+        {
+            sData->request.app_token = options.app_token;
+            if (options.app_token && (options.app_token->auth_type == gsheet_auth_access_token || options.app_token->auth_type == gsheet_auth_sa_access_token))
+            {
+                sData->request.addAuthHeaderFirst(options.app_token->auth_type);
+                sData->request.val[gsheet_req_hndlr_ns::header] += GSHEET_AUTH_PLACEHOLDER;
+                sData->request.addNewLine();
+            }
+
+            sData->request.val[gsheet_req_hndlr_ns::header] += FPSTR("Accept-Encoding: identity;q=1,chunked;q=0.1,*;q=0");
+            sData->request.addNewLine();
+            sData->request.addConnectionHeader(true);
+
+            if (sData->request.val[gsheet_req_hndlr_ns::etag].length() > 0 && (method == gsheet_async_request_handler_t::http_put || method == gsheet_async_request_handler_t::http_delete))
+            {
+                sData->request.val[gsheet_req_hndlr_ns::header] += FPSTR("if-match: ");
+                sData->request.val[gsheet_req_hndlr_ns::header] += sData->request.val[gsheet_req_hndlr_ns::etag];
+                sData->request.addNewLine();
+            }
+        }
+
+        if (method == gsheet_async_request_handler_t::http_get || method == gsheet_async_request_handler_t::http_delete)
+            sData->request.addNewLine();
+    }
+
+    void returnResult(gsheet_async_data_item_t *sData) { *sData->refResult = sData->aResult; }
+
+    void setAuthTs(uint32_t ts) { auth_ts = ts; }
+
+    void addRemoveClientVec(uint32_t cvec_addr, bool add)
+    {
+        this->cvec_addr = cvec_addr;
+        if (cvec_addr > 0)
+        {
+            std::vector<uint32_t> *cVec = reinterpret_cast<std::vector<uint32_t> *>(cvec_addr);
+            GSheetList vec;
+            if (cVec)
+                vec.addRemoveList(*cVec, this->addr, add);
+        }
+    }
+
+    void setContentLength(gsheet_async_data_item_t *sData, size_t len)
+    {
+        if (sData->request.method == gsheet_async_request_handler_t::http_post || sData->request.method == gsheet_async_request_handler_t::http_put || sData->request.method == gsheet_async_request_handler_t::http_patch)
+        {
+            sData->request.addContentLengthHeader(len);
+            sData->request.addNewLine();
+        }
+    }
+
+    void handleRemove()
+    {
+        for (size_t slot = 0; slot < slotCount(); slot++)
+        {
+            gsheet_async_data_item_t *sData = getData(slot);
+            if (sData && sData->to_remove)
+                removeSlot(slot);
+        }
+    }
+
+    void setEvent(gsheet_async_data_item_t *sData, int code, const String &msg)
+    {
+        setEventBase(app_event, code, msg);
+    }
+
+    void removeSlot(uint8_t slot, bool sse = true)
+    {
+        gsheet_async_data_item_t *sData = getData(slot);
+
+        if (!sData)
+            return;
+
+        closeFile(sData);
+        setLastError(sData);
+        // data available from sync and asyn request
+        returnResult(sData, true);
+        reset(sData, sData->auth_used);
+        if (!sData->auth_used)
+            delete sData;
+        sData = nullptr;
+        sVec.erase(sVec.begin() + slot);
+    }
+
+    size_t slotCount() { return sVec.size(); }
+
+    void exitProcess(bool status)
+    {
+        inProcess = status;
+    }
+
+    void process(bool async)
+    {
+
+        if (processLocked())
+            return;
+
+        if (slotCount())
+        {
+            size_t slot = 0;
+            gsheet_async_data_item_t *sData = getData(slot);
+
+            if (!sData)
+                return exitProcess(false);
+
+            updateDebug(app_debug);
+            updateEvent(app_event);
+            sData->aResult.updateData();
+
+            if (networkConnect(sData) == gsheet_function_return_type_failure)
+            {
+                // In case TCP (network) disconnected error.
+                setAsyncError(sData, sData->state, GSHEET_ERROR_TCP_DISCONNECTED, true, false);
+                if (sData->async)
+                {
+                    returnResult(sData, false);
+                    reset(sData, true);
+                }
+
+                return exitProcess(false);
+            }
+
+            if (sData->async && !async)
+                return exitProcess(false);
+
+            bool sending = false;
+            if (sData->state == gsheet_async_state_undefined || sData->state == gsheet_async_state_send_header || sData->state == gsheet_async_state_send_payload)
+            {
+                sData->response.clear();
+                sData->request.feedTimer(!sData->async && sync_send_timeout_sec > 0 ? sync_send_timeout_sec : -1);
+                sending = true;
+                sData->return_type = send(sData);
+
+                while (sData->state == gsheet_async_state_send_header || sData->state == gsheet_async_state_send_payload)
+                {
+                    sData->return_type = send(sData);
+                    sData->response.feedTimer(!sData->async && sync_read_timeout_sec > 0 ? sync_read_timeout_sec : -1);
+                    handleSendTimeout(sData);
+                    if (sData->async || sData->return_type == gsheet_function_return_type_failure)
+                        break;
+                }
+            }
+
+            if (sending)
+            {
+                handleSendTimeout(sData);
+                if (sData->async && sData->return_type == gsheet_function_return_type_continue)
+                    return exitProcess(false);
+            }
+
+            gsheet_sys_idle();
+
+            if (sData->state == gsheet_async_state_read_response)
+            {
+                // it can be complete response from payload sending
+                if (sData->return_type == gsheet_function_return_type_complete)
+                    sData->return_type = gsheet_function_return_type_continue;
+
+                if (sData->async && !sData->response.tcpAvailable(client_type, client, async_tcp_config))
+                {
+#if defined(ENABLE_DATABASE)
+                    handleEventTimeout(sData);
+#endif
+                    handleReadTimeout(sData);
+                    return exitProcess(false);
+                }
+                else if (!sData->async) // wait for non async
+                {
+                    while (!sData->response.tcpAvailable(client_type, client, async_tcp_config) && networkConnect(sData) == gsheet_function_return_type_complete)
+                    {
+                        gsheet_sys_idle();
+                        if (handleReadTimeout(sData))
+                            break;
+                    }
+                }
+            }
+
+            // Read until status code > 0, header finished and payload read complete
+            if (sData->state == gsheet_async_state_read_response)
+            {
+                sData->error.code = 0;
+                while (sData->return_type == gsheet_function_return_type_continue && (sData->response.httpCode == 0 || sData->response.flags.header_remaining || sData->response.flags.payload_remaining))
+                {
+                    sData->response.feedTimer(!sData->async && sync_read_timeout_sec > 0 ? sync_read_timeout_sec : -1);
+                    sData->return_type = receive(sData);
+
+                    handleReadTimeout(sData);
+
+                    bool allRead = sData->response.httpCode > 0 && sData->response.httpCode != GSHEET_ERROR_HTTP_CODE_OK && !sData->response.flags.header_remaining && !sData->response.flags.payload_remaining;
+                    if (allRead && sData->response.httpCode >= GSHEET_ERROR_HTTP_CODE_BAD_REQUEST)
+                        sData->return_type = gsheet_function_return_type_failure;
+
+                    if (sData->async || allRead || sData->return_type == gsheet_function_return_type_failure)
+                        break;
+                }
+            }
+
+            handleProcessFailure(sData);
+
+            if (sData->return_type == gsheet_function_return_type_complete)
+                sData->to_remove = true;
+
+            if (sData->to_remove)
+                removeSlot(slot);
+        }
+
+        exitProcess(false);
+    }
+
     std::vector<uint32_t> rVec; // GSheetAsyncResult vector
 
+public:
     GSheetAsyncClientClass(Client &client, gsheet_network_config_data &net) : client(&client)
     {
         this->net.copy(net);
@@ -1470,262 +1834,80 @@ public:
         addRemoveClientVec(cvec_addr, false);
     }
 
+    /**
+     * Set the external async result to use with the sync task.
+     *
+     * @param result The AsyncResult to set.
+     *
+     * If no async result was set (unset) for sync task, the internal async result will be used and shared usage for all sync tasks.
+     *
+     */
+    void setAsyncResult(GSheetAsyncResult &result)
+    {
+        refResult = &result;
+        result_addr = reinterpret_cast<uint32_t>(refResult);
+    }
+
+    /**
+     * Unset the external async result use with the sync task.
+     *
+     * The internal async result will be used and shared usage for all sync tasks.
+     *
+     */
+    void unsetAsyncResult()
+    {
+        refResult = nullptr;
+        result_addr = 0;
+    }
+
+    /**
+     * Get the network connection status.
+     *
+     * @return bool Returns true if network is connected.
+     */
     bool networkStatus() { return netStatus(nullptr); }
 
+    /**
+     * Stop and remove the async/sync task from the queue.
+     *
+     * @param all The option to stop and remove all tasks. If false, only running task will be stop and removed from queue.
+     */
     void stopAsync(bool all = false) { stopAsyncImpl(all); }
+
+    /**
+     * Stop and remove the specific async/sync task from the queue.
+     *
+     * @param uid The task identifier of the task to stop and remove from the queue.
+     */
     void stopAsync(const String &uid) { stopAsyncImpl(false, uid); }
 
-    void stop(gsheet_async_data_item_t *sData)
-    {
-        if (sData)
-            sData->aResult.setDebug(FPSTR("Terminating the server connection..."));
-        if (client_type == gsheet_async_request_handler_t::tcp_client_type_sync)
-        {
-            if (client)
-                client->stop();
-        }
-        else
-        {
-#if defined(GSHEET_ENABLE_ASYNC_TCP_CLIENT)
-            if (async_tcp_config && async_tcp_config->tcpStop)
-                async_tcp_config->tcpStop();
-#endif
-        }
-    }
+    /**
+     * Get the number of async/sync tasks that stored in the queue.
+     *
+     * @return size_t The total tasks in the queue.
+     */
+    size_t taskCount() const { return slotCount(); }
 
+    /**
+     * Get the last error information from async client.
+     *
+     * @return GSheetError The GSheetError object that contains the last error information.
+     */
     GSheetError lastError() const { return lastErr; }
 
-    gsheet_async_data_item_t *createSlot(gsheet_slot_options_t &options)
-    {
-        int slot_index = sMan(options);
+    /**
+     * Set the sync task's send time out in seconds.
+     *
+     * @param timeoutSec The TCP write time out in seconds.
+     */
+    void setSyncSendTimeout(uint32_t timeoutSec) { sync_send_timeout_sec = timeoutSec; }
 
-        gsheet_async_data_item_t *sData = addSlot(slot_index);
-        sData->reset();
-        return sData;
-    }
-
-    void newRequest(gsheet_async_data_item_t *sData, const String &url, const String &path, const String &extras, gsheet_async_request_handler_t::http_request_method method, gsheet_slot_options_t &options, const String &uid)
-    {
-        sData->async = options.async;
-        sData->request.val[gsheet_req_hndlr_ns::url] = url;
-        sData->request.val[gsheet_req_hndlr_ns::path] = path;
-        sData->request.method = method;
-
-        sData->aResult.val[gsheet_ares_ns::res_uid] = uid;
-        clear(sData->request.val[gsheet_req_hndlr_ns::header]);
-        sData->request.addRequestHeaderFirst(method);
-        if (path.length() == 0)
-            sData->request.val[gsheet_req_hndlr_ns::header] += '/';
-        else if (path.length() && path[0] != '/')
-            sData->request.val[gsheet_req_hndlr_ns::header] += '/';
-        sData->request.val[gsheet_req_hndlr_ns::header] += path;
-        sData->request.val[gsheet_req_hndlr_ns::header] += extras;
-        sData->request.addRequestHeaderLast();
-        sData->request.addHostHeader(getHost(sData, true).c_str());
-
-        sData->auth_used = options.auth_used;
-
-        if (!options.auth_used)
-        {
-            sData->request.app_token = options.app_token;
-            if (options.app_token && !options.auth_param && (options.app_token->auth_type == auth_access_token || options.app_token->auth_type == auth_sa_access_token))
-            {
-                sData->request.addAuthHeaderFirst(options.app_token->auth_type);
-                sData->request.val[gsheet_req_hndlr_ns::header] += GSHEET_AUTH_PLACEHOLDER;
-                sData->request.addNewLine();
-            }
-
-            sData->request.val[gsheet_req_hndlr_ns::header] += FPSTR("Accept-Encoding: identity;q=1,chunked;q=0.1,*;q=0");
-            sData->request.addNewLine();
-            sData->request.addConnectionHeader(true);
-
-            if (sData->request.val[gsheet_req_hndlr_ns::etag].length() > 0 && (method == gsheet_async_request_handler_t::http_put || method == gsheet_async_request_handler_t::http_delete))
-            {
-                sData->request.val[gsheet_req_hndlr_ns::header] += FPSTR("if-match: ");
-                sData->request.val[gsheet_req_hndlr_ns::header] += sData->request.val[gsheet_req_hndlr_ns::etag];
-                sData->request.addNewLine();
-            }
-        }
-
-        if (method == gsheet_async_request_handler_t::http_get || method == gsheet_async_request_handler_t::http_delete)
-            sData->request.addNewLine();
-    }
-
-    void setAuthTs(uint32_t ts) { auth_ts = ts; }
-
-    void addRemoveClientVec(uint32_t cvec_addr, bool add)
-    {
-        this->cvec_addr = cvec_addr;
-        if (cvec_addr > 0)
-        {
-            std::vector<uint32_t> *cVec = reinterpret_cast<std::vector<uint32_t> *>(cvec_addr);
-            GSheetList vec;
-            if (cVec)
-                vec.addRemoveList(*cVec, this->addr, add);
-        }
-    }
-
-    void setContentLength(gsheet_async_data_item_t *sData, size_t len)
-    {
-        if (sData->request.method == gsheet_async_request_handler_t::http_post || sData->request.method == gsheet_async_request_handler_t::http_put || sData->request.method == gsheet_async_request_handler_t::http_patch)
-        {
-            sData->request.addContentLengthHeader(len);
-            sData->request.addNewLine();
-        }
-    }
-
-    void process(bool async)
-    {
-        if (processLocked())
-            return;
-
-        if (slotCount())
-        {
-            size_t slot = 0;
-            gsheet_async_data_item_t *sData = getData(slot);
-
-            if (!sData)
-            {
-                inProcess = false;
-                return;
-            }
-
-            if (!netConnect(sData))
-            {
-                setAsyncError(sData, sData->state, GSHEET_ERROR_TCP_DISCONNECTED, true, false);
-                if (sData->async)
-                {
-                    returnResult(sData, false);
-                    reset(sData, true);
-                }
-                inProcess = false;
-                return;
-            }
-
-            if (sData->async && !async)
-            {
-                inProcess = false;
-                return;
-            }
-
-            bool sending = false;
-            if (sData->state == gsheet_async_state_undefined || sData->state == gsheet_async_state_send_header || sData->state == gsheet_async_state_send_payload)
-            {
-                sData->response.clear();
-                sData->request.feedTimer();
-                sending = true;
-                sData->return_type = send(sData);
-
-                while (sData->state == gsheet_async_state_send_header || sData->state == gsheet_async_state_send_payload)
-                {
-                    sData->return_type = send(sData);
-                    sData->response.feedTimer();
-                    handleSendTimeout(sData);
-                    if (sData->async || sData->return_type == gsheet_function_return_type_failure)
-                        break;
-                }
-            }
-
-            if (sending)
-            {
-                handleSendTimeout(sData);
-                if (sData->async && sData->return_type == gsheet_function_return_type_continue)
-                {
-                    inProcess = false;
-                    return;
-                }
-            }
-
-            gsheet_sys_idle();
-
-            if (sData->state == gsheet_async_state_read_response)
-            {
-                // if (!sData->download && !sData->upload)
-                //    sData->request.clear();
-
-                // it can be complete response from payload sending
-                if (sData->return_type == gsheet_function_return_type_complete)
-                    sData->return_type = gsheet_function_return_type_continue;
-
-                if (sData->async && !sData->response.tcpAvailable(client_type, client, async_tcp_config))
-                {
-
-                    handleReadTimeout(sData);
-                    inProcess = false;
-                    return;
-                }
-                else if (!sData->async) // wait for non async
-                {
-                    while (!sData->response.tcpAvailable(client_type, client, async_tcp_config) && netConnect(sData))
-                    {
-                        gsheet_sys_idle();
-                        if (handleReadTimeout(sData))
-                            break;
-                    }
-                }
-            }
-
-            // Read until status code > 0, header finished and payload read complete
-            if (sData->state == gsheet_async_state_read_response)
-            {
-                sData->error.code = 0;
-                while (sData->return_type == gsheet_function_return_type_continue && (sData->response.httpCode == 0 || sData->response.flags.header_remaining || sData->response.flags.payload_remaining))
-                {
-                    sData->response.feedTimer();
-                    sData->return_type = receive(sData);
-
-                    handleReadTimeout(sData);
-
-                    bool allRead = sData->response.httpCode > 0 && sData->response.httpCode != GSHEET_ERROR_HTTP_CODE_OK && !sData->response.flags.header_remaining && !sData->response.flags.payload_remaining;
-                    if (allRead && sData->response.httpCode >= GSHEET_ERROR_HTTP_CODE_BAD_REQUEST)
-                    {
-                        sData->return_type = gsheet_function_return_type_failure;
-                    }
-
-                    if (sData->async || allRead || sData->return_type == gsheet_function_return_type_failure)
-                        break;
-                }
-            }
-
-            handleProcessFailure(sData);
-
-            setAsyncError(sData, sData->state, 0, sData->return_type == gsheet_function_return_type_complete, false);
-
-            if (sData->to_remove)
-                removeSlot(slot);
-        }
-
-        inProcess = false;
-    }
-    void handleRemove()
-    {
-        for (size_t slot = 0; slot < slotCount(); slot++)
-        {
-            gsheet_async_data_item_t *sData = getData(slot);
-            if (sData && sData->to_remove)
-                removeSlot(slot);
-        }
-    }
-
-    size_t slotCount() { return sVec.size(); }
-
-    void removeSlot(uint8_t slot, bool sse = true)
-    {
-        gsheet_async_data_item_t *sData = getData(slot);
-
-        if (!sData)
-            return;
-
-        closeFile(sData);
-        setLastError(sData);
-        // data available from sync and asyn request
-        returnResult(sData, true);
-        reset(sData, sData->auth_used);
-        if (!sData->auth_used)
-            delete sData;
-        sData = nullptr;
-        sVec.erase(sVec.begin() + slot);
-    }
+    /**
+     * Set the sync task's read time out in seconds.
+     *
+     * @param timeoutSec The TCP read time out in seconds.
+     */
+    void setSyncReadTimeout(uint32_t timeoutSec) { sync_read_timeout_sec = timeoutSec; }
 };
 
 #endif

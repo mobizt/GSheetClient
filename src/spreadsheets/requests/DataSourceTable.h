@@ -18,7 +18,7 @@ namespace GSHEET
     {
 
     public:
-        DataSourceTable() = default;
+        DataSourceTable() {}
 
         // The ID of the data source the data source table is associated with.
         DataSourceTable &dataSourceId(const String &value) { return wr.set<DataSourceTable &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

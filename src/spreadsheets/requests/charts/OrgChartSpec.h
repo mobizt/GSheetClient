@@ -38,8 +38,8 @@ namespace GSHEET
     class OrgChartSpec : public BaseG8
     {
     public:
-        OrgChartSpec() = default;
-        
+        OrgChartSpec() {}
+
         // The size of the org chart nodes.
         OrgChartSpec &nodeSize(OrgChartNodeSize value) { return wr.set<OrgChartSpec &, const char *>(*this, _OrgChartNodeSize[value].text, buf, bufSize, 1, FPSTR(__func__)); }
 

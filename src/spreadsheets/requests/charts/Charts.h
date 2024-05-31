@@ -41,7 +41,7 @@ namespace GSHEET
     {
 
     public:
-        OverlayPosition() = default;
+        OverlayPosition() {}
 
         // The cell the object is anchored to.
         OverlayPosition &anchorCell(const GridCoordinate &value) { return wr.set<OverlayPosition &, GridCoordinate>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -69,7 +69,7 @@ namespace GSHEET
         GSheetJSONUtil jut;
 
     public:
-        DataSourceChartProperties() = default;
+        DataSourceChartProperties() {}
 
         // ID of the data source that the chart is associated with.
         DataSourceChartProperties &dataSourceId(const String &value) { return wr.add<DataSourceChartProperties &, String>(*this, value, buf, FPSTR(__func__)); }
@@ -82,7 +82,7 @@ namespace GSHEET
     {
 
     public:
-        ChartSpec() = default;
+        ChartSpec() {}
 
         // The title of the chart.
         ChartSpec &title(const String &value) { return wr.set<ChartSpec &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -172,7 +172,7 @@ namespace GSHEET
     {
 
     public:
-        EmbeddedObjectPosition() = default;
+        EmbeddedObjectPosition() {}
 
         // Union field location.
         // The sheet this is on. Set only if the embedded object is on its own sheet. Must be non-negative.
@@ -194,7 +194,7 @@ namespace GSHEET
     {
 
     public:
-        EmbeddedObjectBorder() = default;
+        EmbeddedObjectBorder() {}
 
         // The color of the border. If color is also set, this field takes precedence.
         EmbeddedObjectBorder &colorStyle(const ColorStyle &value) { return wr.add<EmbeddedObjectBorder &, ColorStyle>(*this, value, buf, FPSTR(__func__)); }
@@ -206,7 +206,7 @@ namespace GSHEET
     class EmbeddedChart : public BaseG6
     {
     public:
-        EmbeddedChart() = default;
+        EmbeddedChart() {}
 
         // The ID of the chart.
         EmbeddedChart &chartId(int value) { return wr.set<EmbeddedChart &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

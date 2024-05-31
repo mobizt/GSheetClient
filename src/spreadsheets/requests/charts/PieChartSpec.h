@@ -26,7 +26,7 @@ namespace GSHEET
     {
 
     public:
-        PieChartSpec() = default;
+        PieChartSpec() {}
         
         // Where the legend of the pie chart should be drawn.
         PieChartSpec &legendPosition(PieChart::LegendPosition value) { return wr.set<PieChartSpec &, const char *>(*this, _PieChartLegendPosition[value].text, buf, bufSize, 1, FPSTR(__func__)); }

@@ -30,7 +30,7 @@ namespace GSHEET
     {
 
     public:
-        BubbleChartSpec() = default;
+        BubbleChartSpec() {}
 
         // Where the legend of the chart should be drawn.
         BubbleChartSpec &legendPosition(BubbleChart::LegendPosition value) { return wr.set<BubbleChartSpec &, const char *>(*this, _BubbleChartLegendPosition[value].text, buf, bufSize, 1, FPSTR(__func__)); }

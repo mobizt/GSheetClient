@@ -72,7 +72,7 @@ namespace GSHEET
     class BatchUpdateOptions : public BaseG6
     {
     public:
-        BatchUpdateOptions() = default;
+        BatchUpdateOptions() {}
 
         // This value represents the item to add to an array.
         // A list of updates to apply to the spreadsheet. Requests will be applied in the order they are specified. If any request is not valid, no requests will be applied.
@@ -96,7 +96,7 @@ namespace GSHEET
         String qr[2];
 
     public:
-        GetOptions() = default;
+        GetOptions() {}
 
         // The ranges to retrieve from the spreadsheet.
         // Ranges separated with comma ",".
@@ -154,7 +154,7 @@ namespace GSHEET
         String qr[3];
 
     public:
-        ListOptions() = default;
+        ListOptions() {}
 
         ListOptions &pageSize(int value)
         {
@@ -203,7 +203,7 @@ namespace GSHEET
         String qr[bufSize];
 
     public:
-        BatchGetOptions() = default;
+        BatchGetOptions() {}
 
         // The A1 notation or R1C1 notation of the range to retrieve values from.
         BatchGetOptions &ranges(const String &value)
@@ -260,6 +260,27 @@ namespace GSHEET
         }
     };
 
+    class BatchGetByDataFilterOpions : public BaseG6
+    {
+
+    public:
+        BatchGetByDataFilterOpions() {}
+
+        // This value represents the item to add to an array.
+        // The data filters used to match the ranges of values to retrieve. Ranges that match any of the specified data filters are included in the response.
+        BatchGetByDataFilterOpions &dataFilters(const DataFilter &value) { return wr.append<BatchGetByDataFilterOpions &, DataFilter>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
+
+        // The major dimension that results should use.
+        // For example, if the spreadsheet data is: A1=1,B1=2,A2=3,B2=4, then a request that selects that range and sets majorDimension=ROWS returns [[1,2],[3,4]], whereas a request that sets majorDimension=COLUMNS returns [[1,3],[2,4]].
+        BatchGetByDataFilterOpions &majorDimension(Dimensions::Dimension value) { return wr.set<BatchGetByDataFilterOpions &, const char *>(*this, _Dimension[value].text, buf, bufSize, 2, FPSTR(__func__)); }
+
+        // How values should be represented in the output. The default render option is FORMATTED_VALUE.
+        BatchGetByDataFilterOpions &valueRenderOption(ValueRenderOption value) { return wr.set<BatchGetByDataFilterOpions &, const char *>(*this, _ValueRenderOption[value].text, buf, bufSize, 3, FPSTR(__func__)); }
+
+        // How dates, times, and durations should be represented in the output. This is ignored if valueRenderOption is FORMATTED_VALUE. The default dateTime render option is SERIAL_NUMBER.
+        BatchGetByDataFilterOpions &dateTimeRenderOption(DateTimeRenderOption value) { return wr.set<BatchGetByDataFilterOpions &, const char *>(*this, _DateTimeRenderOption[value].text, buf, bufSize, 4, FPSTR(__func__)); }
+    };
+
     class Parent
     {
         friend class GSheetBase;
@@ -269,7 +290,7 @@ namespace GSHEET
         String sheetId;
 
     public:
-        Parent() = default;
+        Parent() {}
         Parent(const String &spreadsheetId, const String &sheetId = "")
         {
             this->spreadsheetId = spreadsheetId;

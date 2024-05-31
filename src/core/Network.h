@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * For MCU build target (CORE_ARDUINO_XXXX), see Options.h.
  *
@@ -28,7 +28,8 @@
 #define GSHEET_CORE_NETWORK_H
 
 #include <Arduino.h>
-#include "./GSheetConfig.h"
+#include "./Config.h"
+#include <vector>
 
 typedef void (*GSheetNetworkConnectionCallback)(void);
 typedef void (*GSheetNetworkStatusCallback)(bool &);
@@ -65,25 +66,25 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
 
 #if defined(ESP32) && __has_include(<ETH.h>)
 #include <ETH.h>
-#define GSHEET_ETH_IS_AVAILABLE
+#define GSHEET_LWIP_ETH_IS_AVAILABLE
 #elif defined(ESP8266) && defined(ESP8266_CORE_SDK_V3_X_X)
 
 #if __has_include(<LwipIntfDev.h>)
 #include <LwipIntfDev.h>
 #endif
 
-#if __has_include(<ENC28J60lwIP.h>)&& defined(GSHEET_ENABLE_ESP8266_ENC28J60_ETH)
-#define GSHEET_INC_ENC28J60_LWIP
+#if __has_include(<ENC28J60lwIP.h>)&& defined(ENABLE_ESP8266_ENC28J60_ETH)
+#define INC_ENC28J60_LWIP
 #include <ENC28J60lwIP.h>
 #endif
 
-#if __has_include(<W5100lwIP.h>) && defined(GSHEET_ENABLE_ESP8266_W5100_ETH)
-#define GSHEET_INC_W5100_LWIP
+#if __has_include(<W5100lwIP.h>) && defined(ENABLE_ESP8266_W5100_ETH)
+#define INC_W5100_LWIP
 #include <W5100lwIP.h>
 #endif
 
-#if __has_include(<W5500lwIP.h>)&& defined(GSHEET_ENABLE_ESP8266_W5500_ETH)
-#define GSHEET_INC_W5500_LWIP
+#if __has_include(<W5500lwIP.h>)&& defined(ENABLE_ESP8266_W5500_ETH)
+#define INC_W5500_LWIP
 #include <W5500lwIP.h>
 #endif
 
@@ -91,8 +92,8 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
 
 #endif
 
-#if defined(GSHEET_INC_ENC28J60_LWIP) || defined(GSHEET_INC_W5100_LWIP) || defined(GSHEET_INC_W5500_LWIP)
-#define GSHEET_ETH_IS_AVAILABLE
+#if defined(INC_ENC28J60_LWIP) || defined(INC_W5100_LWIP) || defined(INC_W5500_LWIP)
+#define GSHEET_LWIP_ETH_IS_AVAILABLE
 #endif
 
 #endif
@@ -110,20 +111,21 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
 #if defined(GSHEET_ETHERNET_MODULE_LIB) && defined(GSHEET_ETHERNET_MODULE_CLASS)
 #if __has_include(GSHEET_ETHERNET_MODULE_LIB)
 #include GSHEET_ETHERNET_MODULE_LIB
-#define GSHEET_ETH_MODULE_CLASS GSHEET_ETHERNET_MODULE_CLASS
+#define GSHEET_ETHERNET_MODULE_CLASS_IMPL GSHEET_ETHERNET_MODULE_CLASS
 #elif __has_include(<Ethernet.h>)
 #include <Ethernet.h>
-#define GSHEET_ETH_MODULE_CLASS Ethernet
+#define GSHEET_ETHERNET_MODULE_CLASS_IMPL Ethernet
 #endif
 #else
 #include <Ethernet.h>
-#define GSHEET_ETH_MODULE_CLASS Ethernet
+#define GSHEET_ETHERNET_MODULE_CLASS_IMPL Ethernet
 #endif
 
-#if defined(GSHEET_ETH_MODULE_CLASS)
+#if defined(GSHEET_ETHERNET_MODULE_CLASS_IMPL)
 
 #define GSHEET_ETHERNET_MODULE_IS_AVAILABLE
 
+// milliseconds
 #if !defined(GSHEET_ETHERNET_MODULE_TIMEOUT)
 #define GSHEET_ETHERNET_MODULE_TIMEOUT 2000
 #elif GSHEET_ETHERNET_MODULE_TIMEOUT <= 0 || GSHEET_ETHERNET_MODULE_TIMEOUT > 120 * 1000
@@ -150,7 +152,7 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
 
 #define GSHEET_WIFI_IS_AVAILABLE
 
-#if defined(ESP32) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
+#if defined(ESP32) || defined(ARDUINO_RASPBERRY_PI_PICO_W) || defined(ARDUINO_GIGA) || defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
 #include <WiFi.h>
 #elif defined(ESP8266)
 #include <ESP8266WiFi.h>
@@ -158,10 +160,32 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
 #include <WiFiNINA.h>
 #elif __has_include(<WiFi101.h>)
 #include <WiFi101.h>
-#elif __has_include(<WiFiS3.h>)
+#elif __has_include(<WiFiS3.h>) || defined(ARDUINO_UNOWIFIR4)
 #include <WiFiS3.h>
+#elif __has_include(<WiFiC3.h>) || defined(ARDUINO_PORTENTA_C33)
+#include <WiFiC3.h>
 #elif __has_include(<WiFi.h>)
 #include <WiFi.h>
+#endif
+
+#if defined(ARDUINO_ARCH_SAMD) ||      \
+    defined(ARDUINO_UNOWIFIR4) ||      \
+    defined(ARDUINO_GIGA) ||           \
+    defined(ARDUINO_PORTENTA_C33) ||   \
+    defined(ARDUINO_PORTENTA_H7_M7) || \
+    defined(ARDUINO_PORTENTA_H7_M4) || \
+    defined(ARDUINO_PORTENTA_X8)
+
+#if !defined(GSHEET_HAS_ARDUINO_WIFISSLCLIENT)
+#define GSHEET_HAS_ARDUINO_WIFISSLCLIENT
+#endif
+
+#endif
+
+#if defined(ESP32) || defined(ESP8266) || defined(PICO_RP2040)
+#if !defined(GSHEET_HAS_WIFICLIENTSECURE)
+#define GSHEET_HAS_WIFICLIENTSECURE
+#endif
 #endif
 
 #if !defined(ARDUINO_RASPBERRY_PI_PICO_W) && \
@@ -169,7 +193,10 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
     !defined(CORE_ARDUINO_MBED_PORTENTA) &&  \
     !defined(ARDUINO_UNOWIFIR4) &&           \
     !defined(ARDUINO_PORTENTA_C33) &&        \
-    !defined(ARDUINO_NANO_RP2040_CONNECT)
+    !defined(ARDUINO_NANO_RP2040_CONNECT) && \
+    !defined(ARDUINO_GIGA) &&                \
+    !defined(ARDUINO_PORTENTA_H7_M7) &&      \
+    !defined(ARDUINO_PORTENTA_H7_M4)
 #define GSHEET_HAS_WIFI_DISCONNECT
 #endif
 
@@ -243,21 +270,21 @@ typedef void (*GSheetNetworkStatusCallback)(bool &);
 typedef struct gsheet_spi_ethernet_module_t
 {
 #if defined(ESP8266) && defined(ESP8266_CORE_SDK_V3_X_X)
-#ifdef GSHEET_INC_ENC28J60_LWIP
+#ifdef INC_ENC28J60_LWIP
     ENC28J60lwIP *enc28j60 = nullptr;
 #endif
-#ifdef GSHEET_INC_W5100_LWIP
+#ifdef INC_W5100_LWIP
     Wiznet5100lwIP *w5100 = nullptr;
 #endif
-#ifdef GSHEET_INC_W5500_LWIP
+#ifdef INC_W5500_LWIP
     Wiznet5500lwIP *w5500 = nullptr;
 #endif
 
 #endif
 
-} GSheetSPIETH;
+} GSheet_SPI_ETH_Module;
 
-struct gsheet_wifi_credential_t
+struct GSheetWiFi_credential_t
 {
     String ssid;
     String password;
@@ -268,7 +295,7 @@ class GSheetWiFi
     friend class GSheetAsyncClientClass;
 
 public:
-    GSheetWiFi() = default;
+    GSheetWiFi() {}
     ~GSheetWiFi()
     {
         clearAP();
@@ -276,7 +303,7 @@ public:
     };
     void addAP(const String &ssid, const String &password)
     {
-        gsheet_wifi_credential_t data;
+        GSheetWiFi_credential_t data;
         data.ssid = ssid;
         data.password = password;
         credentials.push_back(data);
@@ -287,13 +314,13 @@ public:
     }
     size_t size() { return credentials.size(); }
 
-    gsheet_wifi_credential_t operator[](size_t index)
+    GSheetWiFi_credential_t operator[](size_t index)
     {
         return credentials[index];
     }
 
 private:
-    std::vector<gsheet_wifi_credential_t> credentials;
+    std::vector<GSheetWiFi_credential_t> credentials;
 #if defined(GSHEET_HAS_WIFIMULTI)
 #if defined(ESP8266)
     ESP8266WiFiMulti *multi = nullptr;
@@ -326,7 +353,7 @@ private:
             multi->run();
 
 #elif defined(GSHEET_WIFI_IS_AVAILABLE)
-        WiFi.begin((CONST_STRING_CAST)credentials[0].ssid.c_str(), credentials[0].password.c_str());
+        WiFi.begin((GSHEET_CONST_STRING_CAST)credentials[0].ssid.c_str(), credentials[0].password.c_str());
 #endif
     }
 
@@ -362,6 +389,15 @@ typedef struct gsheet_client_static_address
     friend class GSheetAsyncClientClass;
 
 public:
+    /**
+     * The GSheet Client Static address provider class.
+     * 
+     * @param ipAddress The static IP.
+     * @param netMask The subnet IP.
+     * @param defaultGateway The default gateway IP.
+     * @param dnsServer The dns server IP.
+     * @param optional The boolean option to force use static IP only (not use DHCP).
+     */
     gsheet_client_static_address(IPAddress ipAddress, IPAddress netMask, IPAddress defaultGateway, IPAddress dnsServer, bool optional)
     {
         this->ipAddress = ipAddress;
@@ -377,6 +413,6 @@ private:
     IPAddress defaultGateway;
     IPAddress dnsServer;
     bool optional = false;
-} GSheetStaticIP;
+} GSheet_StaticIP;
 
 #endif

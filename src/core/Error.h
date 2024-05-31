@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -97,140 +97,137 @@
 #define FPSTR
 #endif
 
+#include "./core/AsyncResult/AppError.h"
+
 class GSheetError
 {
     friend class GSheetAsyncClientClass;
+    friend class GSheetApp;
 
 private:
-    struct gsheet_error_info_t
-    {
-        String message;
-        int code = 0;
-    };
-
-    gsheet_error_info_t err;
+    gsheet_app_error_t err;
 
     void clearError()
     {
-        err.message.remove(0, err.message.length());
-        err.code = 0;
+        err.reset();
     }
 
     void setResponseError(const String &message, int code)
     {
         if (code == GSHEET_ERROR_HTTP_CODE_PRECONDITION_FAILED)
-            err.message = FPSTR("precondition failed (ETag does not match)");
+            err.setError(code, FPSTR("precondition failed (ETag does not match)"));
         else if (code == GSHEET_ERROR_HTTP_CODE_UNAUTHORIZED)
-            err.message = FPSTR("unauthorized");
+            err.setError(code, FPSTR("unauthorized"));
         else if (message.length())
-            err.message = message;
+            err.setError(code, message);
         else
         {
-            err.message = FPSTR("HTTP Status ");
-            err.message += code;
+            String buf = FPSTR("HTTP Status ");
+            buf += code;
+            err.setError(code, buf);
         }
-        err.code = code;
     }
 
     void setClientError(int code)
     {
-        err.code = code;
         if (code < 0)
         {
             switch (code)
             {
             case GSHEET_ERROR_TCP_CONNECTION:
-                err.message = FPSTR("TCP connection failed");
+                err.setError(code, FPSTR("TCP connection failed"));
                 break;
             case GSHEET_ERROR_TCP_SEND:
-                err.message = FPSTR("TCP send failed");
+                err.setError(code, FPSTR("TCP send failed"));
                 break;
             case GSHEET_ERROR_TCP_RECEIVE_TIMEOUT:
-                err.message = FPSTR("TCP receive time out");
+                err.setError(code, FPSTR("TCP receive time out"));
                 break;
             case GSHEET_ERROR_TCP_DISCONNECTED:
-                err.message = FPSTR("TCP disconnected");
+                err.setError(code, FPSTR("TCP disconnected"));
                 break;
             case GSHEET_ERROR_TCP_CLIENT_UNDEFINED:
-                err.message = FPSTR("TCP client was undefined");
+                err.setError(code, FPSTR("TCP client was undefined"));
                 break;
             case GSHEET_ERROR_NETWORK_DISCONNECTED:
-                err.message = FPSTR("network disconnected");
+                err.setError(code, FPSTR("network disconnected"));
                 break;
             case GSHEET_ERROR_NETWORK_CONNECTION_CALLBACK:
-                err.message = FPSTR("network connection callback was undefined");
+                err.setError(code, FPSTR("network connection callback was undefined"));
                 break;
             case GSHEET_ERROR_NETWORK_STATUS_CALLBACK:
-                err.message = FPSTR("network status callback was undefined");
+                err.setError(code, FPSTR("network status callback was undefined"));
                 break;
             case GSHEET_ERROR_OPEN_FILE:
-                err.message = FPSTR("error opening file");
+                err.setError(code, FPSTR("error opening file"));
                 break;
             case GSHEET_ERROR_FILE_READ:
-                err.message = FPSTR("error reading file");
+                err.setError(code, FPSTR("error reading file"));
                 break;
             case GSHEET_ERROR_FILE_WRITE:
-                err.message = FPSTR("error writing file");
+                err.setError(code, FPSTR("error writing file"));
                 break;
             case GSHEET_ERROR_UNAUTHENTICATE:
-                err.message = FPSTR("unauthenticate");
+                err.setError(code, FPSTR("unauthenticate"));
                 break;
             case GSHEET_ERROR_SERVER_RESPONSE:
-                err.message = FPSTR("server responses ");
+                err.setError(code, FPSTR("server responses "));
                 break;
             case GSHEET_ERROR_PATH_NOT_EXIST:
-                err.message = FPSTR("path does not exists");
+                err.setError(code, FPSTR("path does not exists"));
                 break;
             case GSHEET_ERROR_MAX_REDIRECT_REACHED:
-                err.message = FPSTR("maximum redirection reaches");
+                err.setError(code, FPSTR("maximum redirection reaches"));
                 break;
             case GSHEET_ERROR_TOKEN_PARSE_PK:
-                err.message = FPSTR("parse private key");
+                err.setError(code, FPSTR("parse private key"));
                 break;
             case GSHEET_ERROR_TOKEN_SIGN:
-                err.message = FPSTR("sign JWT token");
+                err.setError(code, FPSTR("sign JWT token"));
                 break;
             case GSHEET_ERROR_FW_UPDATE_TOO_LOW_FREE_SKETCH_SPACE:
-                err.message = FPSTR("too low sketch space");
+                err.setError(code, FPSTR("too low sketch space"));
                 break;
             case GSHEET_ERROR_FW_UPDATE_WRITE_FAILED:
-                err.message = FPSTR("firmware write failed");
+                err.setError(code, FPSTR("firmware write failed"));
                 break;
             case GSHEET_ERROR_FW_UPDATE_END_FAILED:
-                err.message = FPSTR("firmware end failed");
+                err.setError(code, FPSTR("firmware end failed"));
                 break;
             case GSHEET_ERROR_STREAM_TIMEOUT:
-                err.message = FPSTR("stream time out");
+                err.setError(code, FPSTR("stream time out"));
                 break;
             case GSHEET_ERROR_STREAM_AUTH_REVOKED:
-                err.message = FPSTR("auth revoked");
+                err.setError(code, FPSTR("auth revoked"));
                 break;
             case GSHEET_ERROR_APP_WAS_NOT_ASSIGNED:
-                err.message = FPSTR("app was not assigned");
+                err.setError(code, FPSTR("app was not assigned"));
                 break;
             case GSHEET_ERROR_OPERATION_CANCELLED:
-                err.message = FPSTR("operation was cancelled");
+                err.setError(code, FPSTR("operation was cancelled"));
                 break;
             case GSHEET_ERROR_TIME_IS_NOT_SET_OR_INVALID:
-                err.message = FPSTR("time was not set or not valid");
+                err.setError(code, FPSTR("time was not set or not valid"));
                 break;
             default:
-                err.message = FPSTR("undefined");
+                err.setError(code, FPSTR("undefined"));
                 break;
             }
         }
     }
 
 public:
-    GSheetError() = default;
-    ~GSheetError() = default;
-    String message() const { return err.message; }
-    int code() const { return err.code; }
-    void setLastError(int code, const String &msg)
-    {
-        err.code = code;
-        err.message = msg;
-    }
+    GSheetError() {}
+    ~GSheetError() {}
+    String message() { return err.message(); }
+
+    int code() { return err.code(); }
+
+    void setLastError(int code, const String &msg) { err.setError(code, msg); }
+
+    void reset() { err.reset(); }
+
+    bool isError() { return err.isError(); }
 };
 
 #endif

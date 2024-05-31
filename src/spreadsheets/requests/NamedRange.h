@@ -16,7 +16,7 @@ namespace GSHEET
     {
 
     public:
-        NamedRange() = default;
+        NamedRange() {}
 
         // The ID of the named range.
         NamedRange &namedRangeId(const String &value) { return wr.set<NamedRange &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

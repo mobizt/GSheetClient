@@ -47,7 +47,7 @@ namespace GSHEET
     {
 
     public:
-        NumberFormat() = default;
+        NumberFormat() {}
 
         // The type of the number format. When writing, this field must be set.
         NumberFormat &type(Format::NumberFormatType value) { return wr.set<NumberFormat &, const char *>(*this, _NumberFormatType[value].text, buf, bufSize, 1, FPSTR(__func__)); }
@@ -62,7 +62,7 @@ namespace GSHEET
     class Border : public BaseG4
     {
     public:
-        Border() = default;
+        Border() {}
 
         // The style of the border.
         Border &style(Line::Style value) { return wr.set<Border &, const char *>(*this, _Style[value].text, buf, bufSize, 1, FPSTR(__func__)); }
@@ -75,7 +75,7 @@ namespace GSHEET
     {
 
     public:
-        Borders() = default;
+        Borders() {}
 
         // The top border of the cell.
         Borders &top(const Border &value) { return wr.set<Borders &, Border>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -97,7 +97,7 @@ namespace GSHEET
     {
 
     public:
-        Padding() = default;
+        Padding() {}
 
         // The top padding of the cell.
         Padding &top(int value) { return wr.set<Padding &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -118,7 +118,7 @@ namespace GSHEET
     class Link : public BaseG1
     {
     public:
-        Link() = default;
+        Link() {}
 
         // The link identifier.
         Link &uri(const String &value) { return wr.add<Link &, String>(*this, value, buf, FPSTR(__func__)); }
@@ -131,7 +131,7 @@ namespace GSHEET
     {
 
     public:
-        TextFormat() = default;
+        TextFormat() {}
 
         // The foreground color of the text.
         TextFormat &foregroundColorStyle(const ColorStyle &value) { return wr.set<TextFormat &, ColorStyle>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -161,7 +161,7 @@ namespace GSHEET
     class TextRotation : public BaseG1
     {
     public:
-        TextRotation() = default;
+        TextRotation() {}
 
         // Union field type
         // The angle between the standard orientation and the desired orientation. Measured in degrees. Valid values are between -90 and 90. Positive angles are angled upwards, negative are angled downwards.
@@ -188,7 +188,7 @@ namespace GSHEET
     class CellFormat : public BaseG12
     {
     public:
-        CellFormat() = default;
+        CellFormat() {}
 
         // A format describing how number values should be represented to the user.
         CellFormat &numberFormat(const NumberFormat &value) { return wr.set<CellFormat &, NumberFormat>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

@@ -55,7 +55,7 @@ namespace GSHEET
     {
 
     public:
-        DataLabel() = default;
+        DataLabel() {}
 
         // The type of the data label.
         DataLabel &type(DataLabelType value) { return wr.set<DataLabel &, const char *>(*this, _DataLabelType[value].text, buf, bufSize, 1, FPSTR(__func__)); }

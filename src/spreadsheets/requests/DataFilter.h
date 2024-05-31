@@ -18,7 +18,7 @@ namespace GSHEET
     class DeveloperMetadataLookup : public BaseG6
     {
     public:
-        DeveloperMetadataLookup() = default;
+        DeveloperMetadataLookup() {}
 
         // Limits the selected developer metadata to those entries which are associated with locations of the specified type. For example, when this field is specified as ROW this lookup only considers developer metadata associated on rows. If the field is left unspecified, all location types are considered. This field cannot be specified as SPREADSHEET when the locationMatchingStrategy is specified as INTERSECTING or when the metadataLocation is specified as a non-spreadsheet location: spreadsheet metadata cannot intersect any other developer metadata location. This field also must be left unspecified when the locationMatchingStrategy is specified as EXACT.
         DeveloperMetadataLookup &locationType(Metadata::DeveloperMetadataLocationType value) { return wr.set<DeveloperMetadataLookup &, const char *>(*this, _DeveloperMetadataLocationType[value].text, buf, bufSize, 1, FPSTR(__func__)); }
@@ -48,7 +48,7 @@ namespace GSHEET
     class DataFilter : public BaseG1
     {
     public:
-        DataFilter() = default;
+        DataFilter() {}
 
         // Union field filter.
         // Selects data associated with the developer metadata matching the criteria described by this DeveloperMetadataLookup.

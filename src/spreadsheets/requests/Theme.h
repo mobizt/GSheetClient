@@ -67,7 +67,7 @@ namespace GSHEET
         GSheetJSONUtil jut;
 
     public:
-        ColorStyle() = default;
+        ColorStyle() {}
 
         // Union field kind
         // RGB color. The alpha value in the Color object isn't generally supported.
@@ -85,7 +85,7 @@ namespace GSHEET
     {
 
     public:
-        ThemeColorPair() = default;
+        ThemeColorPair() {}
 
         // The type of the spreadsheet theme color.
         ThemeColorPair &colorType(ThemeColorType value) { return wr.set<ThemeColorPair &, const char *>(*this, _ThemeColorType[value].text, buf, bufSize, 1, FPSTR(__func__)); }

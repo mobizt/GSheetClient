@@ -15,7 +15,7 @@ namespace GSHEET
     class GridCoordinate : public BaseG4
     {
     public:
-        GridCoordinate() = default;
+        GridCoordinate() {}
 
         // The sheet this coordinate is on.
         GridCoordinate &sheetId(int value) { return wr.set<GridCoordinate &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

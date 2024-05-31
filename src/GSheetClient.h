@@ -41,15 +41,25 @@ using namespace gsheet;
 
 namespace gsheet
 {
-    class GSheetClient : public GSheetBase
+    class GSheetClient : public GSheetAppBase
     {
     private:
-        void configApp(GSheetAsyncClientClass &aClient, GSheetApp &app, user_auth_data &auth, core_auth_task_type task_type = core_auth_task_type_undefined)
+        void configApp(GSheetAsyncClientClass &aClient, GSheetApp &app, gsheet_user_auth_data &auth, gsheet_core_auth_task_type task_type = gsheet_core_auth_task_type_undefined)
         {
             app.aClient = &aClient;
             app.aclient_addr = reinterpret_cast<uint32_t>(&aClient);
+#if defined(GSHEET_ENABLE_JWT)
+            app.jwtProcessor()->setAppDebug(getAppDebug(app.aClient));
+#endif
 
-            app.aClient->addRemoveClientVec(reinterpret_cast<uint32_t>(&(app.cVec)), true);
+            if (app.refResult)
+            {
+                resultSetDebug(app.refResult, getAppDebug(app.aClient));
+                resultSetEvent(app.refResult, getAppEvent(app.aClient));
+                app.setRefResult(app.refResult, reinterpret_cast<uint32_t>(&(app.getRVec(app.aClient))));
+            }
+
+            app.addRemoveClientVecBase(app.aClient, reinterpret_cast<uint32_t>(&(app.cVec)), true);
             app.auth_data.user_auth.copy(auth);
 
             app.auth_data.app_token.clear();
@@ -74,13 +84,13 @@ namespace gsheet
         GSheetClient(){};
         ~GSheetClient(){};
 
-        void initializeApp(GSheetAsyncClientClass &aClient, GSheetApp &app, user_auth_data &auth)
+        void initializeApp(GSheetAsyncClientClass &aClient, GSheetApp &app, gsheet_user_auth_data &auth)
         {
             configApp(aClient, app, auth);
 
-            if (app.auth_data.user_auth.auth_type == auth_access_token)
+            if (app.auth_data.user_auth.auth_type == gsheet_auth_access_token)
             {
-                if (app.auth_data.user_auth.auth_type == auth_access_token)
+                if (app.auth_data.user_auth.auth_type == gsheet_auth_access_token)
                 {
 #if defined(GSHEET_ENABLE_ACCESS_TOKEN)
 
@@ -103,11 +113,15 @@ namespace gsheet
 #endif
                 }
             }
-            else if (app.auth_data.user_auth.auth_type == auth_sa_access_token)
+            else if (app.auth_data.user_auth.auth_type == gsheet_auth_sa_access_token)
             {
                 app.auth_data.app_token.authenticated = false;
                 uint32_t exp = app.auth_data.user_auth.sa.expire;
                 resetTimer(app, true, 0, exp);
+            }
+            else
+            {
+                app.setEventResult(nullptr, FPSTR("initialization failed"), gsheet_auth_event_error);
             }
         }
 
@@ -131,11 +145,11 @@ namespace gsheet
 
 static GSheetClient GSheet;
 
-namespace GSHEET
+namespace gsheet
 {
     template <typename T>
-    static user_auth_data &getAuth(T &auth) { return auth.get(); }
-    static void initializeApp(GSheetAsyncClientClass &aClient, GSheetApp &app, user_auth_data &auth) { GSheet.initializeApp(aClient, app, auth); }
+    static gsheet_user_auth_data &getAuth(T &auth) { return auth.get(); }
+    static void initializeApp(GSheetAsyncClientClass &aClient, GSheetApp &app, gsheet_user_auth_data &auth) { GSheet.initializeApp(aClient, app, auth); }
 }
 
 #endif

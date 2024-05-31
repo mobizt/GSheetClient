@@ -30,7 +30,7 @@ namespace GSHEET
     {
 
     public:
-        SortSpec() = default;
+        SortSpec() {}
 
         // The order data should be sorted.
         SortSpec &sortOrder(Sort::SortOrder value) { return wr.set<SortSpec &, const char *>(*this, _SortOrder[value].text, buf, bufSize, 1, FPSTR(__func__)); }

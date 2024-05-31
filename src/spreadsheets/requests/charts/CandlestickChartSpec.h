@@ -24,7 +24,7 @@ namespace GSHEET
     class CandlestickDomain : public BaseG4
     {
     public:
-        CandlestickDomain() = default;
+        CandlestickDomain() {}
 
         // The data of the CandlestickDomain.
         CandlestickDomain &data(const ChartData &value) { return wr.set<CandlestickDomain &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -40,7 +40,7 @@ namespace GSHEET
     {
 
     public:
-        CandlestickSeries() = default;
+        CandlestickSeries() {}
 
         // The data of the CandlestickSeries.
         CandlestickSeries &data(const ChartData &value) { return wr.add<CandlestickSeries &, ChartData>(*this, value, buf, FPSTR(__func__)); }
@@ -53,7 +53,7 @@ namespace GSHEET
     {
 
     public:
-        CandlestickData() = default;
+        CandlestickData() {}
 
         // The range data (vertical axis) for the low/minimum value for each candle. This is the bottom of the candle's center line.
         CandlestickData &lowSeries(const CandlestickSeries &value) { return wr.set<CandlestickData &, CandlestickSeries>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -75,7 +75,7 @@ namespace GSHEET
     {
 
     public:
-        CandlestickChartSpec() = default;
+        CandlestickChartSpec() {}
 
         // The domain data (horizontal axis) for the candlestick chart. String data will be treated as discrete labels, other data will be treated as continuous values.
         CandlestickChartSpec &domain(const CandlestickDomain &value) { return wr.set<CandlestickChartSpec &, CandlestickDomain>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

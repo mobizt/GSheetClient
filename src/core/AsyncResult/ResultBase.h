@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 18, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -22,46 +22,47 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef GSHEET_CORE_LIST_H
-#define GSHEET_CORE_LIST_H
+#ifndef GSHEET_RESULT_BASE_H_
+#define GSHEET_RESULT_BASE_H_
+
+#define GSHEET_CHUNK_SIZE 2048
+#define GSHEET_BASE64_CHUNK_SIZE 1026
+
 #include <Arduino.h>
-#include <vector>
+#include "./core/AsyncResult/AppEvent.h"
+#include "./core/AsyncResult/AppDebug.h"
+#include "./core/AsyncResult/AppData.h"
 
 namespace gsheet
 {
-    class GSheetList
+
+    class GSheetResultBase : public gsheet_app_data_t
     {
-    private:
+
     public:
-        GSheetList() {}
-        ~GSheetList() {}
+        GSheetResultBase() {}
 
-        void addRemoveList(std::vector<uint32_t> &vec, uint32_t addr, bool add)
-        {
-            for (size_t i = 0; i < vec.size(); i++)
-            {
-                if (vec[i] == addr)
-                {
-                    if (add)
-                        return;
-                    else
-                        vec.erase(vec.begin() + i);
-                }
-            }
-            if (add)
-                vec.push_back(addr);
-        }
+    protected:
 
-        bool existed(std::vector<uint32_t> &vec, uint32_t addr)
-        {
-            for (size_t i = 0; i < vec.size(); i++)
-            {
-                if (vec[i] == addr)
-                    return true;
-            }
-            return false;
-        }
+        void updateEvent(gsheet_app_event_t &app_event) { app_event.update(); }
+
+        void setEventBase(gsheet_app_event_t &app_event, int code, const String &msg) { app_event.setEvent(code, msg); }
+
+        void resetEvent(gsheet_app_event_t &app_event) { app_event.reset(); }
+
+        void updateDebug(gsheet_app_debug_t &app_debug) { app_debug.update(); }
+
+        void setDebugBase(gsheet_app_debug_t &app_debug, const String &msg) { app_debug.setDebug(msg); }
+
+        void resetDebug(gsheet_app_debug_t &app_debug) { app_debug.reset(); }
+
+        bool isDebugBase(gsheet_app_debug_t &app_debug) { return app_debug.isDebug(); }
+
+        bool isEventBase(gsheet_app_event_t &app_event) { return app_event.isEvent(); }
+
+        void clearAppData(gsheet_app_data_t &app_data) { reset(app_data); }
     };
-};
+
+}
 
 #endif

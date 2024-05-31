@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 31, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -49,7 +49,7 @@ enum gsheet_file_operating_mode
 struct gsheet_blob_writer
 {
 public:
-    gsheet_blob_writer() = default;
+    gsheet_blob_writer() {}
     void init(uint8_t *data, size_t size)
     {
         this->data = data;
@@ -176,6 +176,14 @@ class GSheetFileConfig
 {
 
 public:
+    /**
+     * File config class.
+     *
+     * @param filename The file name of file to be read and write.
+     * @param cb The GSheetFileConfigCallback function that accepts File object, file name and gsheet_file_operating_mode to be processed.
+     *
+     * The gsheet_file_operating_mode enums are included gsheet_file_mode_open_read, gsheet_file_mode_open_write, gsheet_file_mode_open_append, and gsheet_file_mode_remove.
+     */
     GSheetFileConfig(const String &filename, GSheetFileConfigCallback cb)
     {
         clear();
@@ -183,9 +191,18 @@ public:
         setCallback(cb);
         data.initialized = true;
     }
-    ~GSheetFileConfig() = default;
+    ~GSheetFileConfig() {}
+
+    /**
+     * Clear the internal data.
+     */
     void clear() { data.clear(); }
 
+    /**
+     * Set the file name.
+     *
+     * @param filename The file name of file to be read and write.
+     */
     GSheetFileConfig &setFilename(const String &filename)
     {
         if (filename.length() > 0 && filename[0] != '/')
@@ -194,12 +211,23 @@ public:
         return *this;
     }
 
+    /**
+     * Set the callback.
+     *
+     * @param cb The GSheetFileConfigCallback function that accepts File object, file name and gsheet_file_operating_mode to be processed.
+     *
+     * The gsheet_file_operating_mode enums are included gsheet_file_mode_open_read, gsheet_file_mode_open_write, gsheet_file_mode_open_append, and gsheet_file_mode_remove.
+     */
     GSheetFileConfig &setCallback(GSheetFileConfigCallback cb)
     {
         data.cb = cb;
         return *this;
     }
 
+    /**
+     * Get the reference to the internal gsheet_file_config_data.
+     * @return gsheet_file_config_data & The reference to gsheet_file_config_data.
+     */
     gsheet_file_config_data &get() { return data; }
 
 private:
@@ -225,6 +253,12 @@ class GSheetBlobConfig
 {
 
 public:
+    /**
+     * BLOB config class.
+     *
+     * @param data The pointer to the uint8_t data array.
+     * @param size The size of data in bytes.
+     */
     GSheetBlobConfig(uint8_t *data = nullptr, size_t size = 0)
     {
         clear();
@@ -237,24 +271,54 @@ public:
 
         this->data.initialized = true;
     }
-    ~GSheetBlobConfig() = default;
+    ~GSheetBlobConfig() {}
+
+    /**
+     * Clear the internal data.
+     */
     void clear() { data.clear(); }
 
+    /**
+     * Get the pointer to the internal BLOB data.
+     *
+     * @return uint8_t* The pointer to uint8_t data array.
+     */
     uint8_t *blob() const { return data.data; }
+
+    /**
+     * Get the data size.
+     *
+     * @return size_t The size of data in bytes.
+     */
     size_t size() const { return data.data_size; }
 
+    /**
+     * Get the reference to the internal gsheet_file_config_data.
+     *
+     * @return gsheet_file_config_data & The reference to the internal gsheet_file_config_data.
+     */
     gsheet_file_config_data &getData() { return data; }
 
 private:
     gsheet_file_config_data data;
 };
 
-namespace GSHEET
+namespace gsheet
 {
 
+    /**
+     * The static function to get the reference of gsheet_file_config_data from GSheetFileConfig.
+     *
+     * @return gsheet_file_config_data & The reference to the internal gsheet_file_config_data.
+     */
     template <typename T>
     static gsheet_file_config_data &getFile(T &file) { return file.get(); }
 
+    /**
+     * The static function to get the reference of gsheet_file_config_data from GSheetBlobConfig.
+     *
+     * @return gsheet_file_config_data & The reference to the internal gsheet_file_config_data.
+     */
     template <typename T>
     static gsheet_file_config_data &getBlob(T &blob) { return blob.getData(); }
 

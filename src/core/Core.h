@@ -1,7 +1,9 @@
-#ifndef CORE_H_
-#define CORE_H_
+#ifndef GSHEET_CORE_CORE_H_
+#define GSHEET_CORE_CORE_H_
 
 #include <Arduino.h>
+
+#define GSHEET_CLIENT_VERSION "0.0.1"
 
 static void gsheet_sys_idle()
 {

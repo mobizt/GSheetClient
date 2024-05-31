@@ -194,7 +194,7 @@ private:
     }
 
 public:
-    GSheetBufWriter() = default;
+    GSheetBufWriter() {}
     template <typename T1, typename T2>
     T1 add(T1 ret, bool value, String &buf, const String &name)
     {
@@ -294,7 +294,7 @@ protected:
     GSheetBufWriter wr;
 
 public:
-    BaseG1() = default;
+    BaseG1() {}
     const char *c_str() const { return buf.c_str(); }
     size_t printTo(Print &p) const { return p.print(buf.c_str()); }
     void clear() { buf.remove(0, buf.length()); }
@@ -309,7 +309,7 @@ protected:
     GSheetBufWriter wr;
 
 public:
-    BaseG2() = default;
+    BaseG2() {}
     const char *c_str() const { return buf[0].c_str(); }
     size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
     void clear() { wr.clear(buf, bufSize); }
@@ -324,7 +324,7 @@ protected:
     GSheetBufWriter wr;
 
 public:
-    BaseG4() = default;
+    BaseG4() {}
     const char *c_str() const { return buf[0].c_str(); }
     size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
     void clear() { wr.clear(buf, bufSize); }
@@ -339,7 +339,7 @@ protected:
     GSheetBufWriter wr;
 
 public:
-    BaseG6() = default;
+    BaseG6() {}
     const char *c_str() const { return buf[0].c_str(); }
     size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
     void clear() { wr.clear(buf, bufSize); }
@@ -353,7 +353,7 @@ protected:
     GSheetBufWriter wr;
 
 public:
-    BaseG8() = default;
+    BaseG8() {}
     const char *c_str() const { return buf[0].c_str(); }
     size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
     void clear() { wr.clear(buf, bufSize); }
@@ -368,7 +368,7 @@ protected:
     GSheetBufWriter wr;
 
 public:
-    BaseG12() = default;
+    BaseG12() {}
     const char *c_str() const { return buf[0].c_str(); }
     size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
     void clear() { wr.clear(buf, bufSize); }
@@ -382,25 +382,25 @@ protected:
     GSheetBufWriter wr;
 
 public:
-    BaseG16() = default;
+    BaseG16() {}
     const char *c_str() const { return buf[0].c_str(); }
     size_t printTo(Print &p) const { return p.print(buf[0].c_str()); }
     void clear() { wr.clear(buf, bufSize); }
 };
 
- class GSheetUnityRange
-    {
-    public:
-        GSheetUnityRange() = default;
+class GSheetUnityRange
+{
+public:
+    GSheetUnityRange() {}
 
-        float val(float value)
-        {
-            if (value > 1)
-                value = 1;
-            else if (value < 0)
-                value = 0;
-            return value;
-        }
-    };
+    float val(float value)
+    {
+        if (value > 1)
+            value = 1;
+        else if (value < 0)
+            value = 0;
+        return value;
+    }
+};
 
 #endif

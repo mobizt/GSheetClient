@@ -40,8 +40,8 @@ class GSheetStringUtil
 {
 
 public:
-    GSheetStringUtil() = default;
-    ~GSheetStringUtil() = default;
+    GSheetStringUtil() {}
+    ~GSheetStringUtil() {}
 
 #if defined(GSHEET_USE_STRSEP_IMPL)
     char *strsepImpl(char **stringp, const char *delim)

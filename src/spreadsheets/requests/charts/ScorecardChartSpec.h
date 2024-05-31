@@ -57,7 +57,7 @@ namespace GSHEET
     {
 
     public:
-        KeyValueFormat() = default;
+        KeyValueFormat() {}
 
         // Text formatting options for key value. The link field is not supported.
         KeyValueFormat &textFormat(const TextFormat &value) { return wr.set<KeyValueFormat &, TextFormat>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -73,7 +73,7 @@ namespace GSHEET
     {
 
     public:
-        BaselineValueFormat() = default;
+        BaselineValueFormat() {}
         // The comparison type of key value with baseline value.
         BaselineValueFormat &comparisonType(ComparisonType value) { return wr.set<BaselineValueFormat &, const char *>(*this, _ComparisonType[value].text, buf, bufSize, 1, FPSTR(__func__)); }
 
@@ -98,7 +98,7 @@ namespace GSHEET
     class ChartCustomNumberFormatOptions : public BaseG4
     {
     public:
-        ChartCustomNumberFormatOptions() = default;
+        ChartCustomNumberFormatOptions() {}
 
         // Custom prefix to be prepended to the chart attribute. This field is optional.
         ChartCustomNumberFormatOptions &prefix(const String &value) { return wr.set<ChartCustomNumberFormatOptions &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -114,7 +114,7 @@ namespace GSHEET
     {
 
     public:
-        ScorecardChartSpec() = default;
+        ScorecardChartSpec() {}
 
         // The data for scorecard key value.
         ScorecardChartSpec &keyValueData(const ChartData &value) { return wr.set<ScorecardChartSpec &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

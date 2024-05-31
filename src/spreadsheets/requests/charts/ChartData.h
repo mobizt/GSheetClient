@@ -123,11 +123,10 @@ namespace GSHEET
     {
 
     public:
-        ChartDateTimeRule() = default;
-        
+        ChartDateTimeRule() {}
+
         // The type of date-time grouping to apply.
         ChartDateTimeRule &type(ChartDateTimeRuleType value) { return wr.add<ChartDateTimeRule &, const char *>(*this, _ChartDateTimeRuleType[value].text, buf, FPSTR(__func__)); }
-        
     };
 
     /**
@@ -137,7 +136,7 @@ namespace GSHEET
     {
 
     public:
-        ChartHistogramRule() = default;
+        ChartHistogramRule() {}
 
         // The minimum value at which items are placed into buckets. Values that are less than the minimum are grouped into a single bucket. If omitted, it is determined by the minimum item value.
         ChartHistogramRule &minValue(double value) { return wr.set<ChartHistogramRule &, double>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -160,7 +159,7 @@ namespace GSHEET
         GSheetObjectWriter owriter;
 
     public:
-        ChartGroupRule() = default;
+        ChartGroupRule() {}
 
         // Union field rule
         // A ChartDateTimeRule.
@@ -178,7 +177,7 @@ namespace GSHEET
     {
 
     public:
-        ChartSourceRange() = default;
+        ChartSourceRange() {}
 
         // This value represents the item to add to an array.
         // The ranges of data for a series or domain. Exactly one dimension must have a length of 1, and all sources in the list must have the same dimension with length 1. The domain (if it exists) & all series must have the same number of source ranges. If using more than one source range, then the source range at a given offset must be in order and contiguous across the domain and series.
@@ -192,7 +191,7 @@ namespace GSHEET
     {
 
     public:
-        ChartData() = default;
+        ChartData() {}
 
         // The rule to group the data by if the ChartData backs the domain of a data source chart. Only supported for data source charts.
         ChartData &groupRule(const ChartGroupRule &value) { return wr.set<ChartData &, ChartGroupRule>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

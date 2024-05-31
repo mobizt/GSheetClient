@@ -45,7 +45,7 @@ namespace GSHEET
     {
 
     public:
-        TextFormatRun() = default;
+        TextFormatRun() {}
 
         // The zero-based character index where this run starts, in UTF-16 code units.
         TextFormatRun &startIndex(int value) { return wr.set<TextFormatRun &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -61,7 +61,7 @@ namespace GSHEET
     {
 
     public:
-        DataValidationRule() = default;
+        DataValidationRule() {}
 
         // The condition that data in the cell must match.
         DataValidationRule &condition(const BooleanCondition value) { return wr.set<DataValidationRule &, BooleanCondition>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -83,7 +83,7 @@ namespace GSHEET
     {
 
     public:
-        CellData() = default;
+        CellData() {}
 
         // The value the user entered in the cell. e.g., 1234, 'Hello', or =NOW() Note: Dates, Times and DateTimes are represented as doubles in serial number format.
         CellData &userEnteredValue(const ExtendedValue &value) { return wr.set<CellData &, ExtendedValue>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

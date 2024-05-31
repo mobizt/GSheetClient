@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -71,6 +71,7 @@ namespace gsheet
     class GSheetJWTClass
     {
         friend class GSheetApp;
+        friend class GSheetClient;
 
     private:
         GSheetMemory mem;
@@ -83,6 +84,7 @@ namespace gsheet
         GSheetTimer err_timer;
         auth_data_t *auth_data = nullptr;
         bool processing = false;
+        gsheet_app_debug_t *app_debug = nullptr;
 
         bool exit(bool ret)
         {
@@ -96,14 +98,22 @@ namespace gsheet
 
         bool begin(auth_data_t *auth_data);
         bool create();
-        void sendErrCB(GSheetAsyncResultCallback cb, GSheetAsyncResult *aResult= nullptr);
+        void sendErrCB(GSheetAsyncResultCallback cb, GSheetAsyncResult *aResult = nullptr);
+        void sendErrResult(GSheetAsyncResult *refResult);
+        void setAppDebug(gsheet_app_debug_t *app_debug);
+        const char *token();
+        bool ready();
+        void clear();
 
     public:
         GSheetJWTClass();
         ~GSheetJWTClass();
-        const char *token();
-        bool ready();
-        void clear();
+
+        /**
+         * Process the JWT token generation and returns the status.
+         *
+         * @return boolean of JWT processor result.
+         */
         bool loop(auth_data_t *auth_data);
     };
 

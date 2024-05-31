@@ -32,7 +32,7 @@ namespace GSHEET
     {
 
     public:
-        LineStyle() = default;
+        LineStyle() {}
 
         // The thickness of the line, in px.
         LineStyle &width(int value) { return wr.set<LineStyle &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

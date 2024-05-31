@@ -78,7 +78,7 @@ namespace GSHEET
     {
 
     public:
-        ConditionValue() = default;
+        ConditionValue() {}
 
         // Union field value
         //  A relative date (based on the current date). Valid only if the type is DATE_BEFORE, DATE_AFTER, DATE_ON_OR_BEFORE or DATE_ON_OR_AFTER.
@@ -97,7 +97,7 @@ namespace GSHEET
     {
     private:
     public:
-        BooleanCondition() = default;
+        BooleanCondition() {}
 
         // The type of condition.
         BooleanCondition &type(ConditionType value) { return wr.set<BooleanCondition &, const char *>(*this, _ConditionType[value].text, buf, bufSize, 1, FPSTR(__func__)); }

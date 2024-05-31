@@ -58,14 +58,14 @@ public:
         this->service_url = url;
     }
 
-    void setApp(uint32_t app_addr, app_token_t *app_token, uint32_t avec_addr)
+    void setApp(uint32_t app_addr, gsheet_app_token_t *app_token, uint32_t avec_addr)
     {
         this->app_addr = app_addr;
         this->app_token = app_token;
         this->avec_addr = avec_addr; // GSheetAsyncClient vector (list) address
     }
 
-    app_token_t *appToken()
+    gsheet_app_token_t *appToken()
     {
         if (avec_addr > 0)
         {
@@ -149,6 +149,7 @@ public:
      */
     void get(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, GSHEET::GetOptions options, GSheetAsyncResult &aResult)
     {
+        
     }
 
     /** Delete spreadsheets from Google Drive.
@@ -187,7 +188,7 @@ protected:
     uint32_t app_addr = 0, avec_addr = 0;
     String path;
     String uid;
-    app_token_t *app_token = nullptr;
+    gsheet_app_token_t *app_token = nullptr;
 
     struct async_request_data_t
     {

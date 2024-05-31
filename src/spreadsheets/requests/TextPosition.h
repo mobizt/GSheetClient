@@ -42,7 +42,7 @@ namespace GSHEET
     class TextPosition : public BaseG1
     {
     public:
-        TextPosition() = default;
+        TextPosition() {}
 
         // Horizontal alignment setting for the piece of text.
         TextPosition &horizontalAlignment(TextAlignment::HorizontalAlign value) { return wr.add<TextPosition &, const char *>(*this, TextAlignment::_HorizontalAlign[value].text, buf, FPSTR(__func__)); }

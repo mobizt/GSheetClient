@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -29,6 +29,10 @@
 #include "./core/List.h"
 #include "./core/Timer.h"
 #include "./core/StringUtil.h"
+#include "./core/AsyncResult/AppEvent.h"
+#include "./core/AsyncResult/AppDebug.h"
+#include "./core/AsyncResult/ResultBase.h"
+#include "./core/AsyncResult/AppData.h"
 
 #define GSHEET_CHUNK_SIZE 2048
 #define GSHEET_BASE64_CHUNK_SIZE 1026
@@ -48,75 +52,63 @@ namespace gsheet_ares_ns
     };
 }
 
-namespace gsheet
-{
-    struct app_event_t
-    {
-
-    private:
-        String ev_msg;
-        int ev_code = 0;
-
-    public:
-        String message() { return ev_msg; }
-        int code() { return ev_code; }
-        void setEvent(int code, const String &msg)
-        {
-            ev_code = code;
-            ev_msg = msg;
-        }
-    };
-}
-
-class GSheetAsyncResult
+class GSheetAsyncResult : public GSheetResultBase
 {
     friend class GSheetAsyncClientClass;
-    friend class GSheetApp;
+    friend class GSheetAppBase;
     friend class gsheet_async_data_item_t;
 
 private:
     uint32_t addr = 0;
     uint32_t rvec_addr = 0;
     String val[gsheet_ares_ns::max_type];
-    bool debug_info_available = false;
-    uint32_t debug_ms = 0, last_debug_ms = 0;
 
     void setPayload(const String &data)
     {
         if (data.length())
         {
-            data_available = true;
+            app_data.setData();
             val[gsheet_ares_ns::data_payload] = data;
         }
     }
 
-public:
-    bool data_available = false, error_available = false;
-    app_event_t app_event;
-    GSheetError lastError;
-
-    void setDebug(const String &debug)
+    void updateData()
     {
-        // Keeping old message in case unread.
-        debug_ms = millis();
-        if (debug_info_available && val[gsheet_ares_ns::debug_info].length() < 200)
-        {
-            if (val[gsheet_ares_ns::debug_info].indexOf(debug) == -1)
-            {
-                val[gsheet_ares_ns::debug_info] += " >> ";
-                val[gsheet_ares_ns::debug_info] += debug;
-            }
-        }
-        else
-            val[gsheet_ares_ns::debug_info] = debug;
-        if (debug.length())
-            debug_info_available = true;
+        app_data.update();
     }
 
+    void setDebug(const String &msg)
+    {
+        if (app_debug)
+            setDebugBase(*app_debug, msg);
+    }
+
+    void setUID(const String &uid = "")
+    {
+        if (uid.length())
+            val[gsheet_ares_ns::res_uid] = uid;
+        else
+        {
+            val[gsheet_ares_ns::res_uid] = FPSTR("task_");
+            val[gsheet_ares_ns::res_uid] += String(millis());
+        }
+    }
+
+    gsheet_app_debug_t *app_debug = nullptr;
+    gsheet_app_event_t *app_event = nullptr;
+
+    // This required by appEvent() that returns the reference to the app_event object which is not yet initialized.
+    gsheet_app_event_t ev;
+    GSheetError lastError;
+    gsheet_app_data_t app_data;
+
+public:
     GSheetAsyncResult()
     {
         addr = reinterpret_cast<uint32_t>(this);
+        setUID();
     };
+
     ~GSheetAsyncResult()
     {
         if (rvec_addr > 0)
@@ -130,56 +122,126 @@ public:
             }
         }
     };
+
+    /**
+     * Get the pointer to the internal response payload string buffer.
+     *
+     * @return const char * The pointer to internal response payload string.
+     */
     const char *c_str() { return val[gsheet_ares_ns::data_payload].c_str(); }
+
+    /**
+     * Get the copy of server response payload string.
+     *
+     * @return String The copy of payload string.
+     */
     String payload() const { return val[gsheet_ares_ns::data_payload].c_str(); }
+
+    /**
+     * Get the path of the resource of the request.
+     *
+     * @return String The path of the resource of the request.
+     */
+    String path() const { return val[gsheet_ares_ns::data_path].c_str(); }
+
+    /**
+     * Get the unique identifier of async task.
+     *
+     * @return String The UID of async task.
+     */
     String uid() const { return val[gsheet_ares_ns::res_uid].c_str(); }
+
+    /**
+     * Get the debug information.
+     *
+     * @return String The debug information.
+     */
     String debug()
     {
-        last_debug_ms = millis();
-        return val[gsheet_ares_ns::debug_info].c_str();
+        if (app_debug)
+            return app_debug->message();
+        return "";
     }
+
+    /**
+     * Clear the async result.
+     */
     void clear()
     {
         for (size_t i = 0; i < gsheet_ares_ns::max_type; i++)
             val[i].remove(0, val[i].length());
-        debug_info_available = false;
-        lastError.setLastError(0, "");
-        app_event.setEvent(0, "");
-        data_available = false;
+
+        lastError.reset();
+
+        if (app_debug)
+            resetDebug(*app_debug);
+
+        if (app_event)
+            resetEvent(*app_event);
+
+        app_data.reset();
     }
 
+    /**
+     * Get the number of bytes of available response payload.
+     * @return int The number of bytes available.
+     */
     int available()
     {
-        bool ret = data_available;
-        data_available = false;
-        return ret ? val[gsheet_ares_ns::data_payload].length() : 0;
+        if (app_data.isData())
+            return val[gsheet_ares_ns::data_payload].length();
+        return 0;
     }
 
-    app_event_t appEvent() const { return app_event; }
-
-    bool isError()
+    /**
+     * Get the reference of internal app event information.
+     *
+     * @return app_event_t The reference of internal app event.
+     */
+    gsheet_app_event_t &appEvent()
     {
-        bool err = lastError.code() != 0 && lastError.code() != GSHEET_ERROR_HTTP_CODE_OK;
-        if (error_available)
-        {
-            error_available = false;
-            return err;
-        }
-        return false;
+        if (app_event)
+            return *app_event;
+        return ev;
     }
 
+    /**
+     * Check if the error occurred in async task.
+     *
+     * @return bool Returns true if error occurred.
+     */
+    bool isError() { return lastError.isError() && lastError.code() != 0 && lastError.code() != GSHEET_ERROR_HTTP_CODE_OK; }
+
+    /**
+     * Check if the debug information in available.
+     *
+     * @return bool Returns true if debug information in available.
+     */
     bool isDebug()
     {
-        bool dbg = val[gsheet_ares_ns::debug_info].length() > 0;
-        if (debug_info_available && last_debug_ms < debug_ms && debug_ms > 0)
-        {
-            debug_info_available = false;
-            return dbg;
-        }
+        if (app_debug)
+            return isDebugBase(*app_debug);
         return false;
     }
 
-    GSheetError error() const { return lastError; }
+    /**
+     * Check if the app event information in available.
+     *
+     * @return bool Returns true if app event information in available.
+     */
+    bool isEvent()
+    {
+        if (app_event)
+            return isEventBase(*app_event);
+        return false;
+    }
+
+    /**
+     * Get the reference of internal GSheetError object.
+     *
+     * @return GSheetError The internal GSheetError object.
+     */
+    GSheetError &error() { return lastError; }
 };
 
 typedef void (*GSheetAsyncResultCallback)(GSheetAsyncResult &aResult);

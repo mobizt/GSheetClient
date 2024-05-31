@@ -52,7 +52,7 @@ namespace GSHEET
     class ChartAxisViewWindowOptions : public BaseG4
     {
     public:
-        ChartAxisViewWindowOptions() = default;
+        ChartAxisViewWindowOptions() {}
 
         // The minimum numeric value to be shown in this view window. If unset, will automatically determine a minimum value that looks good for the data.
         ChartAxisViewWindowOptions &viewWindowMin(double value) { return wr.set<ChartAxisViewWindowOptions &, double>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -71,7 +71,7 @@ namespace GSHEET
     {
 
     public:
-        BasicChartAxis() = default;
+        BasicChartAxis() {}
 
         // The position of this axis.
         BasicChartAxis &position(Basic::BasicChartAxisPosition value) { return wr.set<BasicChartAxis &, const char *>(*this, _BasicChartAxisPosition[value].text, buf, bufSize, 1, FPSTR(__func__)); }
@@ -96,7 +96,7 @@ namespace GSHEET
     {
 
     public:
-        BasicChartDomain() = default;
+        BasicChartDomain() {}
 
         // The data of the domain. For example, if charting stock prices over time, this is the data representing the dates.
         BasicChartDomain &domain(const ChartData &value) { return wr.set<BasicChartDomain &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -112,11 +112,11 @@ namespace GSHEET
     {
 
     public:
-        PointStyle() = default;
-        
+        PointStyle() {}
+
         // The point size. If empty, a default size is used.
         PointStyle &size(double value) { return wr.set<PointStyle &, double>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
-        
+
         // The point shape. If empty or unspecified, a default shape is used.
         PointStyle &shape(Basic::PointShape value) { return wr.set<PointStyle &, const char *>(*this, _PointShape[value].text, buf, bufSize, 2, FPSTR(__func__)); }
     };
@@ -128,14 +128,14 @@ namespace GSHEET
     {
 
     public:
-        BasicSeriesDataPointStyleOverride() = default;
-        
+        BasicSeriesDataPointStyleOverride() {}
+
         // The zero-based index of the series data point.
         BasicSeriesDataPointStyleOverride &index(int value) { return wr.set<BasicSeriesDataPointStyleOverride &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
-       
+
         // Color of the series data point. If empty, the series default is used. If color is also set, this field takes precedence.
         BasicSeriesDataPointStyleOverride &colorStyle(const ColorStyle &value) { return wr.set<BasicSeriesDataPointStyleOverride &, ColorStyle>(*this, value, buf, bufSize, 2, FPSTR(__func__)); }
-        
+
         // Point style of the series data point. Valid only if the chartType is AREA, LINE, or SCATTER. COMBO charts are also supported if the series chart type is AREA, LINE, or SCATTER. If empty, the series default is used.
         BasicSeriesDataPointStyleOverride &pointStyle(const PointStyle &value) { return wr.set<BasicSeriesDataPointStyleOverride &, PointStyle>(*this, value, buf, bufSize, 3, FPSTR(__func__)); }
     };
@@ -146,29 +146,29 @@ namespace GSHEET
     class BasicChartSeries : public BaseG12
     {
     public:
-        BasicChartSeries() = default;
-        
+        BasicChartSeries() {}
+
         // The data being visualized in this chart series.
         BasicChartSeries &series(const ChartData &value) { return wr.set<BasicChartSeries &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
-        
+
         // The minor axis that will specify the range of values for this series. For example, if charting stocks over time, the "Volume" series may want to be pinned to the right with the prices pinned to the left, because the scale of trading volume is different than the scale of prices. It is an error to specify an axis that isn't a valid minor axis for the chart's type.
         BasicChartSeries &targetAxis(Basic::BasicChartAxisPosition value) { return wr.set<BasicChartSeries &, const char *>(*this, _BasicChartAxisPosition[value].text, buf, bufSize, 2, FPSTR(__func__)); }
-        
+
         // The type of this series. Valid only if the chartType is COMBO. Different types will change the way the series is visualized. Only LINE, AREA, and COLUMN are supported.
         BasicChartSeries &type(Basic::BasicChartType value) { return wr.set<BasicChartSeries &, const char *>(*this, _BasicChartType[value].text, buf, bufSize, 3, FPSTR(__func__)); }
-        
+
         // The line style of this series. Valid only if the chartType is AREA, LINE, or SCATTER. COMBO charts are also supported if the series chart type is AREA or LINE.
         BasicChartSeries &lineStyle(const LineStyle &value) { return wr.set<BasicChartSeries &, LineStyle>(*this, value, buf, bufSize, 4, FPSTR(__func__)); }
-        
+
         // Information about the data labels for this series.
         BasicChartSeries &dataLabel(const DataLabel &value) { return wr.set<BasicChartSeries &, DataLabel>(*this, value, buf, bufSize, 5, FPSTR(__func__)); }
-        
+
         // The color for elements (such as bars, lines, and points) associated with this series. If empty, a default color is used. If color is also set, this field takes precedence.
         BasicChartSeries &colorStyle(const ColorStyle &value) { return wr.set<BasicChartSeries &, ColorStyle>(*this, value, buf, bufSize, 6, FPSTR(__func__)); }
-        
+
         // The style for points associated with this series. Valid only if the chartType is AREA, LINE, or SCATTER. COMBO charts are also supported if the series chart type is AREA, LINE, or SCATTER. If empty, a default point style is used.
         BasicChartSeries &pointStyle(const PointStyle &value) { return wr.set<BasicChartSeries &, PointStyle>(*this, value, buf, bufSize, 7, FPSTR(__func__)); }
-        
+
         // This value represents the item to add to an array.
         //  Style override settings for series data points.
         BasicChartSeries &styleOverrides(const BasicSeriesDataPointStyleOverride &value) { return wr.append<BasicChartSeries &, BasicSeriesDataPointStyleOverride>(*this, value, buf, bufSize, 8, FPSTR(__func__)); }
@@ -181,7 +181,7 @@ namespace GSHEET
     {
 
     public:
-        BasicChartSpec() = default;
+        BasicChartSpec() {}
 
         // The type of the chart.
         BasicChartSpec &chartType(Basic::BasicChartType value) { return wr.set<BasicChartSpec &, ChartData>(*this, _BasicChartType[value].text, buf, bufSize, 1, FPSTR(__func__)); }
@@ -211,14 +211,14 @@ namespace GSHEET
         BasicChartSpec &interpolateNulls(bool value) { return wr.set<BasicChartSpec &, bool>(*this, value, buf, bufSize, 8, FPSTR(__func__)); }
 
         // The stacked type for charts that support vertical stacking. Applies to Area, Bar, Column, Combo, and Stepped Area charts.
-        BasicChartSpec &stackedType(Basic::BasicChartStackedType value){ return wr.set<BasicChartSpec &, const char*>(*this, _BasicChartStackedType[value].text, buf, bufSize, 9, FPSTR(__func__)); }
+        BasicChartSpec &stackedType(Basic::BasicChartStackedType value) { return wr.set<BasicChartSpec &, const char *>(*this, _BasicChartStackedType[value].text, buf, bufSize, 9, FPSTR(__func__)); }
 
         // Gets whether all lines should be rendered smooth or straight by default. Applies to Line charts.
         BasicChartSpec &lineSmoothing(bool value) { return wr.set<BasicChartSpec &, bool>(*this, value, buf, bufSize, 10, FPSTR(__func__)); }
 
         // The behavior of tooltips and data highlighting when hovering on data and chart area.
-        BasicChartSpec &compareMode(Basic::BasicChartCompareMode value){ return wr.set<BasicChartSpec &, const char*>(*this, _BasicChartCompareMode[value].text, buf, bufSize, 11, FPSTR(__func__)); }
-        
+        BasicChartSpec &compareMode(Basic::BasicChartCompareMode value) { return wr.set<BasicChartSpec &, const char *>(*this, _BasicChartCompareMode[value].text, buf, bufSize, 11, FPSTR(__func__)); }
+
         // Controls whether to display additional data labels on stacked charts which sum the total value of all stacked values at each value along the domain axis. These data labels can only be set when chartType is one of AREA, BAR, COLUMN, COMBO or STEPPED_AREA and stackedType is either STACKED or PERCENT_STACKED. In addition, for COMBO, this will only be supported if there is only one type of stackable series type or one type has more series than the others and each of the other types have no more than one series. For example, if a chart has two stacked bar series and one area series, the total data labels will be supported. If it has three bar series and two area series, total data labels are not allowed. Neither CUSTOM nor placement can be set on the totalDataLabel.
         BasicChartSpec &totalDataLabel(const DataLabel &value) { return wr.set<BasicChartSpec &, DataLabel>(*this, value, buf, bufSize, 12, FPSTR(__func__)); }
     };

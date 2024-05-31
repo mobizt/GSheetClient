@@ -30,7 +30,7 @@ namespace GSHEET
     {
 
     public:
-        HistogramSeries() = default;
+        HistogramSeries() {}
 
         // The color of the column representing this series in each bucket. This field is optional. If barColor is also set, this field takes precedence.
         HistogramSeries &barColorStyle(const ColorStyle &value) { return wr.set<HistogramSeries &, ColorStyle>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -45,7 +45,7 @@ namespace GSHEET
     class HistogramChartSpec : public BaseG6
     {
     public:
-        HistogramChartSpec() = default;
+        HistogramChartSpec() {}
 
         // This value represents the item to add to an array.
         // The series for a histogram may be either a single series of values to be bucketed or multiple series, each of the same length, containing the name of the series followed by the values to be bucketed for that series.

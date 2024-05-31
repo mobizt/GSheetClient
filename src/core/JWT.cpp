@@ -1,5 +1,5 @@
 /**
- * Created March 26, 2024
+ * Created May 30, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -72,15 +72,16 @@ void GSheetJWTClass::clear()
     payload.remove(0, payload.length());
     if (this->auth_data)
     {
-        this->auth_data->user_auth.sa.step = jwt_step_begin;
+        this->auth_data->user_auth.sa.step = gsheet_jwt_step_begin;
         this->auth_data->user_auth.jwt_ts = 0;
+        this->auth_data->user_auth.jwt_time_debug = false;
     }
     processing = false;
 }
 
 bool GSheetJWTClass::ready()
 {
-    return this->auth_data && this->auth_data->user_auth.sa.step == jwt_step_ready;
+    return this->auth_data && this->auth_data->user_auth.sa.step == gsheet_jwt_step_ready;
 }
 bool GSheetJWTClass::loop(auth_data_t *auth_data)
 {
@@ -90,7 +91,12 @@ bool GSheetJWTClass::loop(auth_data_t *auth_data)
         if (ret)
             ret = create();
         if (!ret)
-            sendErrCB(auth_data ? auth_data->cb : NULL, nullptr);
+        {
+            if (auth_data->refResult)
+                sendErrResult(auth_data->refResult);
+            else
+                sendErrCB(auth_data ? auth_data->cb : NULL, nullptr);
+        }
         return ret;
     }
     return false;
@@ -106,8 +112,7 @@ void GSheetJWTClass::sendErrCB(GSheetAsyncResultCallback cb, GSheetAsyncResult *
             bool hasRes = aResult != nullptr;
             if (!hasRes)
                 aResult = new GSheetAsyncResult();
-            aResult->error_available = true;
-            aResult->lastError.setLastError(jwt_data.err_code, jwt_data.msg);
+            aResult->error().setLastError(jwt_data.err_code, jwt_data.msg);
             cb(*aResult);
             if (!hasRes)
             {
@@ -118,17 +123,33 @@ void GSheetJWTClass::sendErrCB(GSheetAsyncResultCallback cb, GSheetAsyncResult *
     }
 }
 
+void GSheetJWTClass::sendErrResult(GSheetAsyncResult *refResult)
+{
+    if (refResult)
+        refResult->error().setLastError(jwt_data.err_code, jwt_data.msg);
+}
+
+void GSheetJWTClass::setAppDebug(gsheet_app_debug_t *app_debug)
+{
+    this->app_debug = app_debug;
+}
+
 bool GSheetJWTClass::begin(auth_data_t *auth_data)
 {
     if (processing || !auth_data)
         return false;
-    processing = true;
-    this->auth_data = auth_data;
-    this->auth_data->app_token.clear();
-    this->auth_data->user_auth.jwt_ts = millis();
-    this->auth_data->user_auth.jwt_signing = false;
-    this->auth_data->user_auth.sa.step = jwt_step_begin;
-    return create();
+
+    if (auth_data->user_auth.sa.step == gsheet_jwt_step_begin)
+    {
+        processing = true;
+        this->auth_data = auth_data;
+        this->auth_data->app_token.clear();
+        this->auth_data->user_auth.jwt_ts = millis();
+        this->auth_data->user_auth.sa.step = gsheet_jwt_step_create_jwt;
+        processing = false;
+    }
+
+    return true;
 }
 
 bool GSheetJWTClass::create()
@@ -139,12 +160,21 @@ bool GSheetJWTClass::create()
     if (!auth_data)
         return exit(false);
 
-    if (auth_data->user_auth.sa.step == jwt_step_begin)
+    if (auth_data->user_auth.sa.step == gsheet_jwt_step_create_jwt)
     {
 
         uint32_t now = 0;
         if (auth_data->user_auth.timestatus_cb)
+        {
+
+            if (app_debug && !auth_data->user_auth.jwt_time_debug)
+            {
+                auth_data->user_auth.jwt_time_debug = true;
+                app_debug->setDebug(FPSTR("Getting current time..."));
+                return exit(false);
+            }
             auth_data->user_auth.timestatus_cb(now);
+        }
 
         if (now < GSHEET_DEFAULT_TS)
         {
@@ -167,7 +197,7 @@ bool GSheetJWTClass::create()
         json.addObject(payload, "sub", auth_data->user_auth.sa.val[gsheet_sa_ns::cm], true);
 
         String t = FPSTR("https://");
-        if (auth_data->user_auth.auth_type == auth_sa_access_token)
+        if (auth_data->user_auth.auth_type == gsheet_auth_sa_access_token)
         {
             jwt_add_gapis_host(t, "oauth2");
             t += FPSTR("/token");
@@ -178,7 +208,7 @@ bool GSheetJWTClass::create()
         json.addObject(payload, "iat", String(now), false);
         json.addObject(payload, "exp", String((int)(now + 3600)), false);
 
-        if (auth_data->user_auth.auth_type == auth_sa_access_token)
+        if (auth_data->user_auth.auth_type == gsheet_auth_sa_access_token)
         {
             String buri;
             String host;
@@ -225,13 +255,14 @@ bool GSheetJWTClass::create()
         br_sha256_out(&mc, jwt_data.hash);
         jwt_data.token += '.';
 
-        auth_data->user_auth.sa.step = jwt_step_sign;
+        auth_data->user_auth.sa.step = gsheet_jwt_step_sign;
     }
-    else if (auth_data->user_auth.sa.step == jwt_step_sign)
+    else if (auth_data->user_auth.sa.step == gsheet_jwt_step_sign)
     {
         // RSA private key
         PrivateKey *pk = nullptr;
         gsheet_sys_idle();
+        
         // parse priv key
         if (jwt_data.pk.length() > 0)
             pk = new PrivateKey(jwt_data.pk.c_str());
@@ -244,7 +275,7 @@ bool GSheetJWTClass::create()
         {
             jwt_data.err_code = GSHEET_ERROR_TOKEN_PARSE_PK;
             jwt_data.msg = (const char *)FPSTR("JWT, private key parsing fail");
-            auth_data->user_auth.sa.step = jwt_step_error;
+            auth_data->user_auth.sa.step = gsheet_jwt_step_error;
             return exit(false);
         }
 
@@ -254,7 +285,7 @@ bool GSheetJWTClass::create()
             pk = nullptr;
             jwt_data.err_code = GSHEET_ERROR_TOKEN_PARSE_PK;
             jwt_data.msg = (const char *)FPSTR("JWT, invalid RSA private key");
-            auth_data->user_auth.sa.step = jwt_step_error;
+            auth_data->user_auth.sa.step = gsheet_jwt_step_error;
             return exit(false);
         }
 
@@ -282,14 +313,14 @@ bool GSheetJWTClass::create()
         {
             jwt_data.token += buf;
             mem.release(&buf);
-            auth_data->user_auth.sa.step = jwt_step_ready;
+            auth_data->user_auth.sa.step = gsheet_jwt_step_ready;
         }
         else
         {
             mem.release(&buf);
             jwt_data.err_code = GSHEET_ERROR_TOKEN_SIGN;
             jwt_data.msg = (const char *)FPSTR("JWT, token signing fail");
-            auth_data->user_auth.sa.step = jwt_step_error;
+            auth_data->user_auth.sa.step = gsheet_jwt_step_error;
             return exit(false);
         }
     }

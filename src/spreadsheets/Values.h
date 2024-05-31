@@ -64,6 +64,25 @@ public:
     void batchGet(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, const GSHEET::BatchGetOptions &options, GSheetAsyncResult &aResult)
     {
     }
+
+     /** Get one or more ranges of values from a spreadsheet.
+     *
+     * @param aClient The async client.
+     * @param parent The GSHEET::Parent object included spreadsheet Id in its constructor.
+     * @param options The GSHEET::BatchGetByDataFilterOpions object included dataFilters, majorDimension, valueRenderOption and dateTimeRenderOption in its constructor.
+     * The GSHEET::BatchGetByDataFilterOpions constructor parameters.
+     * - dataFilters: The data filters used to match the ranges of values to retrieve. Ranges that match any of the specified data filters are included in the response.
+     * - majorDimension: The major dimension that results should use. For example, if the spreadsheet data is: A1=1,B1=2,A2=3,B2=4, then a request that selects that range and sets majorDimension=ROWS returns [[1,2],[3,4]], whereas a request that sets majorDimension=COLUMNS returns [[1,3],[2,4]].
+     * - valueRenderOption: How values should be represented in the output. The default render option is ValueRenderOption.FORMATTED_VALUE.
+     * - dateTimeRenderOption: How dates, times, and durations should be represented in the output. This is ignored if valueRenderOption is FORMATTED_VALUE. The default dateTime render option is SERIAL_NUMBER.
+     * @param aResult The async result (GSheetAsyncResult).
+     *
+     * For ref doc go to https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchGet
+     *
+     */
+    void batchGetByDataFilter(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, const GSHEET::BatchGetByDataFilterOpions &options, GSheetAsyncResult &aResult)
+    {
+    }
 };
 
 #endif

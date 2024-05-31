@@ -17,7 +17,7 @@ namespace GSHEET
     class DataSourceFormula : public BaseG1
     {
     public:
-        DataSourceFormula() = default;
+        DataSourceFormula() {}
 
         // The ID of the data source the formula is associated with.
         DataSourceFormula &dataSourceId(const String &value) { return wr.add<DataSourceFormula &, String>(*this, value, buf, FPSTR(__func__)); }
@@ -29,7 +29,7 @@ namespace GSHEET
     class DataSourceParameter : public BaseG4
     {
     public:
-        DataSourceParameter() = default;
+        DataSourceParameter() {}
 
         // Named parameter. Must be a legitimate identifier for the DataSource that supports it. For example, BigQuery identifier.
         DataSourceParameter &name(const String &value) { return wr.set<DataSourceParameter &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -50,7 +50,7 @@ namespace GSHEET
     class Interval : public BaseG4
     {
     public:
-        Interval() = default;
+        Interval() {}
 
         // Optional. Inclusive start of the interval.
         // If specified, a Timestamp matching this interval will have to be the same or after the start.
@@ -67,7 +67,7 @@ namespace GSHEET
     class BigQueryQuerySpec : public BaseG1
     {
     public:
-        BigQueryQuerySpec() = default;
+        BigQueryQuerySpec() {}
 
         // The raw query string.
         BigQueryQuerySpec &rawQuery(const String &value) { return wr.add<BigQueryQuerySpec &, String>(*this, value, buf, FPSTR(__func__)); }
@@ -79,7 +79,7 @@ namespace GSHEET
     class BigQueryTableSpec : public BaseG4
     {
     public:
-        BigQueryTableSpec() = default;
+        BigQueryTableSpec() {}
 
         // The ID of a BigQuery project the table belongs to. If not specified, the projectId is assumed.
         BigQueryTableSpec &tableProjectId(const String &value) { return wr.set<BigQueryTableSpec &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -97,7 +97,7 @@ namespace GSHEET
     class BigQueryDataSourceSpec : public BaseG4
     {
     public:
-        BigQueryDataSourceSpec() = default;
+        BigQueryDataSourceSpec() {}
 
         // The ID of a BigQuery enabled Google Cloud project with a billing account attached. For any queries executed against the data source, the project is charged.
         BigQueryDataSourceSpec &projectId(const String &value) { return wr.set<BigQueryDataSourceSpec &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -117,7 +117,7 @@ namespace GSHEET
     class DataSourceSpec : public BaseG4
     {
     public:
-        DataSourceSpec() = default;
+        DataSourceSpec() {}
 
         // This value represents the item to add to an array.
         // The parameters of the data source, used when querying the data source.
@@ -133,7 +133,7 @@ namespace GSHEET
     class DataSourceColumnReference : public BaseG1
     {
     public:
-        DataSourceColumnReference() = default;
+        DataSourceColumnReference() {}
 
         // The display name of the column. It should be unique within a data source.
         DataSourceColumnReference &name(const String &value) { return wr.add<DataSourceColumnReference &, String>(*this, value, buf, FPSTR(__func__)); }
@@ -146,7 +146,7 @@ namespace GSHEET
     {
 
     public:
-        DataSourceColumn() = default;
+        DataSourceColumn() {}
 
         // The column reference.
         DataSourceColumn &reference(const DataSourceColumnReference &value) { return wr.set<DataSourceColumn &, DataSourceColumnReference>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -161,7 +161,7 @@ namespace GSHEET
     class DataSource : public BaseG6
     {
     public:
-        DataSource() = default;
+        DataSource() {}
 
         // The spreadsheet-scoped unique ID that identifies the data source. Example: 1080547365.
         DataSource &dataSourceId(const String &value) { return wr.set<DataSource &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

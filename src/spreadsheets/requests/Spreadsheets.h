@@ -19,7 +19,7 @@ namespace GSHEET
     {
 
     public:
-        IterativeCalculationSettings() = default;
+        IterativeCalculationSettings() {}
 
         // When iterative calculation is enabled, the maximum number of calculation rounds to perform.
         IterativeCalculationSettings &maxIterations(int value) { return wr.set<IterativeCalculationSettings &, int>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -35,7 +35,7 @@ namespace GSHEET
     {
 
     public:
-        SpreadsheetTheme() = default;
+        SpreadsheetTheme() {}
 
         // Name of the primary font family.
         SpreadsheetTheme &primaryFontFamily(const String &value) { return wr.set<SpreadsheetTheme &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -52,7 +52,7 @@ namespace GSHEET
     {
 
     public:
-        SpreadsheetProperties() = default;
+        SpreadsheetProperties() {}
 
         // The title of the spreadsheet.
         SpreadsheetProperties &title(const String &value) { return wr.set<SpreadsheetProperties &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -84,7 +84,7 @@ namespace GSHEET
     {
 
     public:
-        Spreadsheet() = default;
+        Spreadsheet() {}
 
         // Overall properties of a spreadsheet.
         Spreadsheet &properties(const SpreadsheetProperties &value) { return wr.set<Spreadsheet &, SpreadsheetProperties>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

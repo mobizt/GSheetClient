@@ -28,7 +28,7 @@ namespace GSHEET
     {
 
     public:
-        TreemapChartColorScale() = default;
+        TreemapChartColorScale() {}
 
         // The background color for cells with a color value less than or equal to minValue. Defaults to #dc3912 if not specified. If minValueColor is also set, this field takes precedence.
         TreemapChartColorScale &minValueColorStyle(const ColorStyle &value) { return wr.set<TreemapChartColorScale &, ColorStyle>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -50,7 +50,7 @@ namespace GSHEET
     {
 
     public:
-        TreemapChartSpec() = default;
+        TreemapChartSpec() {}
 
         // The data that contains the treemap cell labels.
         TreemapChartSpec &labels(const ChartData &value) { return wr.set<TreemapChartSpec &, ChartData>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }

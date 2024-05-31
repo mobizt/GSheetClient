@@ -29,7 +29,7 @@ namespace GSHEET
     class FilterCriteria : public BaseG6
     {
     public:
-        FilterCriteria() = default;
+        FilterCriteria() {}
 
         // Values that should be hidden.
         FilterCriteria &hiddenValues(const String &value) { return wr.set<FilterCriteria &, String>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
@@ -51,7 +51,7 @@ namespace GSHEET
     {
 
     public:
-        FilterSpec() = default;
+        FilterSpec() {}
 
         // The criteria for the column.
         FilterSpec &filterCriteria(const FilterCriteria &value) { return wr.set<FilterSpec &, FilterCriteria>(*this, value, buf, bufSize, 1, FPSTR(__func__)); }
