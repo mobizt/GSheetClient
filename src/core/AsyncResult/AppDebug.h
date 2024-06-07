@@ -1,5 +1,5 @@
 /**
- * Created May 30, 2024
+ * Created June 5, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -87,7 +87,12 @@ namespace gsheet
             available = true;
         }
 
-        void reset() { dbgVec.clear(); }
+        void reset()
+        {
+            dbgVec.clear();
+            available = false;
+            last.remove(0, last.length());
+        }
 
         bool remaining() { return dbgVec.size() && !dbgVec[0].read && dbgVec[0].msg.length(); }
 

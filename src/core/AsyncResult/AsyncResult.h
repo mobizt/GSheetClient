@@ -102,6 +102,8 @@ private:
     GSheetError lastError;
     gsheet_app_data_t app_data;
 
+    uint32_t conn_ms = 0;
+
 public:
     GSheetAsyncResult()
     {

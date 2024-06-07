@@ -978,6 +978,11 @@ private:
         sData->aResult.lastError.clearError();
         lastErr.clearError();
 
+        if (sData->auth_used && (millis() - sData->aResult.conn_ms < GSHEET_RECONNECTION_TIMEOUT_MSEC) && sData->aResult.conn_ms > 0)
+            return gsheet_function_return_type_continue;
+
+        resetDebug(app_debug);
+
         if (client && !client->connected() && !sData->auth_used) // This info is already show in auth task
             setDebugBase(app_debug, FPSTR("Connecting to server..."));
 

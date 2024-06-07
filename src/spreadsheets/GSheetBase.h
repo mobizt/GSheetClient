@@ -33,26 +33,6 @@
 class GSheetBase
 {
 private:
-public:
-    std::vector<uint32_t> cVec; // GSheetAsyncClient vector
-
-    ~GSheetBase(){};
-
-    GSheetBase(const String &url = "")
-    {
-        this->service_url = url;
-    };
-
-    GSheetBase &operator=(GSheetBase &rhs)
-    {
-        this->service_url = rhs.service_url;
-        return *this;
-    }
-
-    /**
-     * Set the Firestore URL
-     * @param url The Firestore URL.
-     */
     void url(const String &url)
     {
         this->service_url = url;
@@ -75,6 +55,32 @@ public:
                 return vec.existed(*cVec, app_addr) ? app_token : nullptr;
         }
         return nullptr;
+    }
+
+public:
+    std::vector<uint32_t> cVec; // GSheetAsyncClient vector
+
+    ~GSheetBase(){};
+
+    GSheetBase(const String &url = "")
+    {
+        this->service_url = url;
+    };
+
+    GSheetBase &operator=(GSheetBase &rhs)
+    {
+        this->service_url = rhs.service_url;
+        return *this;
+    }
+
+    /**
+     * Unbind or remove the GSheetApp
+     */
+    void resetApp()
+    {
+        this->app_addr = 0;
+        this->app_token = nullptr;
+        this->avec_addr = 0; // GSheetAsyncClient vector (list) address
     }
 
     /**
@@ -111,7 +117,6 @@ public:
      */
     void batchUpdate(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, const GSHEET::BatchUpdateOptions &options, GSheetAsyncResult &aResult)
     {
-       
     }
 
     /** Creates a spreadsheet, returning the newly created spreadsheet.
@@ -128,7 +133,6 @@ public:
      */
     void create(GSheetAsyncClientClass &aClient, const GSHEET::Spreadsheet &spreadsheet, const String &sharedUserEmail, GSheetAsyncResult &aResult)
     {
-        
     }
 
     /** Returns the spreadsheet at the given ID. The caller must specify the spreadsheet ID.
@@ -149,7 +153,6 @@ public:
      */
     void get(GSheetAsyncClientClass &aClient, const GSHEET::Parent &parent, GSHEET::GetOptions options, GSheetAsyncResult &aResult)
     {
-        
     }
 
     /** Delete spreadsheets from Google Drive.

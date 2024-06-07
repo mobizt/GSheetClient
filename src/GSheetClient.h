@@ -26,12 +26,6 @@
 #ifndef GSHEET_CLIENT_H
 #define GSHEET_CLIENT_H
 
-#if defined(GSHEET_CLIENT_VERSION)
-#undef GSHEET_CLIENT_VERSION
-#endif
-
-#define GSHEET_CLIENT_VERSION "0.0.1"
-
 #include <Arduino.h>
 #include "./core/GSheetApp.h"
 #include "./core/AsyncClient/AsyncClient.h"
@@ -46,6 +40,7 @@ namespace gsheet
     private:
         void configApp(GSheetAsyncClientClass &aClient, GSheetApp &app, gsheet_user_auth_data &auth, gsheet_core_auth_task_type task_type = gsheet_core_auth_task_type_undefined)
         {
+            app.deinit = false;
             app.aClient = &aClient;
             app.aclient_addr = reinterpret_cast<uint32_t>(&aClient);
 #if defined(GSHEET_ENABLE_JWT)
@@ -125,6 +120,8 @@ namespace gsheet
             }
         }
 
+        void deinitializeApp(GSheetApp &app) { app.deinit = true; }
+
         void printf(const char *format, ...)
         {
             int size = 2048;
@@ -147,9 +144,64 @@ static GSheetClient GSheet;
 
 namespace gsheet
 {
+
+    /**
+     * Get the user authentication/autorization credentials data.
+     *
+     * @param auth The user auth data (user_auth_data) which is the struct that holds the user sign-in credentials and tokens that obtained from the authentication/authorization classes via getAuth function.
+     * @return user_auth_data.
+     *
+     */
     template <typename T>
     static gsheet_user_auth_data &getAuth(T &auth) { return auth.get(); }
+
+    /**
+     * Initialize the GSheetApp.
+     *
+     * @param aClient  The async client to work for authentication/authorization task.
+     * @param app The GSheetApp class object to handle authentication/authorization task.
+     * @param auth The user auth data (gsheet_user_auth_data) which is the struct that holds the user sign-in credentials and tokens that obtained from the authentication/authorization classes via getAuth function.
+     *
+     */
     static void initializeApp(GSheetAsyncClientClass &aClient, GSheetApp &app, gsheet_user_auth_data &auth) { GSheet.initializeApp(aClient, app, auth); }
+
+    /**
+     * Initialize the GSheetApp without callback.
+     *
+     * @param aClient  The async client to work for authentication/authorization task.
+     * @param app The GSheetApp class object to handle authentication/authorization task.
+     * @param auth The user auth data (user_auth_data) which is the struct that holds the user sign-in credentials and tokens that obtained from the authentication/authorization classes via getAuth function.
+     * @param aResult The async result (GSheetAsyncResult).
+     */
+    static void initializeApp(GSheetAsyncClientClass &aClient, GSheetApp &app, gsheet_user_auth_data &auth, GSheetAsyncResult &aResult)
+    {
+        app.setAsyncResult(aResult);
+        GSheet.initializeApp(aClient, app, auth);
+    }
+
+    /**
+     * Initialize the GSheetApp with callback.
+     *
+     * @param aClient  The async client to work for authentication/authorization task.
+     * @param app The GSheetApp class object to handle authentication/authorization task.
+     * @param auth The user auth data (gsheet_user_auth_data) which is the struct that holds the user sign-in credentials and tokens that obtained from the authentication/authorization classes via getAuth function.
+     * @param cb The async result callback (GSheetAsyncResultCallback).
+     * @param uid The user specified UID of async result (optional).
+     */
+    static void initializeApp(GSheetAsyncClientClass &aClient, GSheetApp &app, gsheet_user_auth_data &auth, GSheetAsyncResultCallback cb, const String &uid = "")
+    {
+        app.setUID(uid);
+        app.setCallback(cb);
+        GSheet.initializeApp(aClient, app, auth);
+    }
+
+    /**
+     * Deinitialize the GSheetApp.
+     *
+     * @param app The GSheetApp class object to handle authentication/authorization task.
+     */
+    static void deinitializeApp(GSheetApp &app) { GSheet.deinitializeApp(app); }
+
 }
 
 #endif

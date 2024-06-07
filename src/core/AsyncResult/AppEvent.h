@@ -1,5 +1,5 @@
 /**
- * Created May 30, 2024
+ * Created June 5, 2024
  *
  * The MIT License (MIT)
  * Copyright (c) 2024 K. Suwatchai (Mobizt)
@@ -72,7 +72,7 @@ namespace gsheet
 
         void setEvent(int code, const String &msg)
         {
-            
+
             if (code == 0 || last == code)
                 return;
 
@@ -88,7 +88,12 @@ namespace gsheet
             available = true;
         }
 
-        void reset() { evntVec.clear(); }
+        void reset()
+        {
+            evntVec.clear();
+            available = false;
+            last = 0;
+        }
 
         bool remaining() { return evntVec.size() && !evntVec[0].read; }
 

@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
+#if defined(GSHEET_CLIENT_VERSION)
+#undef GSHEET_CLIENT_VERSION
+#endif
+
 #define GSHEET_CLIENT_VERSION "0.0.1"
 
 static void gsheet_sys_idle()

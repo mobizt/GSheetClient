@@ -58,6 +58,7 @@ namespace gsheet
         GSheetAsyncResult *refResult = nullptr;
         uint32_t ref_result_addr = 0;
         GSheetTimer req_timer, auth_timer, err_timer, app_ready_timer;
+        bool deinit = false;
         GSheetList vec;
         bool processing = false;
         uint32_t expire = GSHEET_DEFAULT_TOKEN_TTL;
@@ -360,6 +361,18 @@ namespace gsheet
             if (!getClient())
                 return false;
 
+            // Deinitialize
+            if (deinit && auth_data.user_auth.status._event == gsheet_auth_event_uninitialized)
+            {
+                if (auth_data.user_auth.initialized)
+                {
+                    stop(aClient);
+                    deinitializeApp();
+                    auth_timer.stop();
+                }
+                return false;
+            }
+
             updateDebug(*getAppDebug(aClient));
             updateEvent(*getAppEvent(aClient));
 
@@ -536,6 +549,12 @@ namespace gsheet
                 return false;
 
             return true;
+        }
+
+        void deinitializeApp()
+        {
+            auth_data.app_token.clear();
+            auth_data.user_auth.clear();
         }
 
 #if defined(GSHEET_ENABLE_JWT)
